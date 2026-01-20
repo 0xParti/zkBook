@@ -1,0 +1,378 @@
+# Chapter 4: Multilinear Extensions
+
+How do you turn data into a polynomial?
+
+This question is more subtle than it first appears. Data is discrete: a list of values, a vector of field elements, the output of gates in a circuit. Polynomials are continuous mathematical objects defined over all of $\mathbb{F}^n$. Bridging this gap is the art of **extension**: taking a function defined on a finite set and stretching it to a polynomial defined everywhere.
+
+The choice of extension matters enormously. A bad extension creates polynomials of exponential degree, destroying efficiency. A good extension preserves structure, enables fast algorithms, and makes random evaluation meaningful.
+
+This chapter develops the theory of **multilinear extensions**: the canonical way to extend functions from the Boolean hypercube $\{0,1\}^n$ to polynomials over $\mathbb{F}^n$. These extensions are the workhorses of sum-check-based proof systems, encoding everything from circuit wire values to constraint satisfaction.
+
+
+
+## The Boolean Hypercube
+
+Consider the set $\{0,1\}^n$, all $n$-bit binary strings. This is the **Boolean hypercube**, and it contains exactly $2^n$ points.
+
+```
+n = 2:
+    (1,1)
+     /  \
+ (0,1)  (1,0)
+     \  /
+    (0,0)
+
+n = 3: A cube with 8 vertices
+```
+
+Any function $f: \{0,1\}^n \to \mathbb{F}$ assigns a field element to each vertex of this hypercube. There are $2^n$ vertices, so $f$ is essentially a table of $2^n$ values.
+
+**Examples**:
+
+- A vector $(v_1, \ldots, v_{2^n})$ can be viewed as $f(b) = v_{1 + \text{bin}(b)}$ where $\text{bin}(b)$ converts the bit string to an index
+
+- The output values of a layer of circuit gates
+
+- A database of $2^n$ records indexed by $n$-bit keys
+
+The hypercube is our *discrete* domain. We want a polynomial that agrees with $f$ on this domain but is defined everywhere.
+
+
+
+## Why Multilinear?
+
+A polynomial in $n$ variables has terms like $X_1^{a_1} X_2^{a_2} \cdots X_n^{a_n}$ with various exponents. The **degree** in variable $X_i$ is the maximum exponent of $X_i$ across all terms.
+
+A polynomial is **multilinear** if its degree in every variable is at most 1. Every term looks like a product of distinct variables (or subsets thereof):
+
+$$\tilde{f}(X_1, \ldots, X_n) = \sum_{S \subseteq \{1,\ldots,n\}} c_S \prod_{i \in S} X_i$$
+
+For example, with $n = 2$:
+$$\tilde{f}(X_1, X_2) = c_\emptyset + c_{\{1\}} X_1 + c_{\{2\}} X_2 + c_{\{1,2\}} X_1 X_2$$
+
+There are $2^n$ possible subsets $S$, hence $2^n$ coefficients. A multilinear polynomial in $n$ variables is fully specified by $2^n$ numbers, exactly matching the number of points in the hypercube.
+
+This is not a coincidence. It's the key theorem:
+
+**Theorem (Multilinear Extension).** For any function $f: \{0,1\}^n \to \mathbb{F}$, there exists a unique multilinear polynomial $\tilde{f}: \mathbb{F}^n \to \mathbb{F}$ such that $\tilde{f}(b) = f(b)$ for all $b \in \{0,1\}^n$.
+
+The function $\tilde{f}$ is called the **multilinear extension (MLE)** of $f$.
+
+
+
+## Constructing the Multilinear Extension
+
+The theorem claims uniqueness. How do we actually construct $\tilde{f}$?
+
+### The Lagrange Basis
+
+For each point $w \in \{0,1\}^n$, define the **Lagrange basis polynomial**:
+
+$$L_w(X) = \prod_{i=1}^{n} \left( w_i \cdot X_i + (1 - w_i)(1 - X_i) \right)$$
+
+This polynomial has a beautiful property: it equals 1 at $w$ and 0 at every other hypercube point.
+
+**Why?** At point $w$:
+
+- If $w_i = 1$: the factor is $1 \cdot X_i + 0 \cdot (1 - X_i) = X_i$, which evaluates to $1$
+
+- If $w_i = 0$: the factor is $0 \cdot X_i + 1 \cdot (1 - X_i) = 1 - X_i$, which evaluates to $1$
+
+Every factor equals 1, so $L_w(w) = 1$.
+
+At any other point $b \neq w$:
+
+- There exists some coordinate $i$ where $b_i \neq w_i$
+
+- If $w_i = 1$ and $b_i = 0$: the factor $X_i$ evaluates to $0$
+
+- If $w_i = 0$ and $b_i = 1$: the factor $1 - X_i$ evaluates to $0$
+
+One factor is zero, so $L_w(b) = 0$.
+
+### The Extension Formula
+
+The multilinear extension is now simply:
+
+$$\tilde{f}(X) = \sum_{w \in \{0,1\}^n} f(w) \cdot L_w(X)$$
+
+At any hypercube point $b$:
+$$\tilde{f}(b) = \sum_w f(w) \cdot L_w(b) = f(b) \cdot 1 + \sum_{w \neq b} f(w) \cdot 0 = f(b)$$
+
+The extension agrees with $f$ on the hypercube. Since it's a sum of multilinear terms (each $L_w$ is multilinear), $\tilde{f}$ is multilinear.
+
+### Uniqueness
+
+If two multilinear polynomials agree on $\{0,1\}^n$, their difference is a multilinear polynomial that vanishes on all $2^n$ hypercube points. But a nonzero multilinear polynomial in $n$ variables has degree 1 in each variable; by Schwartz-Zippel, it can vanish on at most $1/|\mathbb{F}|$ fraction of points per variable. Over the hypercube, this means it can vanish on at most half the points in each direction, unless it's identically zero.
+
+More directly: there are $2^n$ coefficients in a multilinear polynomial, and $2^n$ constraints (values at hypercube points). The system is determined. The unique solution is the MLE.
+
+
+
+## The Equality Polynomial
+
+One Lagrange basis polynomial deserves special attention: the **equality polynomial**.
+
+$$\widetilde{\text{eq}}(X, Y) = \prod_{i=1}^{n} \left( X_i Y_i + (1 - X_i)(1 - Y_i) \right)$$
+
+This is the MLE of the equality function:
+$$\text{eq}(a, b) = \begin{cases} 1 & \text{if } a = b \\ 0 & \text{otherwise} \end{cases}$$
+
+for $a, b \in \{0,1\}^n$.
+
+The Lagrange basis polynomials are just the equality polynomial with one input fixed:
+$$L_w(X) = \widetilde{\text{eq}}(w, X)$$
+
+**Why does this matter?** The equality polynomial appears constantly in sum-check-based protocols. When we want to "select" a specific hypercube point using randomness, we evaluate $\widetilde{\text{eq}}(r, \cdot)$ at that point. Random $r \in \mathbb{F}^n$ gives a function that's negligibly small everywhere except near the hypercube points: a probabilistic selection mechanism.
+
+
+
+## Worked Example: A 2-Variable Function
+
+Let's trace through a complete example.
+
+**The function**: $f: \{0,1\}^2 \to \mathbb{F}$ defined by the table:
+
+| $(X_1, X_2)$ | $f(X_1, X_2)$ |
+|--------------|---------------|
+| $(0, 0)$     | $3$           |
+| $(0, 1)$     | $7$           |
+| $(1, 0)$     | $2$           |
+| $(1, 1)$     | $5$           |
+
+**The Lagrange basis polynomials**:
+
+$$L_{(0,0)}(X) = (1 - X_1)(1 - X_2)$$
+$$L_{(0,1)}(X) = (1 - X_1) \cdot X_2$$
+$$L_{(1,0)}(X) = X_1 \cdot (1 - X_2)$$
+$$L_{(1,1)}(X) = X_1 \cdot X_2$$
+
+**The multilinear extension**:
+
+$$\tilde{f}(X_1, X_2) = 3 \cdot (1-X_1)(1-X_2) + 7 \cdot (1-X_1)X_2 + 2 \cdot X_1(1-X_2) + 5 \cdot X_1 X_2$$
+
+Expanding:
+
+$$= 3(1 - X_1 - X_2 + X_1 X_2) + 7(X_2 - X_1 X_2) + 2(X_1 - X_1 X_2) + 5 X_1 X_2$$
+$$= 3 - 3X_1 - 3X_2 + 3X_1X_2 + 7X_2 - 7X_1X_2 + 2X_1 - 2X_1X_2 + 5X_1X_2$$
+$$= 3 + (-3 + 2)X_1 + (-3 + 7)X_2 + (3 - 7 - 2 + 5)X_1X_2$$
+$$= 3 - X_1 + 4X_2 - X_1X_2$$
+
+**Verification**: Check that this matches the table:
+
+- $\tilde{f}(0,0) = 3 - 0 + 0 - 0 = 3$ (matches)
+
+- $\tilde{f}(0,1) = 3 - 0 + 4 - 0 = 7$ (matches)
+
+- $\tilde{f}(1,0) = 3 - 1 + 0 - 0 = 2$ (matches)
+
+- $\tilde{f}(1,1) = 3 - 1 + 4 - 1 = 5$ (matches)
+
+**Evaluation at a random point**: What is $\tilde{f}(0.5, 0.3)$?
+$$\tilde{f}(0.5, 0.3) = 3 - 0.5 + 4(0.3) - (0.5)(0.3) = 3 - 0.5 + 1.2 - 0.15 = 3.55$$
+
+This value has no "meaning" on the hypercube; $(0.5, 0.3)$ isn't a Boolean point. But this is exactly what we want: the polynomial is defined everywhere, and random evaluation is the key to probabilistic verification.
+
+
+
+## Efficient Evaluation
+
+Given the table of values $\{f(w) : w \in \{0,1\}^n\}$ and a query point $r \in \mathbb{F}^n$, how fast can we compute $\tilde{f}(r)$?
+
+**Naive approach**: Sum over all $2^n$ terms:
+$$\tilde{f}(r) = \sum_{w \in \{0,1\}^n} f(w) \cdot L_w(r)$$
+
+Each $L_w(r)$ takes $O(n)$ to compute. Total: $O(n \cdot 2^n)$.
+
+**Better: Streaming evaluation**. We can compute $\tilde{f}(r)$ in $O(2^n)$ time with the following observation.
+
+Define $T_k$ as the "partial extension" using only the first $k$ variables of $r$:
+
+$$T_k(x_{k+1}, \ldots, x_n) = \sum_{(b_1, \ldots, b_k) \in \{0,1\}^k} f(b_1, \ldots, b_k, x_{k+1}, \ldots, x_n) \cdot \prod_{i=1}^{k} L_{b_i}(r_i)$$
+
+At $k = 0$: $T_0 = f$ (the original table).
+
+At $k = n$: $T_n = \tilde{f}(r)$ (a single value).
+
+The recursion from $T_k$ to $T_{k+1}$:
+
+$$T_{k+1}(x_{k+2}, \ldots, x_n) = (1 - r_{k+1}) \cdot T_k(0, x_{k+2}, \ldots) + r_{k+1} \cdot T_k(1, x_{k+2}, \ldots)$$
+
+Each step halves the table size. Total work: $2^n + 2^{n-1} + \cdots + 1 = O(2^n)$.
+
+This is linear in the table size, optimal for any algorithm that must touch all values.
+
+### Worked Example: Streaming Evaluation
+
+Let's trace through this algorithm with our earlier function $f: \{0,1\}^2 \to \mathbb{F}$:
+
+| $(b_1, b_2)$ | $f(b_1, b_2)$ |
+|--------------|---------------|
+| $(0, 0)$     | $3$           |
+| $(0, 1)$     | $7$           |
+| $(1, 0)$     | $2$           |
+| $(1, 1)$     | $5$           |
+
+We want to compute $\tilde{f}(r_1, r_2)$ at the point $r = (0.4, 0.7)$.
+
+**Step 0: Initialize $T_0$**
+
+$T_0$ is just the original table, a function of both variables:
+$$T_0(x_1, x_2) = f(x_1, x_2)$$
+
+Think of it as four values indexed by $(x_1, x_2) \in \{0,1\}^2$:
+$$T_0 = \begin{array}{c|cc} & x_2=0 & x_2=1 \\ \hline x_1=0 & 3 & 7 \\ x_1=1 & 2 & 5 \end{array}$$
+
+**Step 1: Compute $T_1$ by "folding in" $r_1 = 0.4$**
+
+The recursion says:
+$$T_1(x_2) = (1 - r_1) \cdot T_0(0, x_2) + r_1 \cdot T_0(1, x_2)$$
+
+This is a weighted combination of the two rows, using $1 - r_1 = 0.6$ and $r_1 = 0.4$:
+
+- $T_1(0) = 0.6 \cdot T_0(0,0) + 0.4 \cdot T_0(1,0) = 0.6 \cdot 3 + 0.4 \cdot 2 = 1.8 + 0.8 = 2.6$
+
+- $T_1(1) = 0.6 \cdot T_0(0,1) + 0.4 \cdot T_0(1,1) = 0.6 \cdot 7 + 0.4 \cdot 5 = 4.2 + 2.0 = 6.2$
+
+The table has shrunk from 4 values to 2 values: $T_1 = [2.6, 6.2]$.
+
+**Step 2: Compute $T_2$ by "folding in" $r_2 = 0.7$**
+
+$$T_2 = (1 - r_2) \cdot T_1(0) + r_2 \cdot T_1(1) = 0.3 \cdot 2.6 + 0.7 \cdot 6.2 = 0.78 + 4.34 = 5.12$$
+
+The table has shrunk from 2 values to 1 value. This single value is $\tilde{f}(0.4, 0.7) = 5.12$.
+
+**Verification**: Using the explicit formula $\tilde{f}(X_1, X_2) = 3 - X_1 + 4X_2 - X_1X_2$:
+$$\tilde{f}(0.4, 0.7) = 3 - 0.4 + 4(0.7) - (0.4)(0.7) = 3 - 0.4 + 2.8 - 0.28 = 5.12 \checkmark$$
+
+**Why does this work?** The key insight is that the Lagrange basis factorizes:
+$$L_{(b_1, b_2)}(r_1, r_2) = L_{b_1}(r_1) \cdot L_{b_2}(r_2)$$
+
+where $L_0(r) = 1 - r$ and $L_1(r) = r$. So when we compute the weighted sum in Step 1, we're effectively "absorbing" the $L_{b_1}(r_1)$ factor from each term. What remains is a smaller sum over just $b_2$, which we handle in Step 2.
+
+This pattern, using a random challenge to collapse pairs of values and halving the problem size, will reappear throughout this book. In Chapter 10 (FRI), we'll name it **folding** and see it as one of the central techniques in zero-knowledge proofs.
+
+
+
+## Tensor Product Structure
+
+The Lagrange basis has a beautiful factorization that underlies many fast algorithms.
+
+For $w = (w_1, \ldots, w_n) \in \{0,1\}^n$:
+
+$$L_w(r_1, \ldots, r_n) = \prod_{i=1}^{n} L_{w_i}(r_i)$$
+
+where $L_0(r_i) = 1 - r_i$ and $L_1(r_i) = r_i$.
+
+This is a **tensor product**: the $n$-variable basis factorizes into a product of $n$ one-variable bases.
+
+**Consequence**: The vector of all $2^n$ Lagrange evaluations $(L_w(r))_{w \in \{0,1\}^n}$ is the tensor product:
+
+$$(L_0(r_1), L_1(r_1)) \otimes (L_0(r_2), L_1(r_2)) \otimes \cdots \otimes (L_0(r_n), L_1(r_n))$$
+
+Computing this tensor product directly takes $O(2^n)$ operations. The structure enables:
+
+- Fast evaluation via the streaming algorithm above
+
+- Efficient prover algorithms for sum-check (Chapter 19)
+
+- Recursive proof constructions
+
+
+
+## Multilinear Extensions of Functions on Larger Domains
+
+What if our function isn't defined on $\{0,1\}^n$?
+
+Suppose $f: \{0, 1, \ldots, m-1\} \to \mathbb{F}$ for some $m = 2^n$. We can *interpret* the domain as $\{0,1\}^n$ via binary encoding:
+
+$$\tilde{f}(X_1, \ldots, X_n) = \text{MLE of } (k \mapsto f(k)) \text{ with } k = \sum_i 2^{i-1} X_i$$
+
+Any function on a power-of-two domain has a natural multilinear extension.
+
+For domains not of size $2^n$, we can pad with zeros or use more sophisticated encodings. The key insight: as long as the domain is *finite*, we can always encode it in binary and take the MLE.
+
+
+
+## Connection to Sum-Check
+
+The sum-check protocol (Chapter 3) proves claims of the form:
+
+$$H = \sum_{b \in \{0,1\}^n} g(b)$$
+
+for some polynomial $g$. When $g$ is the multilinear extension of a function, this sum is just... the sum of all function values.
+
+**Example**: Prove that a vector $(v_1, \ldots, v_N)$ with $N = 2^n$ sums to a claimed value $H$.
+
+Let $\tilde{v}$ be the MLE encoding the vector. Then:
+$$\sum_{b \in \{0,1\}^n} \tilde{v}(b) = \sum_{i=1}^{N} v_i = H$$
+
+Sum-check verifies this identity without the verifier seeing all of $v$. The protocol reduces the sum to a single random evaluation $\tilde{v}(r)$, which the prover supplies (with a commitment proof).
+
+This is the bridge from "data" to "proof": encode data as an MLE, verify properties via sum-check, bind via polynomial commitment.
+
+
+
+## The Golden Link: Evaluations = Coordinates
+
+Here's a perspective that clarifies many constructions.
+
+A multilinear polynomial $\tilde{f}$ has $2^n$ coefficients. These coefficients live in an abstract "coefficient space."
+
+But $\tilde{f}$ also has $2^n$ evaluations on the hypercube. These evaluations are just $f(w)$, the original table values.
+
+**The key insight**: For multilinear polynomials, the evaluation table *is* a complete description. You can recover coefficients from evaluations and vice versa. They're just two bases for the same $2^n$-dimensional vector space.
+
+The transformation between bases is exactly the Lagrange interpolation formula and its inverse. Both can be computed in $O(2^n)$ time.
+
+This means:
+
+- Committing to a multilinear polynomial = committing to its evaluation table
+
+- Evaluating at a random point = a linear combination of table entries
+
+- Sum-check over an MLE = reasoning about the table entries
+
+The polynomial structure enables *random access* to compressed representations of the table. That's the source of succinctness.
+
+### Polynomial Evaluation as Inner Product
+
+There's a beautiful way to see this algebraically: **polynomial evaluation is an inner product**.
+
+For a multilinear polynomial, the evaluation at any point $r$ is:
+
+$$\tilde{f}(r) = \sum_{w \in \{0,1\}^n} f(w) \cdot L_w(r) = \langle \vec{f}, \vec{L}(r) \rangle$$
+
+where $\vec{f} = (f(w))_{w \in \{0,1\}^n}$ is the table of values and $\vec{L}(r) = (L_w(r))_{w \in \{0,1\}^n}$ is the vector of Lagrange basis evaluations at $r$.
+
+This perspective is surprisingly powerful:
+
+- **Commitment**: Committing to $\tilde{f}$ means committing to the vector $\vec{f}$
+- **Evaluation proof**: Proving $\tilde{f}(r) = y$ means proving an inner product claim $\langle \vec{f}, \vec{L}(r) \rangle = y$
+- **The verifier knows $\vec{L}(r)$**: Given $r$, anyone can compute the Lagrange evaluations
+
+This reduces polynomial evaluation proofs to inner product proofs, and inner products interact beautifully with homomorphic commitments. We'll exploit this connection in Chapters 6 and 9.
+
+
+
+## Key Takeaways
+
+1. **The Boolean hypercube** $\{0,1\}^n$ is the natural domain for multilinear polynomials. It has $2^n$ points.
+
+2. **Multilinear extension (MLE)**: The unique polynomial of degree at most 1 in each variable that agrees with $f$ on the hypercube.
+
+3. **Lagrange basis polynomials** $L_w(X)$ equal 1 at $w$ and 0 elsewhere. The MLE is $\tilde{f}(X) = \sum_w f(w) \cdot L_w(X)$.
+
+4. **The equality polynomial** $\widetilde{\text{eq}}(X, Y)$ is the MLE of the equality indicator. Lagrange bases are $L_w(X) = \widetilde{\text{eq}}(w, X)$.
+
+5. **Tensor product structure**: $L_w(r) = \prod_i L_{w_i}(r_i)$. The basis factorizes, enabling fast algorithms.
+
+6. **Efficient evaluation**: Given the table and a point, compute the MLE in $O(2^n)$ time via streaming.
+
+7. **Sum over the hypercube**: $\sum_b \tilde{f}(b) = \sum_w f(w)$. Sum-check verifies such sums efficiently.
+
+8. **Evaluations = coefficients**: For MLEs, the table of values completely determines the polynomial. They're dual representations.
+
+9. **Binary encoding**: Any function on $\{0, \ldots, 2^n - 1\}$ can be encoded as a function on $\{0,1\}^n$, then extended multilinearly.
+
+10. **The bridge to proofs**: MLEs encode data; sum-check verifies properties; polynomial commitment binds the prover. This trinity underlies sum-check-based SNARKs.
