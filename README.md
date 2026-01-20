@@ -1,0 +1,53 @@
+<p align="center">
+  <img src="images/cover/zkBookCover.png" alt="zkBook Cover" width="400">
+</p>
+
+<h1 align="center">Minimizing Trust, Maximizing Truth</h1>
+<p align="center"><em>The Architecture of Verifiable Secrets</em></p>
+<p align="center">by <strong>particle</strong></p>
+
+---
+
+## About
+
+A comprehensive guide to Zero-Knowledge Proofs, covering:
+- Foundations: polynomials, sum-check protocol, multilinear extensions
+- Core protocols: GKR, polynomial commitments, FRI
+- SNARK systems: Groth16, PLONK, STARKs
+- Zero-knowledge techniques and optimizations
+- Advanced topics: recursion, composition, practical considerations
+
+## Read the Book
+
+- **PDF**: [Download zkBook.pdf](zkBook.pdf)
+- **Online**: Coming soon (GitHub Pages)
+
+## Building from Source
+
+### PDF Version
+
+```bash
+cd pandoc
+pandoc zkBookFull_compilation.md --template=eisvogel -o zkBook.pdf --pdf-engine=xelatex
+```
+
+Requires: [Pandoc](https://pandoc.org/), [Eisvogel template](https://github.com/Wandmalfarbe/pandoc-latex-template), XeLaTeX
+
+### Web Version
+
+```bash
+cd web
+mdbook serve --open
+```
+
+Requires: [mdBook](https://rust-lang.github.io/mdBook/)
+
+## Repository Structure
+
+```
+zkBook/
+├── images/cover/     # Cover images
+├── pandoc/           # PDF compilation source
+├── web/              # mdBook web version
+└── zkBook.pdf        # Pre-built PDF
+```
