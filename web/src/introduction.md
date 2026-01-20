@@ -23,11 +23,9 @@ This book takes you from foundational concepts to cutting-edge constructions:
 ## Prerequisites
 
 This book assumes familiarity with:
-- Basic algebra and modular arithmetic
-- Fundamental programming concepts
-- Elementary probability
-
-No prior knowledge of cryptography is required.
+- Finite field algebra
+- Elliptic curve cryptography
+- Basic concepts of cryptography
 
 ---
 
