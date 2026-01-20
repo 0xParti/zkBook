@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/frontLandscape.png" alt="zkBook Cover">
+</p>
+
 # Minimizing Trust, Maximizing Truth
 
 *The Architecture of Verifiable Secrets*
@@ -30,3 +34,7 @@ This book assumes familiarity with:
 ---
 
 *Let's begin by understanding why we need zero-knowledge proofs in the first place.*
+
+<p align="center">
+  <img src="images/backLandscape.png" alt="zkBook Back Cover">
+</p>
