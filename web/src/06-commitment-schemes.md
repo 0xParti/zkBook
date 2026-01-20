@@ -1,0 +1,364 @@
+# Chapter 6: Commitment Schemes: Cryptographic Binding
+
+Imagine a game. I write down a number, seal it in an envelope, and hand you the sealed envelope. Later, after you've made some decisions based on knowing I'm committed to *something*, I open the envelope and reveal the number.
+
+This simple ritual, commit first, reveal later, is one of the oldest ideas in cryptography. Children play it when they choose rock-paper-scissors by committing to their choice before revealing. Auctions use it when bidders submit sealed bids. The envelope enforces two properties: I can't change my mind after sealing (binding), and you can't peek before opening (hiding).
+
+But how do you build a digital envelope? Bits can be copied. There's no physical seal to break. This is where mathematics enters, and where the story of commitment schemes begins.
+
+You've designed a protocol. The prover claims a polynomial evaluates to some value, and you, the verifier, want to check this with just a few random queries. There's one problem: the prover sends their response *after* seeing your challenge. What stops them from constructing a fake polynomial that happens to pass your spot-checks?
+
+This is the **binding problem**. In an interactive proof, the verifier's randomness is meant to catch a cheating prover off-guard. But if the prover can choose their answers *after* seeing the challenge, they can simply tailor their responses to pass. The polynomial identity testing that underlies our protocols becomes meaningless.
+
+We need a mechanism that forces the prover to fix their polynomial before the verification begins: a cryptographic primitive that makes changing one's mind computationally infeasible.
+
+
+
+## The Trust Problem Revisited
+
+Consider the sum-check protocol from Chapter 3. The verifier sends random challenges $r_1, r_2, \ldots$, and the prover responds with univariate polynomials. At the end, the verifier must check that some claimed evaluation matches the actual polynomial. But how does the verifier know the prover didn't just fabricate a polynomial that happens to satisfy the final check?
+
+The issue is subtle. Our soundness proofs assumed the prover is committed to *some* polynomial before the interaction begins. But in a raw interactive protocol, nothing enforces this. A dishonest prover could:
+
+1. Wait to see all the verifier's challenges
+2. Work backwards to construct a polynomial that passes
+3. Claim they had this polynomial all along
+
+This attack doesn't violate the *information-theoretic* soundness of the protocol; it violates the *execution model*. We assumed a sequential game where the prover moves first; in reality, we need cryptography to enforce this ordering.
+
+
+
+## The Commitment Paradigm
+
+A **commitment scheme** solves this problem through a two-phase protocol:
+
+**Phase 1 (Commit)**: The prover publishes a *commitment*, a short, seemingly random string that binds them to a value without revealing it.
+
+**Phase 2 (Reveal)**: Later, the prover can open the commitment by revealing the original value. Anyone can verify that the revealed value matches the original commitment.
+
+**Formal Properties**:
+
+- **Binding**: Once committed, the committer cannot open to a different value. More precisely, no efficient adversary can find two different values that produce the same commitment.
+
+- **Hiding**: The commitment reveals nothing about the committed value. An observer cannot distinguish between commitments to different values.
+
+These properties exist in tension. Perfect binding means each value maps to a unique commitment, but then the commitment might leak information about the value. Perfect hiding means commitments are statistically indistinguishable, but then multiple values might share commitments. Cryptographic schemes typically achieve one property perfectly and the other computationally.
+
+
+
+## Pedersen Commitments: The Discrete Log Approach
+
+The most elegant commitment scheme comes from a surprising source: the hardness of computing discrete logarithms in cyclic groups.
+
+**Setup**: Let $G$ be a cyclic group of prime order $q$ (think of an elliptic curve group). Select two generators $g$ and $h$ such that *nobody knows* the discrete logarithm $\log_g h$. The public parameters are $(G, q, g, h)$.
+
+**Commit**: To commit to a value $m \in \mathbb{Z}_q$, the committer:
+
+1. Chooses a random *blinding factor* $r \leftarrow \mathbb{Z}_q$
+2. Computes the commitment $C = g^m \cdot h^r$
+
+**Reveal**: To open, the committer reveals $(m, r)$. The verifier checks that $g^m \cdot h^r = C$.
+
+The scheme uses multiplicative notation, but on elliptic curves (the dominant implementation), we write $C = m \cdot G + r \cdot H$ using additive notation.
+
+### Why Binding Holds
+
+Suppose Alice commits $C = g^m h^r$ and later wants to open it as a *different* value $m' \neq m$. She needs to find $r'$ such that:
+$$g^m h^r = g^{m'} h^{r'}$$
+
+Rearranging:
+$$g^{m - m'} = h^{r' - r}$$
+
+This means:
+$$\log_g h = \frac{m - m'}{r' - r}$$
+
+But computing $\log_g h$ is the discrete logarithm problem! If Alice could find such $(m', r')$, she could break DLog in $G$. The binding property holds computationally, as long as discrete log is hard.
+
+### Why Hiding Holds
+
+The commitment $C = g^m h^r$ is **perfectly hiding**. Here's the key insight: since $r$ is uniformly random in $\mathbb{Z}_q$, and $h$ is a generator of $G$, the term $h^r$ is uniformly distributed over all of $G$.
+
+For any message $m$, the commitment $C = g^m \cdot h^r$ is a uniformly random group element. This means:
+
+- $\text{Commitment to } m_1 \sim \text{Uniform}(G)$
+- $\text{Commitment to } m_2 \sim \text{Uniform}(G)$
+
+The two distributions are identical: not just computationally indistinguishable, but *statistically* identical. Even an unbounded adversary cannot determine the committed value from the commitment alone.
+
+### The Independence Requirement
+
+There's a critical subtlety: the generators $g$ and $h$ must be *independently chosen* such that nobody knows $\log_g h$.
+
+If Alice knows that $h = g^x$ for some $x$, she can break binding:
+$$C = g^m h^r = g^m (g^x)^r = g^{m + xr}$$
+
+She can open this as $(m', r')$ for any $m'$ by computing $r' = r + (m - m')/x$. The verification passes because:
+$$g^{m'} h^{r'} = g^{m'} g^{x(r + (m - m')/x)} = g^{m' + xr + m - m'} = g^{m + xr} = C$$
+
+In practice, $g$ and $h$ are generated using "nothing-up-my-sleeve" constructions, for instance hashing different strings to curve points, ensuring nobody could have engineered a known relationship between them.
+
+
+
+## Worked Example: Pedersen Commitment in $\mathbb{Z}_{23}^*$
+
+Let's trace through a concrete example using the multiplicative group modulo 23.
+
+**Setup**: Work in $\mathbb{Z}_{23}^*$, which has order $\phi(23) = 22$. Take generators $g = 5$ and $h = 7$. We assume nobody knows $\log_5 7$.
+
+**Commitment to $m = 10$**:
+
+- Choose random blinding factor $r = 3$
+- Compute $C = g^m \cdot h^r = 5^{10} \cdot 7^3 \pmod{23}$
+
+Computing $5^{10} \pmod{23}$:
+
+- $5^2 = 25 \equiv 2$
+- $5^4 \equiv 4$
+- $5^8 \equiv 16$
+- $5^{10} = 5^8 \cdot 5^2 \equiv 16 \cdot 2 = 32 \equiv 9$
+
+Computing $7^3 \pmod{23}$:
+
+- $7^2 = 49 \equiv 3$
+- $7^3 = 7 \cdot 3 = 21$
+
+So $C = 9 \cdot 21 = 189 \equiv 5 \pmod{23}$.
+
+**Verification**: Given $(m = 10, r = 3)$, the verifier checks:
+$$5^{10} \cdot 7^3 \equiv 9 \cdot 21 \equiv 5 \pmod{23} \; \checkmark$$
+
+The commitment opens correctly.
+
+
+
+## The Homomorphic Property
+
+Pedersen commitments have a remarkable algebraic property: they are **additively homomorphic**. You can compute on committed values without knowing what they are.
+
+Given two commitments:
+$$C_1 = g^{m_1} h^{r_1} \quad \text{and} \quad C_2 = g^{m_2} h^{r_2}$$
+
+Their product is:
+$$C_1 \cdot C_2 = g^{m_1} h^{r_1} \cdot g^{m_2} h^{r_2} = g^{m_1 + m_2} h^{r_1 + r_2}$$
+
+This is a valid commitment to $m_1 + m_2$ with blinding factor $r_1 + r_2$!
+
+**Worked Example (continuing)**:
+
+Commit to $m_2 = 4$ with $r_2 = 6$:
+$$C_2 = 5^4 \cdot 7^6 \pmod{23}$$
+
+Computing $5^4 \equiv 4$ and $7^6 = (7^3)^2 \equiv 21^2 = 441 \equiv 441 - 19 \cdot 23 = 441 - 437 = 4$.
+
+So $C_2 = 4 \cdot 4 = 16$.
+
+**Homomorphic addition**:
+$$C_3 = C_1 \cdot C_2 = 5 \cdot 16 = 80 \equiv 80 - 3 \cdot 23 = 80 - 69 = 11 \pmod{23}$$
+
+This should be a commitment to $m_1 + m_2 = 14$ with blinding factor $r_1 + r_2 = 9$.
+
+**Verification**:
+$$5^{14} \cdot 7^9 \pmod{23}$$
+
+For $5^{14} = 5^{10} \cdot 5^4 \equiv 9 \cdot 4 = 36 \equiv 13$.
+
+For $7^9 = 7^6 \cdot 7^3 \equiv 4 \cdot 21 = 84 \equiv 84 - 3 \cdot 23 = 84 - 69 = 15$.
+
+So $5^{14} \cdot 7^9 \equiv 13 \cdot 15 = 195 \equiv 195 - 8 \cdot 23 = 195 - 184 = 11 \pmod{23}$.
+
+It matches $C_3 = 11$.
+
+This property is extraordinarily useful. A verifier can combine multiple commitments, add constants, or compute linear combinations, all without learning the committed values. This enables protocols where computations happen "in the encrypted domain."
+
+
+
+## Scalar Multiplication
+
+The homomorphic property extends to scalar multiplication. For a constant $k$:
+$$(C)^k = (g^m h^r)^k = g^{km} h^{kr}$$
+
+This is a commitment to $k \cdot m$ with blinding factor $k \cdot r$. The verifier can scale committed values without opening them.
+
+
+
+## From Scalar to Vector Commitments
+
+The Pedersen scheme naturally extends from committing to a single value to committing to an entire vector. Given $n$ independent generators $G_1, \ldots, G_n$ and a blinding generator $H$, we can commit to a vector $\vec{m} = (m_1, \ldots, m_n)$:
+
+$$C = \sum_{i=1}^n m_i \cdot G_i + r \cdot H$$
+
+This **Pedersen vector commitment** is still a single group element, regardless of the vector length. The homomorphic property extends: adding two vector commitments yields a commitment to the component-wise sum.
+
+But here's where things get interesting for our purposes. Recall from Chapters 4 and 5 that a polynomial evaluation is just an inner product:
+$$f(z) = \sum_{i=0}^{n-1} c_i z^i = \langle \vec{c}, \vec{z} \rangle$$
+
+where $\vec{c} = (c_0, \ldots, c_{n-1})$ are the coefficients and $\vec{z} = (1, z, z^2, \ldots, z^{n-1})$ is the evaluation vector.
+
+If we commit to the coefficient vector using a Pedersen vector commitment, we've effectively committed to the polynomial itself. And thanks to homomorphism, the verifier can compute a commitment to any evaluation $f(z)$ without knowing the coefficients!
+
+This observation, that polynomial evaluation is inner product and inner products interact beautifully with homomorphic commitments, is the conceptual bridge from simple commitments to full polynomial commitment schemes. We'll cross that bridge in Chapter 9.
+
+
+
+## Proving Knowledge of an Opening
+
+A commitment alone proves nothing; the prover must eventually reveal the opening to be useful. But what if we want to prove something *about* the committed value without revealing it?
+
+This is where $\Sigma$-protocols (Chapter 16) enter the picture. A prover who knows the opening $(m, r)$ for a commitment $C = g^m h^r$ can convince a verifier they know this opening without revealing $m$ or $r$.
+
+The protocol follows the classic three-move structure:
+
+**Round 1 (Commit to randomness)**: The prover picks random $d, s \leftarrow \mathbb{Z}_q$ and sends $T = g^d h^s$.
+
+**Round 2 (Challenge)**: The verifier sends a random challenge $e \leftarrow \mathbb{Z}_q$.
+
+**Round 3 (Response)**: The prover computes:
+
+- $z_1 = d + e \cdot m$
+- $z_2 = s + e \cdot r$
+
+and sends $(z_1, z_2)$.
+
+**Verification**: The verifier checks:
+$$g^{z_1} h^{z_2} \stackrel{?}{=} T \cdot C^e$$
+
+**Why it works**: Expanding the right side:
+$$T \cdot C^e = (g^d h^s) \cdot (g^m h^r)^e = g^{d + em} h^{s + er} = g^{z_1} h^{z_2}$$
+
+The equation holds if the prover knows $(m, r)$.
+
+**Why it's zero-knowledge**: The values $z_1$ and $z_2$ look random because they're masked by the truly random $d$ and $s$. The verifier learns nothing about $m$ or $r$ beyond the fact that the prover knows them.
+
+**Why it's sound**: A prover who doesn't know $(m, r)$ cannot answer two different challenges $e$ and $e'$ consistently. Given two accepting transcripts with the same $T$ but different challenges, one can extract the witness; this is the "special soundness" property.
+
+
+
+## Worked Example: Proof of Knowledge
+
+Continuing our example with $g = 5$, $h = 7$ in $\mathbb{Z}_{23}^*$, suppose the prover committed $C = 5$ and claims to know the opening.
+
+**Prover's commitment**:
+
+- Choose random $d = 8$, $s = 2$
+- Compute $T = 5^8 \cdot 7^2 \pmod{23}$
+- $5^8 \equiv 16$, $7^2 = 49 \equiv 3$
+- $T = 16 \cdot 3 = 48 \equiv 2$
+
+**Verifier's challenge**: $e = 4$
+
+**Prover's response** (recall $m = 10$, $r = 3$):
+
+- $z_1 = d + e \cdot m = 8 + 4 \cdot 10 = 48 \equiv 48 \pmod{22} = 4$ (arithmetic mod group order)
+- $z_2 = s + e \cdot r = 2 + 4 \cdot 3 = 14$
+
+**Verification**:
+
+- Left side: $5^4 \cdot 7^{14} \pmod{23}$
+  - $5^4 \equiv 4$
+  - $7^{14} = 7^{11} \cdot 7^3$ (since $14 \equiv 14 \pmod{22}$)
+  - $7^{11} = 7^8 \cdot 7^3$. We have $7^2 \equiv 3$, $7^4 \equiv 9$, $7^8 \equiv 81 \equiv 81 - 3 \cdot 23 = 12$
+  - $7^{11} = 12 \cdot 21 = 252 \equiv 252 - 10 \cdot 23 = 22 \equiv -1$
+  - $7^{14} = (-1) \cdot 21 = -21 \equiv 2$
+  - Left side: $4 \cdot 2 = 8$
+
+- Right side: $T \cdot C^e = 2 \cdot 5^4 \pmod{23}$
+  - $5^4 \equiv 4$
+  - Right side: $2 \cdot 4 = 8$
+
+Both sides equal 8. The proof verifies.
+
+
+
+## Beyond Pedersen: A Landscape of Commitment Schemes
+
+Pedersen commitments are beautiful but not the only option. Different commitment schemes offer different trade-offs:
+
+**Hash-Based Commitments**: Commit as $C = H(m \| r)$ where $H$ is a cryptographic hash. Binding follows from collision resistance; hiding follows from the hash acting as a random oracle. These are simple and quantum-resistant, but they lack the homomorphic property.
+
+**Polynomial Commitments**: The heart of modern SNARKs. Instead of committing to a single value, we commit to an entire polynomial and can later prove evaluations at arbitrary points. Chapter 9 explores KZG (using pairings) and IPA (using discrete log) in depth.
+
+**ElGamal-style Commitments**: Related to encryption, where the commitment can be "decrypted" with a secret key. Useful in some multi-party protocols.
+
+Each scheme involves trade-offs between:
+
+- **Setup**: Does it require a trusted setup?
+- **Assumptions**: Discrete log? Pairings? Hashes?
+- **Efficiency**: Commitment size, proof size, computation time
+- **Properties**: Homomorphic? Additively? Multiplicatively?
+- **Quantum resistance**: Will it survive quantum computers?
+
+
+
+## Why Commitments Matter for ZK Proofs
+
+We opened this chapter with the binding problem: how do we ensure the prover doesn't cheat by choosing their polynomial after seeing the verifier's challenges?
+
+Commitment schemes provide the answer through the **commit-and-prove** paradigm:
+
+1. **Commit phase**: Before any interaction, the prover commits to their polynomial (or the witness encoding it).
+
+2. **Interaction phase**: The verifier sends challenges, the prover responds. But the prover's polynomial was fixed in step 1.
+
+3. **Opening phase**: At the end, the prover opens relevant parts of their commitment. The verifier checks consistency.
+
+The binding property ensures the prover cannot change their polynomial mid-protocol. The hiding property ensures the commitment itself doesn't leak information about the witness. Every modern SNARK (Groth16, PLONK, STARKs) follows this pattern, varying only in which commitment scheme they use (KZG for Groth16/PLONK, Merkle trees for STARKs).
+
+
+
+## The Hiding-Binding Tradeoff
+
+There's a fundamental tension in commitment schemes that deserves attention: you cannot have both *perfect* hiding and *perfect* binding simultaneously.
+
+**Perfect binding** means each commitment corresponds to exactly one value: no two distinct messages ever produce the same commitment. This is an information-theoretic guarantee: even with unlimited computation, opening to a different value is impossible.
+
+**Perfect hiding** means the commitment reveals nothing about the value: all messages produce statistically indistinguishable commitment distributions. Again, this is information-theoretic: even unbounded adversaries learn nothing.
+
+Why can't we have both? Consider what each requires:
+
+- Perfect binding needs the commitment function to be injective (one-to-one). Every value maps to a unique commitment.
+
+- Perfect hiding needs all commitments to look identical regardless of the input. The commitment must be independent of the value.
+
+These requirements conflict. If commitments are independent of values (hiding), multiple values must map to the same commitment (not binding). If every value has a unique commitment (binding), the commitment reveals which value was chosen (not hiding).
+
+**The resolution**: Relax one property to *computational* rather than *information-theoretic*:
+
+- **Computationally binding, perfectly hiding**: Hash-based commitments. Finding two values with the same hash is computationally hard, but any commitment could theoretically open to multiple values.
+
+- **Perfectly binding, computationally hiding**: Pedersen commitments with known discrete log relation. Each commitment has exactly one opening, but determining the value requires solving discrete log.
+
+This tradeoff shapes the design space. For ZK proofs, we typically want hiding (don't reveal the witness) and accept computational binding (secure against poly-time adversaries). The choice affects which hardness assumptions the scheme rests on.
+
+
+
+## Looking Ahead
+
+We've established the cryptographic primitive that makes succinct proofs possible. Commitments transform interactive protocols, where timing and ordering are honor-system, into cryptographically enforced games where cheating is computationally infeasible.
+
+In Chapter 9, we'll see how polynomial commitment schemes (KZG, IPA, and FRI) extend these ideas to commit to polynomials and prove evaluations. These are the engines that power modern SNARKs.
+
+But first, we need to understand *what* we're proving. Chapter 7 introduces the GKR protocol, which uses sum-check to verify layered arithmetic circuits. And Chapter 8 shows how arbitrary computations become circuits, which become polynomials. Together, these chapters complete the story of how a computation becomes a succinct proof.
+
+
+
+## Key Takeaways
+
+1. **The binding problem**: Interactive proofs need cryptographic enforcement to prevent provers from adapting their answers to verifier challenges.
+
+2. **Commitment = seal**: A commitment locks in a value before revealing it; binding ensures it can't change, hiding ensures it reveals nothing.
+
+3. **Pedersen commitments**: $C = g^m h^r$ achieves perfect hiding (statistically) and computational binding (from discrete log hardness).
+
+4. **Independence is critical**: The generators $g$ and $h$ must have unknown discrete log relationship, or binding fails.
+
+5. **Homomorphic magic**: Pedersen commitments allow addition in the "encrypted domain": $C_1 \cdot C_2$ commits to $m_1 + m_2$.
+
+6. **Vector commitments**: Committing to a coefficient vector effectively commits to a polynomial.
+
+7. **Proof of knowledge**: Sigma protocols let a prover demonstrate they know a commitment's opening without revealing it.
+
+8. **Commit-and-prove paradigm**: The foundation of all modern SNARKs: commit first, then prove properties of the committed values.
+
+9. **Trade-off landscape**: Different commitment schemes offer different balances of setup requirements, assumptions, efficiency, and quantum resistance.
+
+10. **Bridge to polynomial commitments**: The observation that evaluation = inner product connects scalar commitments to the polynomial commitment schemes that power SNARKs.

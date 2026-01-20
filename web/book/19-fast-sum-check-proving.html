@@ -1,0 +1,793 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Fast Sum-Check Proving - Minimizing Trust, Maximizing Truth</title>
+
+
+        <!-- Custom HTML head -->
+        <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Foundations</li><li class="chapter-item expanded "><a href="01-the-trust-problem.html"><strong aria-hidden="true">1.</strong> The Trust Problem</a></li><li class="chapter-item expanded "><a href="02-the-alchemical-power-of-polynomials.html"><strong aria-hidden="true">2.</strong> The Alchemical Power of Polynomials</a></li><li class="chapter-item expanded "><a href="03-the-sum-check-protocol.html"><strong aria-hidden="true">3.</strong> The Sum-Check Protocol</a></li><li class="chapter-item expanded "><a href="04-multilinear-extensions.html"><strong aria-hidden="true">4.</strong> Multilinear Extensions</a></li><li class="chapter-item expanded "><a href="05-univariate-polynomials-and-finite-fields.html"><strong aria-hidden="true">5.</strong> Univariate Polynomials and Finite Fields</a></li><li class="chapter-item expanded "><a href="06-commitment-schemes.html"><strong aria-hidden="true">6.</strong> Commitment Schemes</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Protocols</li><li class="chapter-item expanded "><a href="07-the-gkr-protocol.html"><strong aria-hidden="true">7.</strong> The GKR Protocol</a></li><li class="chapter-item expanded "><a href="08-from-circuits-to-polynomials.html"><strong aria-hidden="true">8.</strong> From Circuits to Polynomials</a></li><li class="chapter-item expanded "><a href="09-polynomial-commitment-schemes.html"><strong aria-hidden="true">9.</strong> Polynomial Commitment Schemes</a></li><li class="chapter-item expanded "><a href="10-hash-based-commitments-and-fri.html"><strong aria-hidden="true">10.</strong> Hash-Based Commitments and FRI</a></li><li class="chapter-item expanded affix "><li class="part-title">SNARK Construction</li><li class="chapter-item expanded "><a href="11-the-snark-recipe.html"><strong aria-hidden="true">11.</strong> The SNARK Recipe</a></li><li class="chapter-item expanded "><a href="12-groth16.html"><strong aria-hidden="true">12.</strong> Groth16</a></li><li class="chapter-item expanded "><a href="13-plonk.html"><strong aria-hidden="true">13.</strong> PLONK</a></li><li class="chapter-item expanded "><a href="14-lookup-arguments.html"><strong aria-hidden="true">14.</strong> Lookup Arguments</a></li><li class="chapter-item expanded "><a href="15-starks.html"><strong aria-hidden="true">15.</strong> STARKs</a></li><li class="chapter-item expanded affix "><li class="part-title">Zero-Knowledge</li><li class="chapter-item expanded "><a href="16-sigma-protocols.html"><strong aria-hidden="true">16.</strong> Sigma Protocols</a></li><li class="chapter-item expanded "><a href="17-the-zero-knowledge-property.html"><strong aria-hidden="true">17.</strong> The Zero-Knowledge Property</a></li><li class="chapter-item expanded "><a href="18-making-proofs-zero-knowledge.html"><strong aria-hidden="true">18.</strong> Making Proofs Zero-Knowledge</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Topics</li><li class="chapter-item expanded "><a href="19-fast-sum-check-proving.html" class="active"><strong aria-hidden="true">19.</strong> Fast Sum-Check Proving</a></li><li class="chapter-item expanded "><a href="20-minimizing-commitment-costs.html"><strong aria-hidden="true">20.</strong> Minimizing Commitment Costs</a></li><li class="chapter-item expanded "><a href="21-the-two-classes-of-piops.html"><strong aria-hidden="true">21.</strong> The Two Classes of PIOPs</a></li><li class="chapter-item expanded "><a href="22-composition-and-recursion.html"><strong aria-hidden="true">22.</strong> Composition and Recursion</a></li><li class="chapter-item expanded "><a href="23-choosing-a-snark.html"><strong aria-hidden="true">23.</strong> Choosing a SNARK</a></li><li class="chapter-item expanded affix "><li class="part-title">Broader Context</li><li class="chapter-item expanded "><a href="24-mpc-and-zk-parallel-paths.html"><strong aria-hidden="true">24.</strong> MPC and ZK Parallel Paths</a></li><li class="chapter-item expanded "><a href="25-frontiers-and-open-problems.html"><strong aria-hidden="true">25.</strong> Frontiers and Open Problems</a></li><li class="chapter-item expanded "><a href="26-zk-in-the-cryptographic-landscape.html"><strong aria-hidden="true">26.</strong> ZK in the Cryptographic Landscape</a></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="appendix-a-cryptographic-primitives.html"><strong aria-hidden="true">27.</strong> Cryptographic Primitives</a></li><li class="chapter-item expanded "><a href="appendix-b-historical-timeline.html"><strong aria-hidden="true">28.</strong> Historical Timeline</a></li><li class="chapter-item expanded "><a href="appendix-c-field-equations-cheat-sheet.html"><strong aria-hidden="true">29.</strong> Field Equations Cheat Sheet</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Minimizing Trust, Maximizing Truth</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook/edit/main/web/src/19-fast-sum-check-proving.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-19-fast-sum-check-proving"><a class="header" href="#chapter-19-fast-sum-check-proving">Chapter 19: Fast Sum-Check Proving</a></h1>
+<blockquote>
+<p><em>Most chapters in this book can be read with pencil and paper. This one assumes you've already internalized the sum-check protocol (Chapter 3) and multilinear extensions (Chapter 4), not as definitions to look up, but as tools you can wield. If those still feel foreign, consider this chapter a preview of where the road leads, and return when the foundations feel solid.</em></p>
+</blockquote>
+<p>In 1990, Lund, Fortnow, Karloff, and Nisan introduced the sum-check protocol. It achieved something that sounds impossible: verifying a sum over $2^n$ terms while the verifier performs only $O(n)$ work. Exponential compression in verification time. The foundation of succinct proofs.</p>
+<p>Then, for two decades, almost nobody used it.</p>
+<p>A naive reading of the protocol suggests the prover performs $O(n \cdot 2^n)$ operations, worse than just computing the sum directly. For $n = 30$, that's over 30 billion operations per proof. The community looked elsewhere. Groth16 and PLONK took different paths: univariate polynomials, quotient-based constraints, FFT-driven arithmetic. Sum-check remained a theoretical marvel, admired in complexity circles but dismissed as impractical.</p>
+<p>The community was wrong. With the right algorithms (algorithms that were always available but overlooked) sum-check proving runs in $O(2^n)$ time, linear in the number of terms. For sparse sums where only $T \ll 2^n$ terms are non-zero, prover time drops to $O(T)$. These are not approximations or heuristics; they're exact algorithms exploiting algebraic structure that was always present.</p>
+<p>This chapter develops those algorithms, and then shows how they enable Spartan, the SNARK that proved sum-check alone suffices for practical zero-knowledge proofs. No univariate encodings. No pairing-based trusted setup. Just multilinear polynomials, sum-check, and a commitment scheme.</p>
+<h3 id="why-this-matters-the-zkvm-motivation"><a class="header" href="#why-this-matters-the-zkvm-motivation">Why This Matters: The zkVM Motivation</a></h3>
+<p>The techniques in this chapter find their most compelling application in <em>zkVMs</em> (zero-knowledge virtual machines). A zkVM proves correct execution of arbitrary programs without requiring a new circuit for each program.</p>
+<p>The idea is simple in principle. Take an instruction set architecture like RISC-V. Write a SNARK that proves: &quot;given this program and this input, the CPU executed correctly and produced this output.&quot; The circuit encodes the CPU's transition function: fetch instruction, decode, execute, update registers and memory, repeat. Any program compiles to RISC-V; the same circuit proves them all.</p>
+<p>The scale is staggering. A modest program might execute millions of CPU cycles. Each cycle involves dozens of constraints: register reads, ALU operations, memory accesses, program counter updates. A million cycles at 50 constraints each yields 50 million constraints. And that's a <em>small</em> program.</p>
+<p>At this scale, constant factors matter. The difference between $O(n \log n)$ and $O(n)$ proving time is the difference between minutes and seconds. The difference between $5n$ and $2n$ operations is the difference between a practical system and an impractical one.</p>
+<p>This is why fast sum-check proving isn't an academic curiosity. It's the foundation that makes zkVMs possible.</p>
+<blockquote>
+<p><strong>Remark (Sum-checks compose into graphs).</strong> A zkVM doesn't run one sum-check; it runs dozens. Each sum-check ends with an evaluation claim (&quot;prove $\tilde{f}(r) = v$&quot;). If $\tilde{f}$ is committed, open it. If $\tilde{f}$ is <em>virtual</em>, defined in terms of other polynomials, another sum-check proves that evaluation, producing its own claims. The structure is a directed acyclic graph: sum-checks as nodes, claims as edges. The prover traverses this graph, and the graph's structure determines proof efficiency.</p>
+<p>Two dimensions matter. <em>Depth</em> (longest path through the graph) determines the minimum number of sequential <em>stages</em>, meaning sum-checks that depend on each other's outputs. <em>Width</em> (sum-checks at the same depth) allows <em>batching</em>, combining independent sum-checks via random linear combination into a single sum-check. A well-designed protocol minimizes depth and maximizes batching at each stage. We'll develop this perspective fully in Chapter 20; for now, just note that fast sum-check proving matters not just once, but dozens of times per proof.</p>
+</blockquote>
+<h2 id="the-provers-apparent-problem"><a class="header" href="#the-provers-apparent-problem">The Prover's Apparent Problem</a></h2>
+<p>Let's examine the naive prover cost more carefully.</p>
+<p>The sum-check protocol proves:
+$$H = \sum_{b \in {0,1}^n} g(b)$$</p>
+<p>In round $i$, the prover sends a univariate polynomial capturing the partial sum with $X_i$ left as a formal variable:</p>
+<p>$$s_i(X_i) = \sum_{(b_{i+1}, \ldots, b_n) \in {0,1}^{n-i}} g(r_1, \ldots, r_{i-1}, X_i, b_{i+1}, \ldots, b_n)$$</p>
+<p>If $g$ has individual degree $d$ in each variable, then $s_i$ has degree $d$ in $X_i$. The prover specifies $s_i$ by sending $d+1$ evaluations.</p>
+<p><strong>The apparent cost:</strong> Computing $s_i(t)$ for a single value $t$ requires summing over $2^{n-i}$ terms. Computing $s_i(0), s_i(1), \ldots, s_i(d)$ requires $(d+1) \cdot 2^{n-i}$ evaluations of $g$.</p>
+<p>Across all $n$ rounds:
+$$\sum_{i=1}^n (d+1) \cdot 2^{n-i} = (d+1)(2^{n-1} + 2^{n-2} + \cdots + 1) = (d+1)(2^n - 1)$$</p>
+<p>This is $O(d \cdot 2^n)$, linear in the table size when $d$ is constant. But the naive approach computes this by brute force, re-evaluating $g$ at the same points multiple times across rounds.</p>
+<p>The insight is that we don't need to recompute from scratch each round. The work halves with each round, and we can reuse intermediate results.</p>
+<h2 id="the-halving-trick"><a class="header" href="#the-halving-trick">The Halving Trick</a></h2>
+<p>Consider the most important case: $g(x) = \tilde{a}(x) \cdot \tilde{b}(x)$ where $\tilde{a}$ and $\tilde{b}$ are multilinear polynomials (the multilinear extensions of some tables $a$ and $b$).</p>
+<p>Since multilinear polynomials have degree at most 1 in each variable, their product has degree at most 2. So $d = 2$, and each round the prover sends three field elements: $s_i(0), s_i(1), s_i(2)$.</p>
+<h3 id="the-key-algebraic-fact"><a class="header" href="#the-key-algebraic-fact">The Key Algebraic Fact</a></h3>
+<p>For any multilinear polynomial $\tilde{a}(x_1, x_2, \ldots, x_n)$ and field element $r_1$:</p>
+<p>$$\tilde{a}(r_1, x_2, \ldots, x_n) = (1 - r_1) \cdot \tilde{a}(0, x_2, \ldots, x_n) + r_1 \cdot \tilde{a}(1, x_2, \ldots, x_n)$$</p>
+<p>This follows from the definition of multilinear: linear in each variable separately. The function $\tilde{a}(X_1, x_2, \ldots)$ is linear in $X_1$, so it's determined by its values at $X_1 = 0$ and $X_1 = 1$. (This is exactly the streaming evaluation formula from Chapter 4, where we used it to evaluate MLEs efficiently.)</p>
+<p>This fact enables <strong>folding</strong>: after receiving challenge $r_1$, we can compute the restricted polynomial $\tilde{a}(r_1, x_2, \ldots, x_n)$ from the unrestricted polynomial $\tilde{a}$ in linear time.</p>
+<h3 id="the-algorithm"><a class="header" href="#the-algorithm">The Algorithm</a></h3>
+<p>Recall from Chapter 3: in round $i$ of sum-check, the prover sends a univariate polynomial $s_i(X_i)$ representing the partial sum with $X_i$ left as a formal variable. Since $g = \tilde{a} \cdot \tilde{b}$ has degree 2 in each variable, $s_i$ is degree-2, requiring three evaluations $s_i(0), s_i(1), s_i(2)$ to specify.</p>
+<p><strong>Initialization.</strong> Store all $2^n$ evaluations $\tilde{a}(b)$ and $\tilde{b}(b)$ for $b \in {0,1}^n$ in arrays $A[b]$ and $B[b]$.</p>
+<p><strong>Round 1.</strong> Compute three evaluations of $s_1(X_1) = \sum_{(b_2, \ldots, b_n) \in {0,1}^{n-1}} \tilde{a}(X_1, b_2, \ldots, b_n) \cdot \tilde{b}(X_1, b_2, \ldots, b_n)$:</p>
+<ul>
+<li>$s_1(0) = \sum_{(b_2, \ldots, b_n) \in {0,1}^{n-1}} A[(0, b_2, \ldots, b_n)] \cdot B[(0, b_2, \ldots, b_n)]$</li>
+<li>$s_1(1) = \sum_{(b_2, \ldots, b_n) \in {0,1}^{n-1}} A[(1, b_2, \ldots, b_n)] \cdot B[(1, b_2, \ldots, b_n)]$</li>
+<li>$s_1(2) = \sum_{(b_2, \ldots, b_n) \in {0,1}^{n-1}} A[(2, b_2, \ldots, b_n)] \cdot B[(2, b_2, \ldots, b_n)]$</li>
+</ul>
+<p>For $s_1(0)$ and $s_1(1)$, we read values directly from the stored arrays (these are Boolean points). For $s_1(2)$, the point $X_1 = 2$ isn't in our table, but since $\tilde{a}$ is linear in $X_1$, we interpolate. A line through $(0, y_0)$ and $(1, y_1)$ has the form $y_0 + (y_1 - y_0) \cdot X$, which at $X = 2$ gives $y_0 + 2(y_1 - y_0) = -y_0 + 2y_1$. So $A[(2, b_2, \ldots, b_n)] = -A[(0, b_2, \ldots, b_n)] + 2 \cdot A[(1, b_2, \ldots, b_n)]$. Similarly for $B$.</p>
+<p>Send $(s_1(0), s_1(1), s_1(2))$. This takes $O(2^{n-1})$ operations.</p>
+<p><strong>Fold after round 1.</strong> Receive challenge $r_1$. Create a new array $A'$ of size $2^{n-1}$, indexed by $(b_2, \ldots, b_n) \in {0,1}^{n-1}$:
+$$A'[(b_2, \ldots, b_n)] = (1 - r_1) \cdot A[(0, b_2, \ldots, b_n)] + r_1 \cdot A[(1, b_2, \ldots, b_n)] = \tilde{a}(r_1, b_2, \ldots, b_n)$$</p>
+<p>Discard the old array and rename $A' \to A$. The array now stores the restricted polynomial $\tilde{a}(r_1, x_2, \ldots, x_n)$ evaluated on the $(n-1)$-dimensional hypercube. Similarly fold $B$.</p>
+<p><strong>Subsequent rounds.</strong> Repeat: compute $s_i$ from the current arrays, send it, fold the arrays using $r_i$.</p>
+<p><strong>Complexity.</strong> Round $i$ operates on arrays of size $2^{n-i+1}$, then folds to size $2^{n-i}$:
+$$O(2^{n-1}) + O(2^{n-2}) + \cdots + O(1) = O(2^n)$$</p>
+<p>The total prover work is $O(2^n)$, down from the naive $O(n \cdot 2^n)$ analysis at the start of this chapter. This is optimal: any algorithm proving a claim about a sum over $2^n$ terms must read all $2^n$ inputs at least once, so $\Omega(2^n)$ is an information-theoretic lower bound.</p>
+<p><strong>Why the speedup works.</strong> The core insight is simple once you see it.</p>
+<p><em>Naive approach</em>: In each of the $n$ rounds, re-evaluate the polynomial at all necessary points from scratch. Round 1 touches $O(2^n)$ terms. Round 2 touches $O(2^{n-1})$ terms, but computes each by going back to the original tables. Round 3 the same. Each round performs a fresh evaluation, and &quot;fresh evaluation&quot; costs the full table size for that round. Total: $n$ separate evaluations, giving $O(n \cdot 2^n)$.</p>
+<p><em>Folding approach</em>: Evaluate once at the start, storing results in a table. Then, after each challenge $r_i$, <em>update</em> the table rather than re-evaluate. The update is cheap: just a linear combination of adjacent entries. No re-evaluation from scratch, ever. The table shrinks by half each round, and we touch each entry exactly once.</p>
+<p>The naive prover asks &quot;what is $\tilde{a}(r_1, \ldots, r_i, x_{i+1}, \ldots)$?&quot; afresh each round. The folding prover asks &quot;given what I already computed, how does fixing $x_i = r_i$ change the table?&quot; The former is $O(2^{n-i})$ per round times $n$ rounds. The latter is $O(2^{n-i})$ per round, summing to a geometric series: $2^{n-1} + 2^{n-2} + \ldots + 1 = 2^n - 1$.</p>
+<p>This is dynamic programming: intermediate results flow forward, each round reusing the previous round's work. The fold operation after round $i$ produces exactly the data structure needed for round $i+1$. Instead of recomputing $\tilde{a}(r_1, \ldots, r_i, x_{i+1}, \ldots, x_n)$ from scratch, we derive it from the previous round's output with a single linear pass.</p>
+<h3 id="worked-example-the-halving-trick-with-n--2"><a class="header" href="#worked-example-the-halving-trick-with-n--2">Worked Example: The Halving Trick with $n = 2$</a></h3>
+<p>Let's trace through a complete example. Take $n = 2$ variables and consider the sum-check claim:
+$$H = \sum_{(b_1, b_2) \in {0,1}^2} \tilde{a}(b_1, b_2) \cdot \tilde{b}(b_1, b_2)$$</p>
+<p>Suppose the tables are:</p>
+<div class="table-wrapper"><table><thead><tr><th>$(b_1, b_2)$</th><th>$A[b_1, b_2]$</th><th>$B[b_1, b_2]$</th><th>Product</th></tr></thead><tbody>
+<tr><td>$(0, 0)$</td><td>2</td><td>3</td><td>6</td></tr>
+<tr><td>$(0, 1)$</td><td>5</td><td>1</td><td>5</td></tr>
+<tr><td>$(1, 0)$</td><td>4</td><td>2</td><td>8</td></tr>
+<tr><td>$(1, 1)$</td><td>3</td><td>4</td><td>12</td></tr>
+</tbody></table>
+</div>
+<p>The true sum is $H = 6 + 5 + 8 + 12 = 31$.</p>
+<p><strong>Round 1: Compute $s_1(X_1)$.</strong></p>
+<p>We need three evaluations to specify this degree-2 polynomial:</p>
+<ul>
+<li>$s_1(0) = A[0,0] \cdot B[0,0] + A[0,1] \cdot B[0,1] = 2 \cdot 3 + 5 \cdot 1 = 11$</li>
+<li>$s_1(1) = A[1,0] \cdot B[1,0] + A[1,1] \cdot B[1,1] = 4 \cdot 2 + 3 \cdot 4 = 20$</li>
+<li>$s_1(2)$: First interpolate $A$ and $B$ at $X_1 = 2$:
+<ul>
+<li>$A[2, 0] = -A[0,0] + 2 \cdot A[1,0] = -2 + 8 = 6$</li>
+<li>$A[2, 1] = -A[0,1] + 2 \cdot A[1,1] = -5 + 6 = 1$</li>
+<li>$B[2, 0] = -B[0,0] + 2 \cdot B[1,0] = -3 + 4 = 1$</li>
+<li>$B[2, 1] = -B[0,1] + 2 \cdot B[1,1] = -1 + 8 = 7$</li>
+<li>$s_1(2) = 6 \cdot 1 + 1 \cdot 7 = 13$</li>
+</ul>
+</li>
+</ul>
+<p>Verifier checks: $s_1(0) + s_1(1) = 11 + 20 = 31 = H$. $\checkmark$</p>
+<p>Prover sends $(11, 20, 13)$. Verifier sends challenge $r_1 = 3$.</p>
+<p><strong>Fold after Round 1.</strong></p>
+<p>Update arrays using $A'[b_2] = (1 - r_1) \cdot A[0, b_2] + r_1 \cdot A[1, b_2]$:</p>
+<ul>
+<li>$A'[0] = (1-3) \cdot 2 + 3 \cdot 4 = -4 + 12 = 8$</li>
+<li>$A'[1] = (1-3) \cdot 5 + 3 \cdot 3 = -10 + 9 = -1$</li>
+</ul>
+<p>Similarly for $B$:</p>
+<ul>
+<li>$B'[0] = (1-3) \cdot 3 + 3 \cdot 2 = -6 + 6 = 0$</li>
+<li>$B'[1] = (1-3) \cdot 1 + 3 \cdot 4 = -2 + 12 = 10$</li>
+</ul>
+<p>Arrays now have size 2 (down from 4).</p>
+<p><strong>Round 2: Compute $s_2(X_2)$.</strong></p>
+<ul>
+<li>$s_2(0) = A'[0] \cdot B'[0] = 8 \cdot 0 = 0$</li>
+<li>$s_2(1) = A'[1] \cdot B'[1] = (-1) \cdot 10 = -10$</li>
+<li>$s_2(2) = (-A'[0] + 2 \cdot A'[1]) \cdot (-B'[0] + 2 \cdot B'[1]) = (-8 - 2) \cdot (0 + 20) = (-10) \cdot 20 = -200$</li>
+</ul>
+<p>Verifier checks: $s_2(0) + s_2(1) = 0 + (-10) = -10 \stackrel{?}{=} s_1(r_1) = s_1(3)$.</p>
+<p>This is the core consistency check of sum-check. The prover committed to $s_1$ before knowing the challenge $r_1 = 3$. Now the verifier demands that $s_2$ (the next round's polynomial) sum to the value $s_1(r_1)$. If the prover lied about $s_1$, the fabricated polynomial almost certainly evaluates incorrectly at the random point $r_1$, and the check fails.</p>
+<p>Compute $s_1(3)$ from the degree-2 polynomial through points $(0, 11), (1, 20), (2, 13)$:</p>
+<p>Using Lagrange interpolation: </p>
+<p>$s_1(X) = 11 \cdot \frac{(X-1)(X-2)}{(0-1)(0-2)} + 20 \cdot \frac{(X-0)(X-2)}{(1-0)(1-2)} + 13 \cdot \frac{(X-0)(X-1)}{(2-0)(2-1)}$
+$= 11 \cdot \frac{(X-1)(X-2)}{2} - 20 \cdot (X)(X-2) + 13 \cdot \frac{X(X-1)}{2}$</p>
+<p>At $X = 3$: $s_1(3) = 11 \cdot \frac{2 \cdot 1}{2} - 20 \cdot 3 \cdot 1 + 13 \cdot \frac{3 \cdot 2}{2} = 11 - 60 + 39 = -10$. $\checkmark$</p>
+<p><strong>Total operations:</strong> Round 1 touched 4 entries; Round 2 touched 2 entries. Total: 6 operations, not $2 \cdot 4 = 8$ as naive analysis suggests. For larger $n$, the savings compound: $O(2^n)$ instead of $O(n \cdot 2^n)$.</p>
+<h2 id="sparse-sums"><a class="header" href="#sparse-sums">Sparse Sums</a></h2>
+<p>The halving trick solves the dense case: when all $2^n$ terms are present, we achieve optimal $O(2^n)$ proving time. But many applications involve <strong>sparse</strong> sums, where only $T \ll 2^n$ terms are non-zero, and here the halving trick falls short.</p>
+<p>Consider a lookup table with $N = 2^{30}$ possible indices but only $T = 2^{20}$ actual lookups. The halving trick still touches all $2^{30}$ positions, folding arrays of zeros. We're wasting a factor of 1000 in both time and space.</p>
+<p>Can the prover exploit sparsity?</p>
+<h3 id="the-challenge"><a class="header" href="#the-challenge">The Challenge</a></h3>
+<p>The dense algorithm folds arrays of size $N$. Even if most entries are zero, the fold operation touches all positions. We need a fundamentally different approach.</p>
+<h3 id="the-key-assumption-separable-product-structure"><a class="header" href="#the-key-assumption-separable-product-structure">The Key Assumption: Separable Product Structure</a></h3>
+<p>Not every sparse polynomial admits fast proving. The technique requires a specific structure. Suppose the polynomial factors as:</p>
+<p>$$g(p, s) = \tilde{a}(p, s) \cdot \tilde{f}(p) \cdot \tilde{h}(s)$$</p>
+<p>where we split the $n$ variables into prefix $p = (x_1, \ldots, x_{n/2})$ and suffix $s = (x_{n/2+1}, \ldots, x_n)$, and:</p>
+<ul>
+<li><strong>$\tilde{a}(p, s)$</strong> is a <strong>sparse</strong> selector with only $T$ non-zero entries</li>
+<li><strong>$\tilde{f}(p)$</strong> depends only on prefix variables (dense, size $2^{n/2}$)</li>
+<li><strong>$\tilde{h}(s)$</strong> depends only on suffix variables (dense, size $2^{n/2}$)</li>
+</ul>
+<p>This structure arises naturally in memory-checking arguments, lookup protocols, and batch polynomial evaluation. Think of $\tilde{a}$ as selecting &quot;which (address, value) pairs actually occur,&quot; $\tilde{f}$ as encoding &quot;address-dependent data,&quot; and $\tilde{h}$ as encoding &quot;value-dependent data.&quot;</p>
+<h3 id="why-this-structure-enables-sparsity-exploitation"><a class="header" href="#why-this-structure-enables-sparsity-exploitation">Why This Structure Enables Sparsity Exploitation</a></h3>
+<p>The separable product structure is what makes sparse proving possible. Here's the key observation:</p>
+<p>When we build intermediate arrays for sum-check, the sparse factor $\tilde{a}(p,s)$ acts as a filter. To compute an aggregate like $\sum_s \tilde{a}(p,s) \cdot \tilde{h}(s)$, we only need to touch the $T$ positions where $\tilde{a}$ is non-zero. The dense factors $\tilde{f}$ and $\tilde{h}$ are accessed only at locations dictated by the sparse selector.</p>
+<p>Without this structure, exploiting sparsity is impossible. A general sparse polynomial $g(x_1, \ldots, x_n)$ doesn't decompose into independent prefix and suffix factors, so we can't avoid touching all $2^n$ positions during folding.</p>
+<h3 id="two-stage-proving"><a class="header" href="#two-stage-proving">Two-Stage Proving</a></h3>
+<p>Given the separable product structure, we prove the sum in two stages. Each stage handles half the variables, building dense arrays of size $2^{n/2}$ by scanning only the $T$ sparse entries.</p>
+<p><strong>Stage 1: Sum-check over prefix variables.</strong></p>
+<p>Define aggregated arrays $P$ and $F$, each of size $2^{n/2}$, indexed by prefix bit-vectors $p \in {0,1}^{n/2}$:</p>
+<p>$$P[p] = \sum_{s \in {0,1}^{n/2}} \tilde{a}(p, s) \cdot \tilde{h}(s)$$
+$$F[p] = \tilde{f}(p)$$</p>
+<p>The arrays $P$ and $F$ have size $2^{n/2}$, not $2^n$. By summing out the suffix variables when building $P$, we reduce the problem from $n$ variables to $n/2$ variables for Stage 1.</p>
+<p>Computing $P$ requires one pass over the $T$ non-zero terms: for each non-zero $(p, s)$ pair, add $\tilde{a}(p, s) \cdot \tilde{h}(s)$ to $P[p]$.</p>
+<p>Now observe: the original sum-check claim is
+$$\sum_{p \in {0,1}^{n/2}} \sum_{s \in {0,1}^{n/2}} \tilde{a}(p, s) \cdot \tilde{f}(p) \cdot \tilde{h}(s) = \sum_{p \in {0,1}^{n/2}} \tilde{f}(p) \cdot \underbrace{\sum_{s \in {0,1}^{n/2}} \tilde{a}(p, s) \cdot \tilde{h}(s)}_{= P[p]}$$</p>
+<p>So proving the original sum reduces to proving $\sum_p \tilde{P}(p) \cdot \tilde{F}(p)$—a sum-check with only $n/2$ variables. Here $\tilde{P}$ and $\tilde{F}$ are the multilinear extensions of arrays $P$ and $F$.</p>
+<p>Run the dense halving algorithm on these $2^{n/2}$-sized arrays. Time: $O(T)$ to build $P$ from sparse entries, plus $O(2^{n/2})$ for the dense sum-check.</p>
+<p><strong>Stage 2: Sum-check over suffix variables (to verify Stage 1's evaluation).</strong></p>
+<p>Stage 1 is a complete sum-check on its own polynomial, ending with an evaluation claim. But that claim involves $\tilde{P}(r_p)$, which is itself defined as a sum. Where does Stage 2 come from?</p>
+<p><strong>The key point:</strong> Stage 1 is a complete sum-check, but on a <em>different polynomial</em> than the original. Compare:</p>
+<div class="table-wrapper"><table><thead><tr><th></th><th>Original claim</th><th>Stage 1 claim</th></tr></thead><tbody>
+<tr><td><strong>Polynomial</strong></td><td>$g(p,s) = \tilde{a}(p,s) \cdot \tilde{f}(p) \cdot \tilde{h}(s)$</td><td>$\tilde{P}(p) \cdot \tilde{F}(p)$</td></tr>
+<tr><td><strong>Variables</strong></td><td>$n$ (both $p$ and $s$)</td><td>$n/2$ (only $p$)</td></tr>
+<tr><td><strong>Rounds</strong></td><td>$n$</td><td>$n/2$</td></tr>
+</tbody></table>
+</div>
+<p>The two sums are equal (both equal $H$), but Stage 1's polynomial has half the variables because we pre-summed the suffix into $P[p]$.</p>
+<p>Like any sum-check, Stage 1 ends with a final evaluation claim: &quot;I claim $\tilde{P}(r_p) \cdot \tilde{F}(r_p) = v_1$.&quot; The verifier can check $\tilde{F}(r_p)$ via polynomial commitment. But what about $\tilde{P}(r_p)$?</p>
+<p>Expanding using the definition of $P$:</p>
+<p>$$\tilde{P}(r_p) = \sum_{s \in {0,1}^{n/2}} \tilde{a}(r_p, s) \cdot \tilde{h}(s)$$</p>
+<p>This is a sum over $2^{n/2}$ terms. The verifier can't compute it directly. <strong>Stage 2 is a second sum-check to prove this evaluation claim.</strong> We use sum-check to verify that the final evaluation from Stage 1 is correct.</p>
+<p>Define arrays $H$ and $Q$, each of size $2^{n/2}$, indexed by suffix bit-vectors $s \in {0,1}^{n/2}$:</p>
+<p>$$H[s] = \tilde{a}((r_1, \ldots, r_{n/2}), s)$$
+$$Q[s] = \tilde{h}(s)$$</p>
+<p>Here $H$ is the sparse selector with its prefix fixed to the random challenges: it answers &quot;what is the selector's value at address $(r_p, s)$?&quot; The factor $\tilde{f}(r_p)$ is now a constant (computed once from the dense $F$ array) that multiplies the entire Stage 2 sum.</p>
+<p>Computing $H$ requires the MLE interpolation identity: $\tilde{a}(r_p, s) = \sum_{p'} \tilde{a}(p', s) \cdot \widetilde{\text{eq}}(p', r_p)$. For each sparse entry $(p, s)$, we need the Lagrange coefficient $\widetilde{\text{eq}}(p, r_p)$ to weight its contribution to $H[s]$.</p>
+<p>(The function $\widetilde{\text{eq}}$ is the &quot;equality polynomial&quot; that extracts a specific Boolean point's contribution to an MLE. We'll define it formally in the Spartan section below; for now, just think of it as the multilinear Lagrange basis function.)</p>
+<p>A naive approach computes each $\widetilde{\text{eq}}(p, r_p)$ independently in $O(n/2)$ field ops, giving $O(T \cdot n)$ total. But we can do better: precompute <em>all</em> $2^{n/2}$ values $\widetilde{\text{eq}}(p, r_p)$ for every Boolean $p$ in $O(2^{n/2})$ time using the product structure of $\widetilde{\text{eq}}$. Then each sparse entry requires only a table lookup plus one multiplication. Total: $O(2^{n/2})$ for precomputation, $O(T)$ for the pass over sparse entries.</p>
+<p>Run the dense halving algorithm on $H$ and $Q$ for the remaining $n/2$ rounds. Time: $O(2^{n/2})$ for precomputing $\widetilde{\text{eq}}$ values, $O(T)$ to accumulate into $H$, plus $O(2^{n/2})$ for the dense sum-check.</p>
+<p><strong>Total.</strong> The structure is two chained sum-checks:</p>
+<ol>
+<li><strong>Stage 1</strong> ($n/2$ rounds): proves the sum equals $H$, ends with evaluation claim about $\tilde{P}(r_p)$</li>
+<li><strong>Stage 2</strong> ($n/2$ rounds): proves that evaluation claim, ends with evaluation of $\tilde{a}(r_p, r_s)$ and $\tilde{h}(r_s)$</li>
+</ol>
+<p>Together: $n/2 + n/2 = n$ rounds, matching the original $n$-variable sum-check. But prover work is only:
+$$O(T + 2^{n/2})$$</p>
+<p>Two passes over $T$ sparse terms (one per stage), plus two $2^{n/2}$-sized dense sum-checks. With appropriate parameters, this can be much less than $O(2^n)$.</p>
+<h3 id="worked-example-sparse-sum-with-n--16-t--3"><a class="header" href="#worked-example-sparse-sum-with-n--16-t--3">Worked Example: Sparse Sum with $N = 16$, $T = 3$</a></h3>
+<p>Consider a table of size $N = 16$ (so $n = 4$ variables), but only $T = 3$ entries are non-zero. We want to prove:
+$$H = \sum_{(p, s) \in {0,1}^4} \tilde{a}(p, s) \cdot \tilde{f}(p) \cdot \tilde{h}(s)$$</p>
+<p>where $p = (x_1, x_2)$ is the 2-bit prefix and $s = (x_3, x_4)$ is the 2-bit suffix.</p>
+<p><strong>The sparse data.</strong> Suppose the only non-zero entries are:</p>
+<div class="table-wrapper"><table><thead><tr><th>Index</th><th>Prefix $p$</th><th>Suffix $s$</th><th>$\tilde{a}(p,s)$</th><th>$\tilde{f}(p)$</th><th>$\tilde{h}(s)$</th><th>Product</th></tr></thead><tbody>
+<tr><td>5</td><td>$(0,1)$</td><td>$(0,1)$</td><td>3</td><td>2</td><td>4</td><td>24</td></tr>
+<tr><td>9</td><td>$(1,0)$</td><td>$(0,1)$</td><td>5</td><td>1</td><td>4</td><td>20</td></tr>
+<tr><td>14</td><td>$(1,1)$</td><td>$(1,0)$</td><td>2</td><td>3</td><td>7</td><td>42</td></tr>
+</tbody></table>
+</div>
+<p>True sum: $H = 24 + 20 + 42 = 86$.</p>
+<p><strong>Dense approach (bad).</strong> Store all 16 entries, fold arrays of size 16 → 8 → 4 → 2 → 1. Touches all 16 positions even though 13 are zero.</p>
+<p><strong>Sparse two-stage approach (good).</strong></p>
+<p><strong>Stage 1: Build aggregated prefix array $P$.</strong></p>
+<p>Scan the 3 non-zero terms and accumulate:
+$$P[p] = \sum_{s} \tilde{a}(p, s) \cdot \tilde{h}(s)$$</p>
+<ul>
+<li>Entry $(0,1), (0,1)$: Add $3 \cdot 4 = 12$ to $P[(0,1)]$</li>
+<li>Entry $(1,0), (0,1)$: Add $5 \cdot 4 = 20$ to $P[(1,0)]$</li>
+<li>Entry $(1,1), (1,0)$: Add $2 \cdot 7 = 14$ to $P[(1,1)]$</li>
+</ul>
+<p>Result: $P = [0, 12, 20, 14]$ (indexed by prefix $(0,0), (0,1), (1,0), (1,1)$).</p>
+<p>Also store $F[p] = \tilde{f}(p)$: </p>
+<p>$F = [\tilde{f}(0,0), 2, 1, 3]$.</p>
+<p><strong>Run dense sum-check on $\tilde{P}(p) \cdot \tilde{F}(p)$ for 2 rounds.</strong></p>
+<p>This is a size-4 sum-check (not size-16). Suppose after rounds 1-2, we get challenges $(r_1, r_2)$.</p>
+<p><strong>Stage 2: Verify Stage 1's evaluation claim.</strong></p>
+<p>Stage 1 ended with the claim &quot;$\tilde{P}(r_1, r_2) \cdot \tilde{F}(r_1, r_2) = v_1$.&quot; The verifier can check $\tilde{F}(r_1, r_2)$ via polynomial commitment, but $\tilde{P}(r_1, r_2)$ is defined as a sum:</p>
+<p>$$\tilde{P}(r_1, r_2) = \sum_{s \in {0,1}^2} \tilde{a}((r_1, r_2), s) \cdot \tilde{h}(s)$$</p>
+<p>Stage 2 is a second sum-check to prove this. Define arrays indexed by suffix $s \in {0,1}^2$:</p>
+<p>$$H[s] = \tilde{a}((r_1, r_2), s)$$
+$$Q[s] = \tilde{h}(s)$$</p>
+<p><strong>Building $H$ via $\widetilde{\text{eq}}$ precomputation.</strong> First, precompute the Lagrange table for all 4 Boolean prefixes:</p>
+<p>$\widetilde{\text{eq}}((0,0), (r_1,r_2)) = (1-r_1)(1-r_2)$
+$\widetilde{\text{eq}}((0,1), (r_1,r_2)) = (1-r_1) \cdot r_2$
+$\widetilde{\text{eq}}((1,0), (r_1,r_2)) = r_1 \cdot (1-r_2)$
+$\widetilde{\text{eq}}((1,1), (r_1,r_2)) = r_1 \cdot r_2$</p>
+<p>This takes $O(4) = O(2^{n/2})$ field operations. Now scan the 3 sparse entries, looking up weights from the table:</p>
+<ul>
+<li>Entry $(p,s) = ((0,1), (0,1))$, $\tilde{a} = 3$: Add $3 \cdot \widetilde{\text{eq}}((0,1), (r_1,r_2)) = 3(1-r_1)r_2$ to $H[(0,1)]$</li>
+<li>Entry $(p,s) = ((1,0), (0,1))$, $\tilde{a} = 5$: Add $5 \cdot \widetilde{\text{eq}}((1,0), (r_1,r_2)) = 5 r_1(1-r_2)$ to $H[(0,1)]$</li>
+<li>Entry $(p,s) = ((1,1), (1,0))$, $\tilde{a} = 2$: Add $2 \cdot \widetilde{\text{eq}}((1,1), (r_1,r_2)) = 2 r_1 r_2$ to $H[(1,0)]$</li>
+</ul>
+<p>Result: $H = [0, ; 3(1-r_1)r_2 + 5r_1(1-r_2), ; 2r_1 r_2, ; 0]$.</p>
+<p><strong>Building $Q$:</strong> Just copy from the $\tilde{h}$ values: $Q = [\tilde{h}(0,0), 4, 7, \tilde{h}(1,1)]$.</p>
+<p><strong>Run dense sum-check on $\tilde{H}(s) \cdot \tilde{Q}(s)$ for 2 rounds</strong> to prove $\sum_s H[s] \cdot Q[s] = \tilde{P}(r_1, r_2)$.</p>
+<p><strong>Work analysis:</strong></p>
+<ul>
+<li>Stage 1: $O(T)$ to build $P$ + $O(2^{n/2})$ for dense sum-check = 3 + 4 = 7 operations</li>
+<li>Stage 2: $O(2^{n/2})$ to precompute $\widetilde{\text{eq}}$ table + $O(T)$ to build $H$ + $O(2^{n/2})$ for dense sum-check = 4 + 3 + 4 = 11 operations</li>
+<li><strong>Total: $O(T + 2^{n/2})$ = 18 operations</strong> instead of $O(N) = 16$ for the dense approach</li>
+</ul>
+<p>(In this tiny example, sparse isn't faster because $T = 3$ and $2^{n/2} = 4$ are similar to $N = 16$. The win comes at scale.)</p>
+<p>For realistic parameters ($N = 2^{30}$, $T = 2^{20}$), the savings are dramatic: $O(2^{20} + 2^{15})$ instead of $O(2^{30})$, a 1000× speedup.</p>
+<h3 id="generalization-to-c-chunks"><a class="header" href="#generalization-to-c-chunks">Generalization to $c$ Chunks</a></h3>
+<p>Split into $c$ chunks instead of 2. Each stage handles $n/c$ variables:</p>
+<ul>
+<li>Time: $O(c \cdot T + c \cdot N^{1/c})$</li>
+<li>Space: $O(N^{1/c})$</li>
+</ul>
+<p>Choosing $c \approx \log N / \log \log N$ yields prover time $O(T \cdot \text{polylog}(N))$ with polylogarithmic space. The prover runs in time proportional to the number of non-zero terms, with only logarithmic overhead.</p>
+<h2 id="spartan-sum-check-for-r1cs"><a class="header" href="#spartan-sum-check-for-r1cs">Spartan: Sum-Check for R1CS</a></h2>
+<p>What's the simplest possible SNARK?</p>
+<p>Not in terms of assumptions (transparent or trusted setup, pairing-based or hash-based). In terms of <em>conceptual machinery</em>. What's the minimum set of ideas needed to go from &quot;here's a constraint system&quot; to &quot;here's a succinct proof&quot;?</p>
+<p>Spartan (Setty, 2020) provides a surprisingly clean answer: sum-check plus polynomial commitments. Nothing else. No univariate encodings, no FFTs over roots of unity, no quotient polynomials, no PCP constructions. Just the two building blocks we've already developed.</p>
+<h3 id="the-r1cs-setup"><a class="header" href="#the-r1cs-setup">The R1CS Setup</a></h3>
+<p>An R1CS instance consists of sparse matrices $A, B, C \in \mathbb{F}^{m \times n}$ and a constraint: find a witness $z \in \mathbb{F}^n$ such that
+$$Az \circ Bz = Cz$$
+where $\circ$ denotes the Hadamard (entrywise) product. Each row of this equation is a constraint; the system has $m$ constraints over $n$ variables.</p>
+<h3 id="the-multilinear-view"><a class="header" href="#the-multilinear-view">The Multilinear View</a></h3>
+<p>Interpret the witness $z$ as evaluations of a multilinear polynomial $\tilde{z}$ over the Boolean hypercube ${0,1}^{\log n}$:
+$$z_i = \tilde{z}(i) \quad \text{for } i \in {0,1}^{\log n}$$</p>
+<p>Similarly, view the matrices $A, B, C$ as bivariate functions: $A(i, j)$ is the entry at row $i$, column $j$. Their multilinear extensions $\tilde{A}, \tilde{B}, \tilde{C}$ are defined over ${0,1}^{\log m} \times {0,1}^{\log n}$.</p>
+<p>The constraint $Az \circ Bz = Cz$ becomes: for every row index $x \in {0,1}^{\log m}$,
+$$\left(\sum_{y \in {0,1}^{\log n}} \tilde{A}(x, y) \cdot \tilde{z}(y)\right) \cdot \left(\sum_{y \in {0,1}^{\log n}} \tilde{B}(x, y) \cdot \tilde{z}(y)\right) = \sum_{y \in {0,1}^{\log n}} \tilde{C}(x, y) \cdot \tilde{z}(y)$$</p>
+<p>Define the error at row $x$:
+$$g(x) = \left(\sum_y \tilde{A}(x, y) \tilde{z}(y)\right) \cdot \left(\sum_y \tilde{B}(x, y) \tilde{z}(y)\right) - \sum_y \tilde{C}(x, y) \tilde{z}(y)$$</p>
+<p>The R1CS constraint is satisfied iff $g(x) = 0$ for all $x \in {0,1}^{\log m}$.</p>
+<blockquote>
+<p><strong>Remark: Multilinear vs. Univariate Encodings.</strong>
+This multilinear view differs fundamentally from the QAP approach in Chapter 12 (Groth16). There, R1CS matrices become univariate polynomials via Lagrange interpolation over roots of unity. The constraint $Az \circ Bz = Cz$ transforms into a polynomial divisibility condition: $A(X) \cdot B(X) - C(X) = H(X) \cdot Z_H(X)$, where $Z_H$ is the vanishing polynomial over the evaluation domain. Proving satisfaction means exhibiting the quotient $H(X)$.</p>
+<p>Spartan takes a different path. Instead of interpolating over roots of unity, it interprets vectors and matrices as multilinear extensions over the Boolean hypercube. Instead of checking divisibility by a vanishing polynomial, it checks that an error polynomial evaluates to zero on all Boolean inputs, via sum-check. No quotient polynomial, no FFT, no roots of unity. Just multilinear algebra and sum-check.</p>
+<p>Both approaches reduce R1CS to polynomial claims. QAP reduces to divisibility; Spartan reduces to vanishing on the hypercube. The sum-check approach avoids the $O(n \log n)$ FFT costs and the trusted setup of pairing-based SNARKs, at the cost of larger proofs (logarithmic in the constraint count rather than constant).</p>
+</blockquote>
+<h3 id="the-zero-on-hypercube-reduction"><a class="header" href="#the-zero-on-hypercube-reduction">The Zero-on-Hypercube Reduction</a></h3>
+<p>Here is Spartan's key insight: checking that $g$ vanishes on the Boolean hypercube reduces to a single sum-check. The technique works for any polynomial, not just R1CS errors.</p>
+<p><strong>The problem:</strong> We want to verify that $g(x) = 0$ for all $x \in {0,1}^{\log m}$.</p>
+<p><strong>The reduction:</strong> Sample random $\tau \in \mathbb{F}^{\log m}$ and check:
+$$\sum_{x \in {0,1}^{\log m}} \widetilde{\text{eq}}(\tau, x) \cdot g(x) = 0$$</p>
+<p><strong>The equality polynomial.</strong> The function $\widetilde{\text{eq}}: \mathbb{F}^n \times \mathbb{F}^n \to \mathbb{F}$ (previewed in the sparse sum-check section above) is defined as:
+$$\widetilde{\text{eq}}(\tau, x) = \prod_{i=1}^{n} \left(\tau_i x_i + (1-\tau_i)(1-x_i)\right)$$</p>
+<p>Each factor is linear in both $\tau_i$ and $x_i$. On Boolean inputs, the factor equals 1 when $\tau_i = x_i$ (both 0 or both 1) and equals 0 when they differ. On non-Boolean inputs, the factor interpolates smoothly; for instance, $\tau_i x_i + (1-\tau_i)(1-x_i)$ at $(\tau_i, x_i) = (2, 0)$ gives $0 + (-1)(1) = -1$.</p>
+<p><strong>The key observation:</strong> When both inputs are Boolean, the product equals $\mathbf{1}[\tau = x]$, the indicator function that is 1 if and only if $\tau = x$, and 0 otherwise. But the formula extends smoothly to all field elements. This is precisely the multilinear extension of the equality indicator over ${0,1}^n \times {0,1}^n$.</p>
+<p><strong>A small example.</strong> Take $n = 2$. We have $\widetilde{\text{eq}}((\tau_1, \tau_2), (x_1, x_2)) = (\tau_1 x_1 + (1-\tau_1)(1-x_1)) \cdot (\tau_2 x_2 + (1-\tau_2)(1-x_2))$.</p>
+<p>Evaluate at $\tau = (2, 3)$ for each Boolean $x$:</p>
+<ul>
+<li>$\widetilde{\text{eq}}((2,3), (0,0)) = (0 + (-1)(-1)) \cdot (0 + (-2)(-1)) = 1 \cdot 2 = 2$</li>
+<li>$\widetilde{\text{eq}}((2,3), (0,1)) = (0 + (-1)(-1)) \cdot (3 + 0) = 1 \cdot 3 = 3$</li>
+<li>$\widetilde{\text{eq}}((2,3), (1,0)) = (2 + 0) \cdot (0 + (-2)(-1)) = 2 \cdot 2 = 4$</li>
+<li>$\widetilde{\text{eq}}((2,3), (1,1)) = (2 + 0) \cdot (3 + 0) = 2 \cdot 3 = 6$</li>
+</ul>
+<p>Notice these sum to $2 + 3 + 4 + 6 = 15 \neq 1$. The equality polynomial doesn't form a partition of unity when $\tau$ is non-Boolean, but it doesn't need to. What matters is the next property.</p>
+<p><strong>The key identity.</strong> For any function $f: {0,1}^n \to \mathbb{F}$ with multilinear extension $\tilde{f}$:
+$$\sum_{x \in {0,1}^n} \widetilde{\text{eq}}(\tau, x) \cdot f(x) = \tilde{f}(\tau)$$</p>
+<p>This is the MLE evaluation formula from Chapter 4: the sum &quot;selects&quot; the value at $\tau$ via weighted interpolation. When $\tau$ is Boolean, exactly one term survives (weight 1, all others 0). When $\tau$ is a general field element, all $2^n$ terms contribute with the appropriate interpolation weights.</p>
+<p><strong>Why not just sum $g$ directly?</strong> A natural first attempt: prove $\sum_{x \in {0,1}^n} g(x) = 0$ via sum-check. If $g$ vanishes on the hypercube, this sum is indeed zero. But the converse fails: the sum can be zero even when $g$ doesn't vanish everywhere. For instance, if $g(0,0) = 5$ and $g(0,1) = -5$ with $g(1,0) = g(1,1) = 0$, then $\sum_x g(x) = 0$ despite $g$ being nonzero at two points. The positive and negative values cancel.</p>
+<p>The equality polynomial fixes this. By weighting each term with a random coefficient $\widetilde{\text{eq}}(\tau, x)$, cancellation becomes overwhelmingly unlikely.</p>
+<p><strong>Why the reduction works.</strong> The sum $\sum_x \widetilde{\text{eq}}(\tau, x) \cdot g(x)$ is a random linear combination of the values ${g(x)}_{x \in {0,1}^n}$. The coefficients $\widetilde{\text{eq}}(\tau, x)$ depend on the random challenge $\tau$, and for random $\tau$, these coefficients are essentially random field elements.</p>
+<p>If all $g(x) = 0$, the sum is trivially zero. But if even one $g(x^*) \neq 0$, the sum becomes a random linear combination with at least one nonzero term. Such a combination equals zero only when the coefficients &quot;conspire&quot; to cancel, an event with negligible probability over random $\tau$.</p>
+<p>More precisely: define $Q(\tau) = \sum_x \widetilde{\text{eq}}(\tau, x) \cdot g(x)$. By the key identity, $Q(\tau) = \tilde{g}(\tau)$, the multilinear extension of $g$ evaluated at $\tau$. This polynomial $Q$ has degree at most $n$ (one per variable).</p>
+<ul>
+<li>If $g(x) = 0$ for all $x \in {0,1}^n$, then $\tilde{g}$ is the zero polynomial, so $Q(\tau) = 0$ for all $\tau$.</li>
+<li>If some $g(x^*) \neq 0$, then $\tilde{g}$ is a nonzero polynomial of degree at most $n$. By Schwartz-Zippel, $Q(\tau) \neq 0$ for random $\tau$ with probability $\geq 1 - n/|\mathbb{F}|$.</li>
+</ul>
+<p>This reduces &quot;check $g$ vanishes on $2^n$ points&quot; to &quot;run sum-check on one random linear combination and verify it equals zero.&quot;</p>
+<h3 id="the-sum-check-protocol"><a class="header" href="#the-sum-check-protocol">The Sum-Check Protocol</a></h3>
+<ol>
+<li><strong>Verifier sends</strong> random $\tau \in \mathbb{F}^{\log m}$</li>
+<li><strong>Prover claims</strong> $\sum_{x \in {0,1}^{\log m}} \widetilde{\text{eq}}(\tau, x) \cdot g(x) = 0$, where $g(x) = \left(\sum_y \tilde{A}(x, y) \tilde{z}(y)\right) \cdot \left(\sum_y \tilde{B}(x, y) \tilde{z}(y)\right) - \sum_y \tilde{C}(x, y) \tilde{z}(y)$</li>
+<li><strong>Run sum-check</strong> on this claim</li>
+</ol>
+<p>At the end, the verifier holds a random point $r \in \mathbb{F}^{\log m}$ and needs to evaluate $g(r)$. This requires:</p>
+<ul>
+<li>$\sum_y \tilde{A}(r, y) \tilde{z}(y)$, $\sum_y \tilde{B}(r, y) \tilde{z}(y)$, $\sum_y \tilde{C}(r, y) \tilde{z}(y)$</li>
+</ul>
+<p>Each of these is itself a sum over the hypercube, requiring three more sum-checks! But now the sums are over $y$, and the polynomials have the form $\tilde{M}(r, y) \cdot \tilde{z}(y)$ for the fixed $r$ from the outer sum-check.</p>
+<p><strong>The reduction chain.</strong> After running these three inner sum-checks (which can be batched into one using random linear combinations), the verifier holds a random point $s \in \mathbb{F}^{\log n}$ and needs to check:</p>
+<ul>
+<li>$\tilde{A}(r, s)$, $\tilde{B}(r, s)$, $\tilde{C}(r, s)$: evaluations of the matrix MLEs</li>
+<li>$\tilde{z}(s)$: evaluation of the witness MLE</li>
+</ul>
+<p>The matrix evaluations are handled by SPARK (below). The witness evaluation $\tilde{z}(s)$ is where polynomial commitments enter: the prover opens the committed $\tilde{z}$ at the random point $s$, and the verifier checks the opening proof.</p>
+<p>This is the full reduction: R1CS satisfaction → zero-on-hypercube (outer sum-check) → matrix-vector products (inner sum-checks) → point evaluations (polynomial commitment openings).</p>
+<h3 id="handling-sparse-matrices-spark"><a class="header" href="#handling-sparse-matrices-spark">Handling Sparse Matrices: SPARK</a></h3>
+<p>We've reduced R1CS to sum-check, but there's a lingering problem: the matrices $A$, $B$, $C$ are $m \times n$, potentially huge. A dense representation costs $O(mn)$ space, and committing to them naively would dominate the entire protocol.</p>
+<p>But R1CS matrices are sparse. A circuit with $m$ constraints typically has only $O(m)$ non-zero entries total, not $O(mn)$. Can we exploit this?</p>
+<p><strong>The sparse representation.</strong> A sparse matrix with $T$ non-zero entries can be stored as a list of $(i, j, v)$ tuples: row index, column index, value. This costs $O(T)$ space instead of $O(mn)$.</p>
+<p><strong>The evaluation problem.</strong> At the end of the inner sum-checks, the verifier needs the matrix MLE evaluations $\tilde{A}(r, s)$, $\tilde{B}(r, s)$, $\tilde{C}(r, s)$ at random points $(r, s) \in \mathbb{F}^{\log m} \times \mathbb{F}^{\log n}$. How do we compute these from the sparse representation?</p>
+<p>The MLE of a matrix $M$ evaluated at $(r_x, r_y)$ is:
+$$\tilde{M}(r_x, r_y) = \sum_{(i,j) \in {0,1}^{\log m} \times {0,1}^{\log n}} M(i,j) \cdot \widetilde{\text{eq}}(i, r_x) \cdot \widetilde{\text{eq}}(j, r_y)$$</p>
+<p>Since $M(i,j) = 0$ for most entries, this simplifies to a sum over only the $T$ non-zero entries:
+$$\tilde{M}(r_x, r_y) = \sum_{(i,j): M(i,j) \neq 0} M(i,j) \cdot \widetilde{\text{eq}}(i, r_x) \cdot \widetilde{\text{eq}}(j, r_y)$$</p>
+<p><strong>The naive cost.</strong> For each non-zero entry $(i, j, v)$, we need $\widetilde{\text{eq}}(i, r_x)$ and $\widetilde{\text{eq}}(j, r_y)$. Computing $\widetilde{\text{eq}}(i, r_x)$ directly from the formula $\prod_k (i_k \cdot (r_x)_k + (1-i_k)(1-(r_x)_k))$ costs $O(\log m)$. Over $T$ entries, total cost: $O(T \log m)$.</p>
+<p><strong>SPARK's insight.</strong> Spartan introduces <strong>SPARK</strong> (Sparse Polynomial Arithmetic via Randomized Kernels) to reduce this to $O(T)$. The trick: precompute lookup tables.</p>
+<ol>
+<li>
+<p><strong>Precompute row weights.</strong> Build a table $E_{\text{row}}[i] = \widetilde{\text{eq}}(i, r_x)$ for all $i \in {0,1}^{\log m}$. This costs $O(m)$ using the standard MLE evaluation algorithm (stream through bit-vectors, accumulate products).</p>
+</li>
+<li>
+<p><strong>Precompute column weights.</strong> Build a table $E_{\text{col}}[j] = \widetilde{\text{eq}}(j, r_y)$ for all $j \in {0,1}^{\log n}$. Cost: $O(n)$.</p>
+</li>
+<li>
+<p><strong>Evaluate via lookups.</strong> Initialize a running sum to zero. For each non-zero entry $(i, j, v)$, look up $E_{\text{row}}[i]$ and $E_{\text{col}}[j]$, then add $v \cdot E_{\text{row}}[i] \cdot E_{\text{col}}[j]$ to the running sum. After processing all $T$ entries, the sum equals $\tilde{M}(r_x, r_y)$. Cost: $O(T)$.</p>
+</li>
+</ol>
+<p>Total: $O(m + n + T)$, linear in the sparse representation size.</p>
+<p><strong>But who checks the lookups?</strong> The prover claims to have looked up the correct values, but the verifier can't check this directly without the full tables. SPARK uses a memory-checking argument to verify consistency.</p>
+<p>Here's the intuition. Think of $E_{\text{row}}$ as a read-only memory with $m$ cells. The prover reads from this memory $T$ times, once per sparse entry. Each read is a pair $(\text{addr}_k, v_k)$: &quot;I read value $v_k$ from address $\text{addr}_k$.&quot; The prover collects all $T$ reads into a list.</p>
+<p>Now the key observation: if every read is honest, then the multiset of reads must be consistent with the memory contents. Concretely, if address $i$ appears $c_i$ times in the reads, the claimed values at those positions must all equal $E_{\text{row}}[i]$. A cheating prover who claims a wrong value creates an inconsistency.</p>
+<p>To check this efficiently, both the reads and the memory contents are encoded as polynomials. The verifier picks a random challenge and checks that a certain polynomial identity holds. This identity essentially compares &quot;fingerprints&quot; of the read list versus the memory. If any read is incorrect, the fingerprints mismatch with high probability over the random challenge.</p>
+<p>We'll develop this memory-checking technique fully in Chapter 20. For now, the key point is that it adds only $O(\log T)$ to proof size and verification time, preserving SPARK's linear prover efficiency.</p>
+<h3 id="the-full-protocol"><a class="header" href="#the-full-protocol">The Full Protocol</a></h3>
+<p>Putting it together, Spartan proceeds as follows:</p>
+<ol>
+<li>
+<p><strong>Commitment phase.</strong> The prover commits to the witness $\tilde{z}$ using a multilinear polynomial commitment scheme. The matrices $A$, $B$, $C$ are public (part of the circuit description), so no commitment is needed for them.</p>
+</li>
+<li>
+<p><strong>Outer sum-check.</strong> The verifier sends random $\tau \in \mathbb{F}^{\log m}$. The prover and verifier run sum-check on:
+$$\sum_{x \in {0,1}^{\log m}} \widetilde{\text{eq}}(\tau, x) \cdot g(x) = 0$$
+This reduces to evaluating $g(r)$ at a random point $r \in \mathbb{F}^{\log m}$.</p>
+</li>
+<li>
+<p><strong>Inner sum-checks.</strong> Evaluating $g(r)$ requires three matrix-vector products: $\sum_y \tilde{A}(r, y) \cdot \tilde{z}(y)$, $\sum_y \tilde{B}(r, y) \cdot \tilde{z}(y)$, and $\sum_y \tilde{C}(r, y) \cdot \tilde{z}(y)$. The verifier sends random $\rho_A, \rho_B, \rho_C \in \mathbb{F}$, and the parties run a single sum-check on the combined claim:
+$$\sum_{y \in {0,1}^{\log n}} \left(\rho_A \tilde{A}(r, y) + \rho_B \tilde{B}(r, y) + \rho_C \tilde{C}(r, y)\right) \cdot \tilde{z}(y) = v$$
+where $v$ is the prover's claimed value for the batched sum. At the end of sum-check, the verifier holds a random point $s \in \mathbb{F}^{\log n}$ and a claimed evaluation $v_{\text{final}}$ of the polynomial at $s$.</p>
+</li>
+<li>
+<p><strong>SPARK.</strong> The prover provides claimed values $\tilde{A}(r, s)$, $\tilde{B}(r, s)$, $\tilde{C}(r, s)$ and proves they're consistent with the sparse matrix representation via memory-checking fingerprints.</p>
+</li>
+<li>
+<p><strong>Witness opening.</strong> The prover opens $\tilde{z}(s)$ using the polynomial commitment scheme. The verifier checks the opening proof and obtains the value $\tilde{z}(s)$.</p>
+</li>
+<li>
+<p><strong>Final verification.</strong> The verifier computes $\left(\rho_A \tilde{A}(r, s) + \rho_B \tilde{B}(r, s) + \rho_C \tilde{C}(r, s)\right) \cdot \tilde{z}(s)$ using the values from steps 4-5, and checks that it equals the final claimed value $v_{\text{final}}$ from the inner sum-check. This is the &quot;reduction endpoint&quot;: if the prover cheated anywhere in the sum-check, this equality fails with high probability.</p>
+</li>
+</ol>
+<h3 id="complexity"><a class="header" href="#complexity">Complexity</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Component</th><th>Prover</th><th>Verifier</th><th>Communication</th><th>Technique</th></tr></thead><tbody>
+<tr><td>Outer sum-check</td><td>$O(m)$</td><td>$O(\log m)$</td><td>$O(\log m)$</td><td>Halving trick</td></tr>
+<tr><td>Inner sum-checks</td><td>$O(n)$</td><td>$O(\log n)$</td><td>$O(\log n)$</td><td>Halving trick + batching</td></tr>
+<tr><td>SPARK</td><td>$O(T)$</td><td>$O(\log T)$</td><td>$O(\log T)$</td><td>Precomputed $\widetilde{\text{eq}}$ tables + memory checking</td></tr>
+<tr><td>Witness commitment</td><td>depends on PCS</td><td>depends on PCS</td><td>depends on PCS</td><td>Multilinear PCS (IPA, FRI, etc.)</td></tr>
+</tbody></table>
+</div>
+<p><strong>Why each step achieves its complexity:</strong></p>
+<ul>
+<li>
+<p><strong>Outer sum-check $O(m)$:</strong> The halving trick from earlier in this chapter. Instead of recomputing $2^{\log m} = m$ terms each round, fold the evaluation tables after each challenge. Total work across all $\log m$ rounds: $m + m/2 + m/4 + \ldots = O(m)$.</p>
+</li>
+<li>
+<p><strong>Inner sum-checks $O(n)$:</strong> Same halving trick, but applied to three matrix-vector products at once. Batching with random coefficients $\rho_A, \rho_B, \rho_C$ combines the three sums into one sum-check, avoiding a $3\times$ overhead.</p>
+</li>
+<li>
+<p><strong>SPARK $O(T)$:</strong> Precompute $\widetilde{\text{eq}}(i, r_x)$ for all row indices and $\widetilde{\text{eq}}(j, r_y)$ for all column indices in $O(m + n)$ time. Then each of the $T$ non-zero entries requires only two table lookups and one multiplication, with no logarithmic-cost $\widetilde{\text{eq}}$ computations per entry. Memory-checking fingerprints verify the lookups in $O(T)$ additional work.</p>
+</li>
+<li>
+<p><strong>Verifier $O(\log m + \log n + \log T)$:</strong> The verifier never touches the full tables. In sum-check, it receives $O(d)$ evaluations per round and performs $O(1)$ field operations to check consistency. Over $\log m + \log n$ rounds, that's $O(\log m + \log n)$ work. SPARK verification adds $O(\log T)$ for the memory-checking fingerprint comparison.</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Remark (UniSkip).</strong> Spartan's outer sum-check can skip the first round entirely using a technique called UniSkip. The idea: Spartan indexes constraints symmetrically over ${-N, \ldots, N}$ rather than ${0, \ldots, 2N}$. When summing the first-round polynomial $s_1(X)$ over this symmetric domain, odd-degree terms cancel (for every $+i$ there's a $-i$). The sum depends only on even-degree coefficients, which the verifier can check using precomputed power sums $\sigma_k = \sum_{i=-N}^{N} i^k$. The prover sends the full polynomial; the verifier computes the sum via a dot product with the power sums, then samples a random challenge and continues with round 2. This saves one round of interaction and enables prover optimizations from the symmetric structure.</p>
+</blockquote>
+<p>With $T$ non-zero matrix entries, total prover work is $O(m + n + T)$, linear in the instance size. No trusted setup is required when using IPA or FRI as the polynomial commitment.</p>
+<h3 id="why-this-matters"><a class="header" href="#why-this-matters">Why This Matters</a></h3>
+<p>Step back and consider what we've built. Spartan proves R1CS satisfaction, the standard constraint system for zkSNARKs, using only sum-check and polynomial commitments. No univariate polynomial encodings (like PLONK's permutation argument). No pairing-based trusted setup (like Groth16). No PCP constructions (like early STARKs).</p>
+<p>The architecture is minimal: multilinear polynomials, sum-check, commitment scheme. Three ideas, combined cleanly. This simplicity is not merely aesthetic. It's the reason Spartan became the template for subsequent systems. Lasso added lookup arguments; Jolt extended further to prove virtual machine execution. Each built on the same foundation.</p>
+<p>Notice the graph structure emerging. Spartan has two levels: an outer sum-check (over constraints) and inner sum-checks (over matrix-vector products). The outer sum-check ends with a claim; the inner sum-checks prove that claim. This is exactly the depth-two graph from the remark at the chapter's start. More complex protocols like Lasso (for lookups) and Jolt (for full RISC-V execution) extend this graph to dozens of nodes across multiple stages, but the pattern remains: sum-checks reducing claims to other sum-checks, bottoming out at committed polynomials.</p>
+<p>When a construction is this simple, it becomes a building block for everything that follows.</p>
+<h2 id="the-pcp-detour-and-sum-checks-return"><a class="header" href="#the-pcp-detour-and-sum-checks-return">The PCP Detour and Sum-Check's Return</a></h2>
+<p>Now that we've seen Spartan's elegance (sum-check plus commitments, nothing more) the historical question becomes pressing: how did the field spend two decades missing this?</p>
+<p>The answer involves one of cryptography's most instructive wrong turns.</p>
+<h3 id="the-road-not-taken"><a class="header" href="#the-road-not-taken">The Road Not Taken</a></h3>
+<p>In 1990, sum-check arrived. Two years later, the PCP theorem landed: every NP statement has a proof checkable by reading only a constant number of bits. <em>Constant</em> query complexity. This was astonishing, and it captured the field's imagination completely.</p>
+<p>The PCP theorem seemed to obsolete sum-check. Why settle for logarithmic verification when you could have constant-query verification? Kilian showed how to compile PCPs into succinct arguments: commit to the PCP via Merkle tree, let the verifier query random locations, authenticate responses with hash paths. This became <em>the</em> template for succinct proofs. Systems like Pepper, Ginger, and early Pinocchio drew on PCP-derived constructions.</p>
+<p>Sum-check faded into the background, remembered as a stepping stone rather than a destination.</p>
+<h3 id="the-unnecessary-indirection"><a class="header" href="#the-unnecessary-indirection">The Unnecessary Indirection</a></h3>
+<p>Here's what everyone missed: a logical error hiding in plain sight.</p>
+<p>The PCP theorem transforms an interactive proof into a <em>static</em> proof string that the verifier can query non-adaptively. The prover writes down the entire PCP upfront; the verifier reads random locations without talking to the prover. Interaction removed.</p>
+<p>But a PCP string is enormous, polynomial in the computation size. To make it succinct, Kilian's construction has the prover commit to the PCP via a Merkle tree, then the verifier interactively requests random query locations, and the prover reveals those locations with authentication paths. Interaction reintroduced.</p>
+<p>To deploy in practice, you apply Fiat-Shamir to make Kilian's protocol non-interactive. Interaction removed again.</p>
+<p>Count the transformations: IP → PCP (remove interaction) → Kilian argument (add interaction back) → Fiat-Shamir (remove interaction again).</p>
+<p>Two removals of interaction. One obviously redundant. If Fiat-Shamir handles the final step anyway, why go through the PCP at all? Why not apply Fiat-Shamir directly to the original interactive proof, the one based on sum-check?</p>
+<p>For twenty years, this question hung in the air, unanswered.</p>
+<h3 id="the-return"><a class="header" href="#the-return">The Return</a></h3>
+<p>Starting around 2018, the answer finally arrived. The missing pieces had fallen into place: fast proving algorithms (the halving trick, sparse sums) and efficient polynomial commitment schemes (KZG, FRI, IPA) that could handle multilinear polynomials directly.</p>
+<p>A wave of systems returned to the source:</p>
+<ul>
+<li><strong>Hyrax</strong> (2018), <strong>Libra</strong> (2019): early sum-check-based SNARKs with linear-time provers</li>
+<li><strong>Spartan</strong> (2020): sum-check for R1CS without trusted setup</li>
+<li><strong>HyperPlonk</strong> (2023): sum-check meets Plonkish arithmetization</li>
+<li><strong>Lasso/Jolt</strong> (2023-24): sum-check plus lookup arguments for zkVMs</li>
+<li><strong>Binius</strong> (2024): sum-check over binary fields</li>
+<li><strong>HybridPlonk</strong> (2025): sublogarithmic proof size with linear-time prover</li>
+</ul>
+<p>The pattern is consistent:</p>
+<ol>
+<li>Sum-check as the core interactive proof</li>
+<li>Polynomial commitments for cryptographic binding</li>
+<li>Fiat-Shamir applied once</li>
+</ol>
+<p>No PCP construction. No double removal. No enormous proof strings that need to be Merkle-hashed and then re-interactivized. The resulting systems are simpler, faster, and closer to optimal, with prover times within a small constant factor of computing the witness itself.</p>
+<p>The detour lasted twenty years. The destination was where we started. Sometimes the most powerful technique is the one that was always there, waiting to be taken seriously.</p>
+<h2 id="application-the-hadamard-product-constraint"><a class="header" href="#application-the-hadamard-product-constraint">Application: The Hadamard Product Constraint</a></h2>
+<p>The Spartan construction involves R1CS matrices, inner/outer sum-checks, and SPARK. Let's strip away that complexity and see the core ideas in isolation: the zero-on-hypercube reduction (using $\widetilde{\text{eq}}$ to convert &quot;vanishes everywhere&quot; into a single sum) and the halving trick for $O(N)$ proving. No sparsity here, just the dense case.</p>
+<p><strong>Problem.</strong> Given committed vectors $a, b, c \in \mathbb{F}^N$ (where $N = 2^n$), prove that $a \circ b = c$, the entrywise product.</p>
+<p>This constraint appears everywhere: multiplication gates in arithmetic circuits, quadratic constraints in R1CS, polynomial products in PLONK. It's the core building block that Spartan lifts to full R1CS.</p>
+<h3 id="the-reduction"><a class="header" href="#the-reduction">The Reduction</a></h3>
+<p>Define the error polynomial:
+$$g(x) = \tilde{a}(x) \cdot \tilde{b}(x) - \tilde{c}(x)$$</p>
+<p>where $\tilde{a}, \tilde{b}, \tilde{c}$ are multilinear extensions. (Note that $g$ is not itself multilinear since the product $\tilde{a} \cdot \tilde{b}$ has degree 2, so we write $g$ without the tilde.)</p>
+<p>The constraint $a \circ b = c$ holds if and only if $g(x) = 0$ for all $x \in {0,1}^n$.</p>
+<p>Using the zero-on-hypercube reduction from Spartan, sample random $r \in \mathbb{F}^n$ and check:
+$$\sum_{x \in {0,1}^n} \widetilde{\text{eq}}(r, x) \cdot g(x) = 0$$</p>
+<p>If any $g(x) \neq 0$, this sum is nonzero with high probability (Schwartz-Zippel).</p>
+<h3 id="the-protocol"><a class="header" href="#the-protocol">The Protocol</a></h3>
+<ol>
+<li>Verifier sends random $r \in \mathbb{F}^n$</li>
+<li>Prover claims $H = 0$ (the sum should be zero)</li>
+<li>Parties run sum-check on $\sum_x \widetilde{\text{eq}}(r, x) \cdot g(x) = 0$</li>
+<li>At the end, the verifier holds a random point $z = (z_1, \ldots, z_n)$ and a claimed final value $v_{\text{final}}$ from the last round of sum-check</li>
+<li>Prover opens $\tilde{a}(z), \tilde{b}(z), \tilde{c}(z)$ via polynomial commitments</li>
+<li>Verifier computes $\widetilde{\text{eq}}(r, z) \cdot (\tilde{a}(z) \cdot \tilde{b}(z) - \tilde{c}(z))$ and checks that it equals $v_{\text{final}}$</li>
+</ol>
+<p>The final check is the sum-check reduction endpoint: the verifier directly evaluates the polynomial being summed at the random point $z$ and confirms it matches what the prover claimed during the protocol.</p>
+<h3 id="prover-efficiency"><a class="header" href="#prover-efficiency">Prover Efficiency</a></h3>
+<p>The polynomial being summed is:
+$$\widetilde{\text{eq}}(r, x) \cdot (\tilde{a}(x) \cdot \tilde{b}(x) - \tilde{c}(x))$$</p>
+<p>This is a product of multilinear polynomials. The halving trick applies directly:</p>
+<ul>
+<li>Store tables for $\widetilde{\text{eq}}(r, \cdot)$, $\tilde{a}$, $\tilde{b}$, $\tilde{c}$ (or compute on the fly)</li>
+<li>Fold all four tables after each round</li>
+</ul>
+<p>Total prover time: $O(N)$, linear in the constraint size.</p>
+<h3 id="worked-example-hadamard-product-with-n--4"><a class="header" href="#worked-example-hadamard-product-with-n--4">Worked Example: Hadamard Product with $N = 4$</a></h3>
+<p>Let $n = 2$ and consider vectors of length 4:</p>
+<div class="table-wrapper"><table><thead><tr><th>Index $(b_1, b_2)$</th><th>$a$</th><th>$b$</th><th>$c = a \circ b$</th></tr></thead><tbody>
+<tr><td>$(0, 0)$</td><td>2</td><td>3</td><td>6</td></tr>
+<tr><td>$(0, 1)$</td><td>4</td><td>2</td><td>8</td></tr>
+<tr><td>$(1, 0)$</td><td>1</td><td>5</td><td>5</td></tr>
+<tr><td>$(1, 1)$</td><td>3</td><td>1</td><td>3</td></tr>
+</tbody></table>
+</div>
+<p>We want to prove $a \circ b = c$ via sum-check.</p>
+<p><strong>Step 1: Verifier sends random challenge $r = (r_1, r_2) = (2, 3)$.</strong></p>
+<p><strong>Step 2: Compute $\widetilde{\text{eq}}(r, x)$ for all $x \in {0,1}^2$.</strong></p>
+<p>The equality polynomial is $\widetilde{\text{eq}}(r, x) = \prod_i (r_i x_i + (1-r_i)(1-x_i))$.</p>
+<ul>
+<li>$\widetilde{\text{eq}}((2,3), (0,0)) = (1-2)(1-3) = (-1)(-2) = 2$</li>
+<li>$\widetilde{\text{eq}}((2,3), (0,1)) = (1-2)(3) = (-1)(3) = -3$</li>
+<li>$\widetilde{\text{eq}}((2,3), (1,0)) = (2)(1-3) = (2)(-2) = -4$</li>
+<li>$\widetilde{\text{eq}}((2,3), (1,1)) = (2)(3) = 6$</li>
+</ul>
+<p><strong>Step 3: Compute $g(x) = \tilde{a}(x) \cdot \tilde{b}(x) - \tilde{c}(x)$ on Boolean inputs.</strong></p>
+<p>Since $c = a \circ b$ is correct, $g(x) = 0$ for all $x \in {0,1}^2$:</p>
+<ul>
+<li>$g(0,0) = 2 \cdot 3 - 6 = 0$</li>
+<li>$g(0,1) = 4 \cdot 2 - 8 = 0$</li>
+<li>$g(1,0) = 1 \cdot 5 - 5 = 0$</li>
+<li>$g(1,1) = 3 \cdot 1 - 3 = 0$</li>
+</ul>
+<p><strong>Step 4: The claimed sum.</strong></p>
+<p>$$H = \sum_{x \in {0,1}^2} \widetilde{\text{eq}}(r, x) \cdot g(x) = 2 \cdot 0 + (-3) \cdot 0 + (-4) \cdot 0 + 6 \cdot 0 = 0$$</p>
+<p>Prover claims $H = 0$. This is correct because $a \circ b = c$.</p>
+<p><strong>Step 5: Run sum-check protocol.</strong></p>
+<p><strong>Round 1:</strong> The prover computes $s_1(X_1)$ by summing over $X_2 \in {0,1}$:
+$$s_1(X_1) = \sum_{x_2 \in {0,1}} \widetilde{\text{eq}}((2,3), (X_1, x_2)) \cdot g(X_1, x_2)$$</p>
+<p>Since $g$ is zero on Boolean inputs, the degree-3 polynomial $s_1(X_1)$ satisfies $s_1(0) + s_1(1) = 0$. The prover sends four evaluations $s_1(0), s_1(1), s_1(2), s_1(3)$ to specify this degree-3 polynomial (degree bound is 3: $\widetilde{\text{eq}}$ is degree 1, times $\tilde{a} \cdot \tilde{b}$ which is degree 2, giving degree 3 total).</p>
+<p><em>Technique: The prover computes $s_1$ by iterating over all $N = 4$ table entries once, $O(N)$ work for this round.</em></p>
+<p><strong>Round 2:</strong> After receiving challenge $z_1$, fold all four arrays using the halving trick from earlier in this chapter: $A'[x_2] = (1-z_1) \cdot A[0, x_2] + z_1 \cdot A[1, x_2]$, and similarly for $B$, $C$, and the $\widetilde{\text{eq}}$ table. Then compute $s_2(X_2)$ from the folded arrays. The verifier checks $s_2(0) + s_2(1) = s_1(z_1)$.</p>
+<p><em>Technique: Halving trick. After folding, the four tables of size 4 become four tables of size 2. Computing $s_2$ requires $O(N/2) = O(2)$ work. Total across both rounds: $O(4 + 2) = O(N)$, not $O(N \log N)$.</em></p>
+<p><strong>Final check:</strong> The verifier holds point $z = (z_1, z_2)$ and value $s_2(z_2)$. The prover opens $\tilde{a}(z), \tilde{b}(z), \tilde{c}(z)$. The verifier checks:
+$$\widetilde{\text{eq}}(r, z) \cdot (\tilde{a}(z) \cdot \tilde{b}(z) - \tilde{c}(z)) \stackrel{?}{=} s_2(z_2)$$</p>
+<p><em>Technique: Polynomial commitment opening. The prover uses the PCS to prove the three evaluations. The verifier checks the opening proofs (cost depends on PCS) and computes $\widetilde{\text{eq}}(r, z)$ directly in $O(\log N) = O(2)$ field multiplications.</em></p>
+<p><strong>Why this catches cheating.</strong> The left-hand side is just $f(z)$, the polynomial being summed, evaluated at the random point $z$. The right-hand side $s_2(z_2)$ is what the prover <em>claimed</em> this value would be during the sum-check protocol.</p>
+<p>The sum-check protocol guarantees: if the prover's claimed sum $H$ was correct, and all the round polynomials $s_1, s_2$ were consistent, then the final claimed value $s_2(z_2)$ must equal $f(z)$. If the prover lied anywhere (wrong sum, wrong round polynomial) the equality fails with high probability over the random challenges $z_1, z_2$.</p>
+<p><em>Technique: Schwartz-Zippel. If $a \circ b \neq c$, then some $g(x) \neq 0$ for at least one Boolean $x$. The random linear combination $H = \sum_x \widetilde{\text{eq}}(r, x) \cdot g(x)$ is nonzero with high probability over the random choice of $r$. A cheating prover claiming $H = 0$ when $H \neq 0$ will be caught by sum-check's final verification.</em></p>
+<p><strong>Work summary:</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Step</th><th>Prover</th><th>Verifier</th><th>Technique</th></tr></thead><tbody>
+<tr><td>Round 1</td><td>$O(N)$</td><td>$O(d)$</td><td>Direct summation over tables</td></tr>
+<tr><td>Round 2</td><td>$O(N/2)$</td><td>$O(d)$</td><td>Halving trick (folded tables)</td></tr>
+<tr><td>Final check</td><td>PCS-dependent</td><td>$O(\log N)$ + PCS</td><td>Polynomial commitment opening</td></tr>
+<tr><td><strong>Total</strong></td><td>$O(N)$</td><td>$O(\log N)$ + PCS</td><td>Geometric series: $N + N/2 + \ldots = O(N)$</td></tr>
+</tbody></table>
+</div>
+<h2 id="reducing-the-final-evaluation-cost"><a class="header" href="#reducing-the-final-evaluation-cost">Reducing the Final Evaluation Cost</a></h2>
+<p>Every sum-check protocol ends the same way: the verifier holds a random point $z$ and needs to check that $g(z)$ equals some claimed value. We've deferred this question throughout the chapter. Now it's time to address it directly.</p>
+<p>If $g = \tilde{a} \cdot \tilde{b} - \tilde{c}$, then $g(z)$ requires knowing $\tilde{a}(z), \tilde{b}(z), \tilde{c}(z)$.</p>
+<p><strong>Without commitments:</strong> Evaluating $\tilde{a}(z)$ from the coefficient representation takes $O(2^n)$ time, as expensive as the original sum.</p>
+<p><strong>With commitments:</strong> The polynomial commitment scheme handles this. The prover provides evaluation proofs for $\tilde{a}(z), \tilde{b}(z), \tilde{c}(z)$. The verifier checks these proofs (typically in time logarithmic or constant, depending on the PCS) and computes $g(z)$ with three field operations.</p>
+<p>This is where polynomial commitments earn their keep: they shift the final evaluation burden from direct computation to cryptographic verification.</p>
+<h3 id="batching"><a class="header" href="#batching">Batching</a></h3>
+<p>When sum-check produces multiple evaluation queries at the same point (like $\tilde{a}(z), \tilde{b}(z), \tilde{c}(z)$) batch evaluation arguments reduce proof size and verification time. Instead of three opening proofs, a single batched proof suffices.</p>
+<p>Chapter 20 develops these batch techniques.</p>
+<h2 id="the-streaming-model"><a class="header" href="#the-streaming-model">The Streaming Model</a></h2>
+<p>For truly massive computations ($N = 2^{40}$ terms), even $O(N)$ memory becomes prohibitive. That's a terabyte of field elements. The prefix-suffix decomposition opens an unexpected door: <strong>streaming provers</strong> that use sublinear memory.</p>
+<p><strong>Definition.</strong> A streaming prover processes the non-zero terms in sequential passes, using memory sublinear in $N$.</p>
+<p>With $c$ chunks:</p>
+<ul>
+<li>Passes: $c$</li>
+<li>Memory: $O(N^{1/c})$</li>
+</ul>
+<p>For $c = 2$: two passes, $O(\sqrt{N})$ memory. When $N = 2^{40}$, this means ~$2^{20}$ memory instead of $2^{40}$, a million-fold reduction.</p>
+<p>Streaming provers differ from recursive SNARKs. Recursion proves proofs of proofs, adding cryptographic overhead at each level. Streaming exploits the algebraic structure of sum-check directly, without recursion.</p>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<h3 id="core-techniques"><a class="header" href="#core-techniques">Core Techniques</a></h3>
+<ol>
+<li>
+<p><strong>The halving trick achieves $O(N)$ prover time.</strong> Naive sum-check costs $O(N \log N)$ because each of $\log N$ rounds recomputes $N$ terms. The halving trick folds evaluation tables after each round: $N \to N/2 \to N/4 \to \ldots$ Total work: $N + N/2 + N/4 + \ldots = O(N)$.</p>
+</li>
+<li>
+<p><strong>Folding relies on the hybrid evaluation property.</strong> For multilinear $\tilde{f}$: evaluating at $(r, x_2, \ldots, x_n)$ is a linear combination of evaluations at $(0, x_2, \ldots)$ and $(1, x_2, \ldots)$. This lets the prover collapse a table of size $N$ into size $N/2$ with $O(N)$ field operations.</p>
+</li>
+<li>
+<p><strong>Sparse sums via prefix-suffix decomposition.</strong> Factor $\widetilde{\text{eq}}(\tau, x) = \widetilde{\text{eq}}(\tau_{\text{prefix}}, x_{\text{prefix}}) \cdot \widetilde{\text{eq}}(\tau_{\text{suffix}}, x_{\text{suffix}})$. Precompute suffix contributions, then stream through non-zero terms. Cost: $O(T + \sqrt{N})$ for $T$ non-zeros with two passes and $O(\sqrt{N})$ memory.</p>
+</li>
+<li>
+<p><strong>Batching avoids linear blowup.</strong> When sum-check produces $k$ evaluation queries, don't run $k$ separate protocols. Combine with random coefficients: $\sum_i \rho_i \cdot \text{claim}_i$. One sum-check suffices; soundness follows from Schwartz-Zippel.</p>
+</li>
+</ol>
+<h3 id="spartans-architecture"><a class="header" href="#spartans-architecture">Spartan's Architecture</a></h3>
+<ol start="5">
+<li>
+<p><strong>Zero-on-hypercube reduction.</strong> To prove $g(x) = 0$ for all $x \in {0,1}^n$, prove instead that $\sum_x \widetilde{\text{eq}}(\tau, x) \cdot g(x) = 0$ for random $\tau$. The $\widetilde{\text{eq}}$ polynomial acts as a random linear combination of the constraints: if any constraint fails, the sum is nonzero with high probability (Schwartz-Zippel).</p>
+</li>
+<li>
+<p><strong>R1CS reduces to two sum-checks.</strong> Outer sum-check handles the zero-on-hypercube claim (prover: $O(m)$, halving trick). Inner sum-check handles matrix-vector products (prover: $O(n)$, halving trick + batching). Total: $O(m + n)$ for the interactive protocol.</p>
+</li>
+<li>
+<p><strong>SPARK achieves $O(T)$ for sparse matrices.</strong> Precompute $\widetilde{\text{eq}}(i, r)$ tables for all row/column indices in $O(m + n)$. Then each of $T$ non-zero entries requires only table lookups, with no per-entry logarithmic cost. Memory-checking fingerprints verify correctness.</p>
+</li>
+</ol>
+<h3 id="the-full-pipeline"><a class="header" href="#the-full-pipeline">The Full Pipeline</a></h3>
+<ol start="8">
+<li>
+<p><strong>Sum-check reduces verification to evaluation.</strong> After $\log N$ rounds, the verifier holds a random point $z$ and a claimed value $v$. All that remains: check that $f(z) = v$ for the polynomial $f$ being summed.</p>
+</li>
+<li>
+<p><strong>Polynomial commitments handle evaluations.</strong> The prover opens the committed polynomial at $z$; the verifier checks the opening proof. This is where cryptographic hardness enters, since sum-check itself is information-theoretic.</p>
+</li>
+<li>
+<p><strong>Streaming provers trade passes for memory.</strong> With $c$ passes, memory drops to $O(N^{1/c})$. At $c = 2$: two passes, $O(\sqrt{N})$ memory. This exploits sum-check's algebraic structure directly, without recursive proof composition.</p>
+</li>
+</ol>
+<h3 id="historical-perspective"><a class="header" href="#historical-perspective">Historical Perspective</a></h3>
+<ol start="11">
+<li><strong>The PCP detour cost two decades.</strong> The path IP → PCP → Kilian → Fiat-Shamir removes interaction, reintroduces it, then removes it again. The direct path (sum-check + Fiat-Shamir) skips the redundant steps. Modern systems (Spartan, Lasso, Jolt, Binius) follow the direct path and achieve prover times within small constants of witness computation.</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="18-making-proofs-zero-knowledge.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="20-minimizing-commitment-costs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="18-making-proofs-zero-knowledge.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="20-minimizing-commitment-costs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

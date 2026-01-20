@@ -1,0 +1,480 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The SNARK Recipe - Minimizing Trust, Maximizing Truth</title>
+
+
+        <!-- Custom HTML head -->
+        <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Foundations</li><li class="chapter-item expanded "><a href="01-the-trust-problem.html"><strong aria-hidden="true">1.</strong> The Trust Problem</a></li><li class="chapter-item expanded "><a href="02-the-alchemical-power-of-polynomials.html"><strong aria-hidden="true">2.</strong> The Alchemical Power of Polynomials</a></li><li class="chapter-item expanded "><a href="03-the-sum-check-protocol.html"><strong aria-hidden="true">3.</strong> The Sum-Check Protocol</a></li><li class="chapter-item expanded "><a href="04-multilinear-extensions.html"><strong aria-hidden="true">4.</strong> Multilinear Extensions</a></li><li class="chapter-item expanded "><a href="05-univariate-polynomials-and-finite-fields.html"><strong aria-hidden="true">5.</strong> Univariate Polynomials and Finite Fields</a></li><li class="chapter-item expanded "><a href="06-commitment-schemes.html"><strong aria-hidden="true">6.</strong> Commitment Schemes</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Protocols</li><li class="chapter-item expanded "><a href="07-the-gkr-protocol.html"><strong aria-hidden="true">7.</strong> The GKR Protocol</a></li><li class="chapter-item expanded "><a href="08-from-circuits-to-polynomials.html"><strong aria-hidden="true">8.</strong> From Circuits to Polynomials</a></li><li class="chapter-item expanded "><a href="09-polynomial-commitment-schemes.html"><strong aria-hidden="true">9.</strong> Polynomial Commitment Schemes</a></li><li class="chapter-item expanded "><a href="10-hash-based-commitments-and-fri.html"><strong aria-hidden="true">10.</strong> Hash-Based Commitments and FRI</a></li><li class="chapter-item expanded affix "><li class="part-title">SNARK Construction</li><li class="chapter-item expanded "><a href="11-the-snark-recipe.html" class="active"><strong aria-hidden="true">11.</strong> The SNARK Recipe</a></li><li class="chapter-item expanded "><a href="12-groth16.html"><strong aria-hidden="true">12.</strong> Groth16</a></li><li class="chapter-item expanded "><a href="13-plonk.html"><strong aria-hidden="true">13.</strong> PLONK</a></li><li class="chapter-item expanded "><a href="14-lookup-arguments.html"><strong aria-hidden="true">14.</strong> Lookup Arguments</a></li><li class="chapter-item expanded "><a href="15-starks.html"><strong aria-hidden="true">15.</strong> STARKs</a></li><li class="chapter-item expanded affix "><li class="part-title">Zero-Knowledge</li><li class="chapter-item expanded "><a href="16-sigma-protocols.html"><strong aria-hidden="true">16.</strong> Sigma Protocols</a></li><li class="chapter-item expanded "><a href="17-the-zero-knowledge-property.html"><strong aria-hidden="true">17.</strong> The Zero-Knowledge Property</a></li><li class="chapter-item expanded "><a href="18-making-proofs-zero-knowledge.html"><strong aria-hidden="true">18.</strong> Making Proofs Zero-Knowledge</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Topics</li><li class="chapter-item expanded "><a href="19-fast-sum-check-proving.html"><strong aria-hidden="true">19.</strong> Fast Sum-Check Proving</a></li><li class="chapter-item expanded "><a href="20-minimizing-commitment-costs.html"><strong aria-hidden="true">20.</strong> Minimizing Commitment Costs</a></li><li class="chapter-item expanded "><a href="21-the-two-classes-of-piops.html"><strong aria-hidden="true">21.</strong> The Two Classes of PIOPs</a></li><li class="chapter-item expanded "><a href="22-composition-and-recursion.html"><strong aria-hidden="true">22.</strong> Composition and Recursion</a></li><li class="chapter-item expanded "><a href="23-choosing-a-snark.html"><strong aria-hidden="true">23.</strong> Choosing a SNARK</a></li><li class="chapter-item expanded affix "><li class="part-title">Broader Context</li><li class="chapter-item expanded "><a href="24-mpc-and-zk-parallel-paths.html"><strong aria-hidden="true">24.</strong> MPC and ZK Parallel Paths</a></li><li class="chapter-item expanded "><a href="25-frontiers-and-open-problems.html"><strong aria-hidden="true">25.</strong> Frontiers and Open Problems</a></li><li class="chapter-item expanded "><a href="26-zk-in-the-cryptographic-landscape.html"><strong aria-hidden="true">26.</strong> ZK in the Cryptographic Landscape</a></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="appendix-a-cryptographic-primitives.html"><strong aria-hidden="true">27.</strong> Cryptographic Primitives</a></li><li class="chapter-item expanded "><a href="appendix-b-historical-timeline.html"><strong aria-hidden="true">28.</strong> Historical Timeline</a></li><li class="chapter-item expanded "><a href="appendix-c-field-equations-cheat-sheet.html"><strong aria-hidden="true">29.</strong> Field Equations Cheat Sheet</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Minimizing Trust, Maximizing Truth</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook/edit/main/web/src/11-the-snark-recipe.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-11-the-snark-recipe-assembling-the-pieces"><a class="header" href="#chapter-11-the-snark-recipe-assembling-the-pieces">Chapter 11: The SNARK Recipe: Assembling the Pieces</a></h1>
+<p>We have accumulated a collection of techniques: sum-check for verifying polynomial sums, multilinear extensions for encoding functions, GKR for circuit verification, R1CS, QAP, and PLONKish for arithmetization, and polynomial commitment schemes for binding provers to their claims.</p>
+<p>Each technique solves a piece of the puzzle. None is a complete proof system. The question now is architectural: how do these components compose into the succinct, non-interactive arguments deployed in practice?</p>
+<p>The answer has a remarkably clean structure. Modern SNARKs decompose into three layers, each with a distinct role. Understanding this decomposition is more valuable than memorizing any particular system; it provides the conceptual vocabulary to navigate the entire landscape.</p>
+<h2 id="the-three-layer-architecture"><a class="header" href="#the-three-layer-architecture">The Three-Layer Architecture</a></h2>
+<p>Every modern SNARK follows the same structural pattern:</p>
+<pre><code>┌───────────────────────────────────────────────────────────────────────┐
+│                    THE SNARK CONSTRUCTION PIPELINE                     │
+├───────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│   ┌─────────────────────────────────────────────────────────────┐    │
+│   │  COMPUTATION                                                 │    │
+│   │  &quot;I know x such that f(x) = y&quot;                              │    │
+│   └───────────────────────────────┬─────────────────────────────┘    │
+│                                   │                                   │
+│                                   ▼  Arithmetization                  │
+│   ┌─────────────────────────────────────────────────────────────┐    │
+│   │  POLYNOMIAL CONSTRAINTS                                      │    │
+│   │  R1CS, PLONK gates, AIR, etc.                               │    │
+│   └───────────────────────────────┬─────────────────────────────┘    │
+│                                   │                                   │
+│                                   ▼                                   │
+│  ╔═════════════════════════════════════════════════════════════════╗ │
+│  ║  LAYER 1: Interactive Oracle Proof (IOP)                        ║ │
+│  ║                                                                  ║ │
+│  ║  • Prover sends polynomials (abstractly)                        ║ │
+│  ║  • Verifier queries evaluations at random points                ║ │
+│  ║  • Protocol logic: what to check, how to challenge              ║ │
+│  ║                                                                  ║ │
+│  ║  Examples: Sum-check, PLONK IOP, GKR                            ║ │
+│  ╚══════════════════════════════════╤══════════════════════════════╝ │
+│                                     │                                 │
+│                                     ▼                                 │
+│  ╔═════════════════════════════════════════════════════════════════╗ │
+│  ║  LAYER 2: Polynomial Commitment Scheme (PCS)                    ║ │
+│  ║                                                                  ║ │
+│  ║  • Commit: polynomial → short commitment                        ║ │
+│  ║  • Open: prove evaluation at a point                            ║ │
+│  ║  • Binding: can't change polynomial after commit                ║ │
+│  ║                                                                  ║ │
+│  ║  Options: KZG (trusted), IPA (transparent), FRI (post-quantum)  ║ │
+│  ╚══════════════════════════════════╤══════════════════════════════╝ │
+│                                     │                                 │
+│                                     ▼                                 │
+│  ╔═════════════════════════════════════════════════════════════════╗ │
+│  ║  LAYER 3: Fiat-Shamir Transformation                            ║ │
+│  ║                                                                  ║ │
+│  ║  • Replace verifier randomness with hash outputs                ║ │
+│  ║  • Challenge = Hash(transcript so far)                          ║ │
+│  ║  • Interactive → Non-interactive                                ║ │
+│  ║                                                                  ║ │
+│  ║  Security: Random Oracle Model                                  ║ │
+│  ╚══════════════════════════════════╤══════════════════════════════╝ │
+│                                     │                                 │
+│                                     ▼                                 │
+│   ┌─────────────────────────────────────────────────────────────┐    │
+│   │  RESULT: Non-Interactive Zero-Knowledge Argument (SNARK)    │    │
+│   │                                                              │    │
+│   │  • Proof: ~100 bytes to ~100 KB depending on choices        │    │
+│   │  • Verification: milliseconds, independent of circuit size  │    │
+│   │  • Properties: succinct, sound, (optionally) zero-knowledge │    │
+│   └─────────────────────────────────────────────────────────────┘    │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Layer 1</strong> operates in an idealized model where the verifier has <em>oracle access</em> to polynomials (they can query evaluations at arbitrary points without seeing the polynomial's full description). The protocol's logic is defined here: what polynomials the prover sends, what checks the verifier performs, how challenges and responses interleave.</p>
+<p><strong>Layer 2</strong> instantiates the oracle model cryptographically. Oracle access becomes commitment and opening: the prover commits to a polynomial before seeing queries, then provides evaluation proofs at requested points. The binding property of the commitment scheme ensures the prover cannot retroactively modify their polynomial.</p>
+<p><strong>Layer 3</strong> eliminates interaction. The verifier's random challenges are replaced by hash function outputs computed from the transcript. The prover simulates the entire interaction locally and outputs a static proof.</p>
+<p>This separation is not merely pedagogical. It enables genuine modularity: the same IOP can be compiled with different commitment schemes, yielding systems with different trust assumptions, proof sizes, and verification costs. PLONK with KZG gives constant-size proofs requiring trusted setup. PLONK with FRI gives larger proofs but no trusted setup and post-quantum security. The IOP is unchanged; only the cryptographic instantiation differs.</p>
+<h2 id="layer-1-interactive-oracle-proofs"><a class="header" href="#layer-1-interactive-oracle-proofs">Layer 1: Interactive Oracle Proofs</a></h2>
+<p>An <strong>Interactive Oracle Proof (IOP)</strong> is an interactive protocol where the prover sends <em>polynomials</em> rather than field elements, and the verifier has oracle access to these polynomials: they can query any evaluation without seeing the full polynomial description.</p>
+<h3 id="the-oracle-abstraction"><a class="header" href="#the-oracle-abstraction">The Oracle Abstraction</a></h3>
+<p>The oracle model captures a precise constraint: the prover's polynomial is fixed before the verifier chooses query points. This ordering is essential.</p>
+<p>To see why, consider what happens without it. Suppose the prover claims their polynomial $f(X)$ is identically zero. If $f$ were truly zero, it would vanish at every point. If $f$ is nonzero of degree $d$, it has at most $d$ roots. A random query from a field of size $|\mathbb{F}|$ hits a root with probability at most $d/|\mathbb{F}|$.</p>
+<p>With $|\mathbb{F}| = 2^{256}$ and $d = 10^6$, this probability is astronomically small. A single random query catches a cheating prover with overwhelming probability.</p>
+<p>But this analysis assumes the polynomial is fixed before the query point is chosen. If the prover could see the query point and then construct their polynomial to vanish there, the soundness guarantee would collapse. The oracle abstraction formalizes precisely this constraint: commitment precedes query.</p>
+<h3 id="sum-check-as-an-iop"><a class="header" href="#sum-check-as-an-iop">Sum-Check as an IOP</a></h3>
+<p>The sum-check protocol fits naturally into this framework:</p>
+<ol>
+<li>Prover sends polynomial $g_1(X_1)$</li>
+<li>Verifier queries $g_1(0)$ and $g_1(1)$, checks $g_1(0) + g_1(1) = H$ (the claimed sum)</li>
+<li>Verifier sends random challenge $r_1$</li>
+<li>Prover sends polynomial $g_2(X_2)$</li>
+<li>Verifier queries $g_2(0)$ and $g_2(1)$, checks $g_1(r_1) = g_2(0) + g_2(1)$</li>
+<li>Continue for $n$ rounds</li>
+</ol>
+<p>The verifier accesses polynomials only through specific evaluations. They never see coefficients directly. The protocol's correctness analysis (its completeness and soundness) requires only that the prover commits to each polynomial before seeing the next challenge.</p>
+<h3 id="iop-quality-metrics"><a class="header" href="#iop-quality-metrics">IOP Quality Metrics</a></h3>
+<p>Not all IOPs are equivalent. The critical parameters:</p>
+<p><strong>Query complexity</strong>: The number of evaluation queries the verifier makes. Each query becomes an evaluation proof in the compiled SNARK, directly affecting proof size.</p>
+<p><strong>Round complexity</strong>: The number of prover-verifier exchanges. Each round becomes a hash computation in Fiat-Shamir. Sum-check has $O(\log n)$ rounds; some IOPs achieve constant rounds.</p>
+<p><strong>Prover complexity</strong>: The computational cost of generating the prover's messages. This should be quasi-linear in the computation size: $O(n \log n)$ or $O(n \log^2 n)$. Quadratic prover complexity renders the system impractical for large computations.</p>
+<p><strong>Soundness error</strong>: The probability that a cheating prover convinces the verifier. Typically $O(d/|\mathbb{F}|)$ per round, where $d$ is the maximum polynomial degree.</p>
+<p>These parameters trade off against each other. Fewer queries mean smaller proofs but often require more prover work or stronger assumptions. The art of IOP design lies in navigating these trade-offs for specific applications.</p>
+<h2 id="layer-2-polynomial-commitment-schemes"><a class="header" href="#layer-2-polynomial-commitment-schemes">Layer 2: Polynomial Commitment Schemes</a></h2>
+<p>The IOP assumes the verifier can query polynomial evaluations. In reality, there is no oracle: the prover must send something over a communication channel. The <strong>polynomial commitment scheme</strong> provides the cryptographic mechanism.</p>
+<p>A PCS provides three operations:</p>
+<p><strong>Commit</strong>: Given polynomial $f$, produce a short commitment $C$</p>
+<p><strong>Open</strong>: Given commitment $C$, point $z$, and claimed value $v$, produce a proof $\pi$ that $f(z) = v$</p>
+<p><strong>Verify</strong>: Given $C$, $z$, $v$, and $\pi$, accept or reject</p>
+<p>The critical property is <strong>binding</strong>: once the prover has sent commitment $C$, there exists (with overwhelming probability) only one polynomial $f$ that they can successfully open at any point. The prover cannot commit to one polynomial and later open to a different one.</p>
+<h3 id="compilation"><a class="header" href="#compilation">Compilation</a></h3>
+<p>The compilation from IOP to <strong>interactive argument</strong>, a protocol where prover and verifier exchange messages with soundness based on cryptographic assumptions rather than information-theoretic guarantees, is mechanical:</p>
+<ul>
+<li>When the IOP specifies &quot;prover sends polynomial $f$,&quot; the compiled protocol has the prover send $C = \text{Commit}(f)$</li>
+<li>When the IOP specifies &quot;verifier queries $f(z)$,&quot; the compiled protocol has the verifier announce $z$, the prover respond with $v = f(z)$ and proof $\pi$, and the verifier check $\text{Verify}(C, z, v, \pi)$</li>
+</ul>
+<h3 id="why-compilation-preserves-soundness"><a class="header" href="#why-compilation-preserves-soundness">Why Compilation Preserves Soundness</a></h3>
+<p>The IOP's soundness proof assumes the verifier receives the true evaluation $f(z)$ when they query. After compilation, the verifier instead receives a claimed value $v$ with a proof $\pi$.</p>
+<p>The binding property ensures these are equivalent. If the prover committed to polynomial $f$ (by sending $C$), they can only produce valid proofs for evaluations that $f$ actually takes. Any attempt to claim $v \neq f(z)$ requires either breaking the binding property or producing an invalid proof.</p>
+<p>The prover sends $C$ before seeing the query point $z$; this is exactly the ordering that the oracle model abstracts. Binding translates the abstract constraint into a concrete cryptographic guarantee.</p>
+<p>If the binding property fails (if the prover can commit to one polynomial and open to another) the entire soundness argument collapses. This is why the security of a SNARK ultimately rests on the security of its underlying PCS.</p>
+<h3 id="pcs-choices"><a class="header" href="#pcs-choices">PCS Choices</a></h3>
+<p>Different commitment schemes offer different trade-offs:</p>
+<div class="table-wrapper"><table><thead><tr><th>PCS</th><th>Setup</th><th>Proof Size</th><th>Verification</th><th>Assumption</th></tr></thead><tbody>
+<tr><td>KZG</td><td>Trusted</td><td>$O(1)$</td><td>$O(1)$</td><td>q-SDH + Pairings</td></tr>
+<tr><td>IPA</td><td>Transparent</td><td>$O(\log n)$</td><td>$O(n)$</td><td>DLog</td></tr>
+<tr><td>Dory</td><td>Transparent</td><td>$O(\log n)$</td><td>$O(\log n)$</td><td>DLog + Pairings</td></tr>
+<tr><td>FRI</td><td>Transparent</td><td>$O(\log^2 n)$</td><td>$O(\log^2 n)$</td><td>Collision-resistant hash</td></tr>
+</tbody></table>
+</div>
+<p>The choice is application-dependent. On-chain verification pays per byte and per operation; KZG's constant-size proofs minimize gas costs. Systems prioritizing trust minimization accept larger proofs for transparent setup. Long-term security considerations may favor FRI's resistance to quantum attacks.</p>
+<h2 id="layer-3-the-fiat-shamir-transformation"><a class="header" href="#layer-3-the-fiat-shamir-transformation">Layer 3: The Fiat-Shamir Transformation</a></h2>
+<p>After PCS compilation, we have an <em>interactive</em> argument: prover sends commitment, verifier sends challenge, prover responds, and so on. For many applications (blockchain verification, credential systems, asynchronous protocols) interaction is unacceptable. We need a static proof that anyone can verify without engaging in a conversation.</p>
+<p>The <strong>Fiat-Shamir transformation</strong> achieves this by replacing the verifier's random challenges with hash function outputs.</p>
+<p>In the interactive protocol:</p>
+<pre><code>Prover -&gt; commitment C_1 -&gt; Verifier
+Verifier -&gt; random r_1 -&gt; Prover
+Prover -&gt; commitment C_2 -&gt; Verifier
+Verifier -&gt; random r_2 -&gt; Prover
+...
+</code></pre>
+<p>After Fiat-Shamir:</p>
+<pre><code>Prover computes:
+  C_1 = Commit(f_1)
+  r_1 = Hash(C_1)
+  C_2 = Commit(f_2)
+  r_2 = Hash(C_1 || r_1 || C_2)
+  ...
+Prover outputs: (C_1, C_2, ..., evaluations, proofs)
+</code></pre>
+<p>The verifier reconstructs challenges from the transcript and performs all checks.</p>
+<h3 id="security-analysis"><a class="header" href="#security-analysis">Security Analysis</a></h3>
+<p>The interactive protocol's soundness rests on <em>unpredictability</em>: the prover commits to $C_1$ without knowing what challenge $r_1$ will be. This prevents the prover from crafting commitments that exploit specific challenges.</p>
+<p>Fiat-Shamir preserves unpredictability under the <strong>random oracle model</strong>: the assumption that the hash function behaves like a truly random function. If the prover cannot predict $\text{Hash}(C_1)$ before choosing $C_1$, they face the same constraint as in the interactive setting.</p>
+<p>A cheating prover's only recourse is to try many values of $C_1$, compute $\text{Hash}(C_1)$ for each, and hope to find one yielding a favorable challenge. This is a <strong>grinding attack</strong>. If the underlying protocol has soundness error $\epsilon$, and the prover can compute $T$ hashes, the effective soundness error becomes roughly $T \cdot \epsilon$.</p>
+<p>For a protocol with $\epsilon = 2^{-128}$ and an adversary computing $T = 2^{40}$ hashes, the effective soundness is $2^{-88}$ (still negligible). Larger fields provide additional margin.</p>
+<h3 id="transcript-construction"><a class="header" href="#transcript-construction">Transcript Construction</a></h3>
+<p>A subtle but critical requirement: the hash must include the <em>entire</em> transcript up to that point.</p>
+<p>The challenge $r_i$ must depend on:</p>
+<ul>
+<li>The public statement being proved</li>
+<li>All previous commitments $C_1, \ldots, C_{i-1}$</li>
+<li>All previous challenges $r_1, \ldots, r_{i-1}$</li>
+<li>All previous evaluation proofs</li>
+</ul>
+<p>Omitting the public statement allows the same proof to verify for different statements (a complete soundness failure). Omitting previous challenges may allow the prover to fork the transcript and find favorable paths.</p>
+<p>Modern implementations use transcript abstractions (often called &quot;sponges&quot; or &quot;Fiat-Shamir transcripts&quot;) that automatically absorb each message. This prevents accidental omissions.</p>
+<h3 id="the-random-oracle-caveat"><a class="header" href="#the-random-oracle-caveat">The Random Oracle Caveat</a></h3>
+<p>Fiat-Shamir security is proven in the random oracle model. Real hash functions are not random oracles; they are deterministic algorithms with internal structure.</p>
+<p>No practical attacks are known against carefully instantiated Fiat-Shamir. But there is no proof of security from standard assumptions. The hash function must be collision-resistant, but collision resistance alone does not suffice for Fiat-Shamir security.</p>
+<p>This remains one of the gaps between theory and practice in deployed cryptography.</p>
+<h2 id="the-complete-pipeline"><a class="header" href="#the-complete-pipeline">The Complete Pipeline</a></h2>
+<p>The three layers compose into a complete SNARK construction pipeline:</p>
+<p><strong>Step 1: Arithmetization</strong>: Convert the computation into a constraint system (R1CS, PLONK gates, AIR). The statement &quot;I know $w$ such that $C(x, w) = 1$&quot; becomes &quot;there exist polynomials satisfying these identities.&quot;</p>
+<p><strong>Step 2: IOP Design</strong>: Define an interactive protocol where the prover sends polynomials and the verifier checks algebraic relations via evaluation queries.</p>
+<p><strong>Step 3: PCS Compilation</strong>: Replace polynomial oracles with commitments and evaluation proofs.</p>
+<p><strong>Step 4: Fiat-Shamir</strong>: Replace interactive challenges with hash outputs.</p>
+<p>The result is a non-interactive proof that can be verified by anyone with the public statement and verification key.</p>
+<h3 id="a-concrete-trace"><a class="header" href="#a-concrete-trace">A Concrete Trace</a></h3>
+<p>Consider proving knowledge of a satisfying R1CS witness.</p>
+<p><strong>Arithmetization</strong>: The R1CS constraint $(A \cdot s) \circ (B \cdot s) = C \cdot s$ becomes a polynomial identity. Define $\tilde{g}(X)$ such that $\tilde{g}$ vanishes on all of ${0,1}^n$ if and only if the constraints are satisfied.</p>
+<p><strong>IOP (Sum-Check)</strong>: The prover commits to the witness polynomial $\tilde{w}$. To prove all constraints are satisfied, they prove:</p>
+<p>$$\sum_{X \in {0,1}^n} \tilde{g}(X) = 0$$</p>
+<p>using sum-check. This reduces to a single evaluation of $\tilde{g}$ at a random point $(r_1, \ldots, r_n)$, which in turn requires evaluating $\tilde{w}$ at that point.</p>
+<p><strong>PCS Compilation (with KZG)</strong>:</p>
+<ul>
+<li>Prover sends $C_w = \text{KZG.Commit}(\tilde{w})$</li>
+<li>Each sum-check round, prover commits to the univariate polynomial $g_i$</li>
+<li>Final evaluation $\tilde{w}(r_1, \ldots, r_n)$ comes with a KZG opening proof</li>
+</ul>
+<p><strong>Fiat-Shamir</strong>: Each challenge $r_i$ is computed as $\text{Hash}(\text{transcript})$. The final proof is the collection of commitments, claimed evaluations, and opening proofs.</p>
+<h3 id="proof-size-analysis"><a class="header" href="#proof-size-analysis">Proof Size Analysis</a></h3>
+<p>For a circuit with $n = 20$ variables (approximately one million gates), with KZG:</p>
+<ul>
+<li>Sum-check round polynomials: ~20 commitments × 48 bytes = ~1 KB</li>
+<li>Evaluations: ~60 field elements × 32 bytes = ~2 KB</li>
+<li>Batched KZG opening proof: ~48 bytes</li>
+</ul>
+<p>Total: approximately 3 KB.</p>
+<p>The witness contains millions of field elements. The proof is five orders of magnitude smaller. This is succinctness.</p>
+<p>With FRI instead of KZG, proof size grows to ~100 KB (larger, but still succinct, and requiring no trusted setup).</p>
+<h2 id="zero-knowledge"><a class="header" href="#zero-knowledge">Zero-Knowledge</a></h2>
+<p>We have focused on succinctness and soundness. The basic construction does not provide zero-knowledge: the sum-check polynomials reveal information about the witness.</p>
+<p>Adding zero-knowledge requires additional techniques:</p>
+<p><strong>Hiding commitments</strong>: Use randomized commitments (Pedersen with blinding factors) so that the commitment itself reveals nothing about the polynomial.</p>
+<p><strong>Masking polynomials</strong>: Add random low-degree polynomials to the prover's messages. These polynomials sum to zero and thus don't affect correctness, but they obscure the structure of individual evaluations.</p>
+<p>Chapter 17 develops these techniques in detail. The key point here: zero-knowledge is a property <em>layered on top</em> of the basic SNARK construction. The three-layer architecture applies equally to zero-knowledge and non-zero-knowledge systems.</p>
+<h2 id="modularity-in-practice"><a class="header" href="#modularity-in-practice">Modularity in Practice</a></h2>
+<p>The three-layer decomposition has practical consequences beyond conceptual clarity.</p>
+<p><strong>Upgradability</strong>: When a better PCS is developed, existing IOPs can adopt it. PLONK was originally specified with KZG. It now has FRI-based variants (Plonky2, Plonky3) that inherit PLONK's arithmetization and IOP while gaining transparency and post-quantum resistance.</p>
+<p><strong>Specialized optimization</strong>: Each layer can be optimized independently. Improvements to sum-check proving (Chapter 19) benefit all sum-check-based SNARKs regardless of their PCS. Improvements to KZG batch opening benefit all KZG-based systems regardless of their IOP.</p>
+<p><strong>Analysis decomposition</strong>: Security analysis can proceed layer by layer. The IOP's soundness is analyzed in the oracle model. The PCS's binding property is analyzed under its cryptographic assumption. Fiat-Shamir security is analyzed in the random oracle model. Each analysis is self-contained.</p>
+<p><strong>System comprehension</strong>: When encountering a new SNARK, the first questions are: What is the IOP? What is the PCS? This decomposition makes the landscape navigable. New systems become variations on known themes rather than entirely novel constructions.</p>
+<h2 id="taxonomy"><a class="header" href="#taxonomy">Taxonomy</a></h2>
+<p>With the three-layer model, we can classify the SNARK landscape:</p>
+<p><strong>By IOP</strong>:</p>
+<ul>
+<li><em>Linear PCP-based</em>: Groth16 (the prover's messages are linear combinations of wire values, enabling constant verification via encrypted linear checks)</li>
+<li><em>Polynomial IOP-based</em>: PLONK, Marlin (the prover sends polynomials, the verifier checks polynomial identities)</li>
+<li><em>Sum-check-based</em>: Spartan, Lasso (verification reduces to sum-check over multilinear polynomials)</li>
+<li><em>FRI-based</em>: STARKs (low-degree testing via the FRI protocol)</li>
+</ul>
+<p><strong>By PCS</strong>:</p>
+<ul>
+<li><em>Pairing-based</em>: KZG (constant-size proofs, trusted setup)</li>
+<li><em>Discrete-log-based</em>: IPA/Bulletproofs (logarithmic proofs, transparent)</li>
+<li><em>Hash-based</em>: FRI (polylogarithmic proofs, post-quantum)</li>
+</ul>
+<p><strong>By setup requirements</strong>:</p>
+<ul>
+<li><em>Circuit-specific</em>: Groth16 (new trusted setup per circuit)</li>
+<li><em>Universal</em>: PLONK, Marlin (single trusted setup for all circuits up to a size bound)</li>
+<li><em>Transparent</em>: STARKs, Spartan+IPA (no trusted setup)</li>
+</ul>
+<p>No single system dominates all metrics. The choice depends on what constraints bind most tightly in a given application.</p>
+<h2 id="common-failure-modes"><a class="header" href="#common-failure-modes">Common Failure Modes</a></h2>
+<p>Certain mistakes recur in SNARK implementations:</p>
+<p><strong>Incomplete Fiat-Shamir transcripts</strong>: Omitting the public statement, or previous challenges, from the hash input. This allows proof malleability or statement confusion. The fix is systematic: use a transcript abstraction that absorbs every message. This isn't hypothetical; multiple production systems have been broken by incomplete transcripts.</p>
+<p><strong>Insufficient field size</strong>: Soundness error is $O(d/|\mathbb{F}|)$ per round. With many rounds and modest field size, security margins shrink. The 64-bit Goldilocks field, popular for its fast arithmetic, requires careful analysis and sometimes additional protocol rounds.</p>
+<p><strong>Quadratic prover complexity</strong>: Some natural IOP constructions require the prover to perform $O(n^2)$ work. This is acceptable for small circuits but prohibitive at scale. Quasi-linear prover complexity ($O(n \log n)$ or $O(n \log^2 n)$) is the design target.</p>
+<p><strong>Neglecting witness generation</strong>: The prover must compute the witness before proving knowledge of it. Circuit designs that optimize for prover complexity may inadvertently create expensive witness generation. The entire pipeline matters.</p>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li>
+<p><strong>Three-layer architecture</strong>: IOP defines protocol logic, PCS provides cryptographic binding, Fiat-Shamir eliminates interaction. Each layer is analyzed independently.</p>
+</li>
+<li>
+<p><strong>Oracle abstraction</strong>: The prover commits before the verifier queries. This ordering, not any particular commitment mechanism, is what enables random evaluation to catch cheating.</p>
+</li>
+<li>
+<p><strong>Binding bridges abstraction to cryptography</strong>: The PCS's binding property directly instantiates the oracle model's commitment semantics.</p>
+</li>
+<li>
+<p><strong>Fiat-Shamir requires unpredictability</strong>: Security holds when the prover cannot predict hash outputs. Grinding attacks bound the effective advantage.</p>
+</li>
+<li>
+<p><strong>Transcript completeness is critical</strong>: Every message must enter the hash. Omissions break soundness.</p>
+</li>
+<li>
+<p><strong>Modularity is structural</strong>: Same IOP, different PCS yields different systems. This is how the field evolves.</p>
+</li>
+<li>
+<p><strong>Query complexity determines proof size</strong>: Each IOP query becomes a PCS opening proof.</p>
+</li>
+<li>
+<p><strong>Zero-knowledge is additive</strong>: The basic construction gives succinctness and soundness. Zero-knowledge requires additional masking.</p>
+</li>
+<li>
+<p><strong>No universal optimum</strong>: KZG minimizes proof size with trusted setup. FRI eliminates setup with larger proofs. IPA trades verification time for transparency. The choice is application-dependent.</p>
+</li>
+<li>
+<p><strong>The decomposition is the understanding</strong>: Knowing how layers compose matters more than memorizing specific systems.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="10-hash-based-commitments-and-fri.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="12-groth16.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="10-hash-based-commitments-and-fri.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="12-groth16.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

@@ -1,0 +1,20 @@
+[book]
+title = "Minimizing Trust, Maximizing Truth"
+authors = ["particle"]
+description = "The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs"
+src = "src"
+language = "en"
+
+[build]
+build-dir = "book"
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/0xParti/zkBook"
+edit-url-template = "https://github.com/0xParti/zkBook/edit/main/web/{path}"
+site-url = "/zkBook/"
+
+[output.html.fold]
+enable = true
+level = 1

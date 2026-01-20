@@ -1,0 +1,858 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>From Circuits to Polynomials - Minimizing Trust, Maximizing Truth</title>
+
+
+        <!-- Custom HTML head -->
+        <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Foundations</li><li class="chapter-item expanded "><a href="01-the-trust-problem.html"><strong aria-hidden="true">1.</strong> The Trust Problem</a></li><li class="chapter-item expanded "><a href="02-the-alchemical-power-of-polynomials.html"><strong aria-hidden="true">2.</strong> The Alchemical Power of Polynomials</a></li><li class="chapter-item expanded "><a href="03-the-sum-check-protocol.html"><strong aria-hidden="true">3.</strong> The Sum-Check Protocol</a></li><li class="chapter-item expanded "><a href="04-multilinear-extensions.html"><strong aria-hidden="true">4.</strong> Multilinear Extensions</a></li><li class="chapter-item expanded "><a href="05-univariate-polynomials-and-finite-fields.html"><strong aria-hidden="true">5.</strong> Univariate Polynomials and Finite Fields</a></li><li class="chapter-item expanded "><a href="06-commitment-schemes.html"><strong aria-hidden="true">6.</strong> Commitment Schemes</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Protocols</li><li class="chapter-item expanded "><a href="07-the-gkr-protocol.html"><strong aria-hidden="true">7.</strong> The GKR Protocol</a></li><li class="chapter-item expanded "><a href="08-from-circuits-to-polynomials.html" class="active"><strong aria-hidden="true">8.</strong> From Circuits to Polynomials</a></li><li class="chapter-item expanded "><a href="09-polynomial-commitment-schemes.html"><strong aria-hidden="true">9.</strong> Polynomial Commitment Schemes</a></li><li class="chapter-item expanded "><a href="10-hash-based-commitments-and-fri.html"><strong aria-hidden="true">10.</strong> Hash-Based Commitments and FRI</a></li><li class="chapter-item expanded affix "><li class="part-title">SNARK Construction</li><li class="chapter-item expanded "><a href="11-the-snark-recipe.html"><strong aria-hidden="true">11.</strong> The SNARK Recipe</a></li><li class="chapter-item expanded "><a href="12-groth16.html"><strong aria-hidden="true">12.</strong> Groth16</a></li><li class="chapter-item expanded "><a href="13-plonk.html"><strong aria-hidden="true">13.</strong> PLONK</a></li><li class="chapter-item expanded "><a href="14-lookup-arguments.html"><strong aria-hidden="true">14.</strong> Lookup Arguments</a></li><li class="chapter-item expanded "><a href="15-starks.html"><strong aria-hidden="true">15.</strong> STARKs</a></li><li class="chapter-item expanded affix "><li class="part-title">Zero-Knowledge</li><li class="chapter-item expanded "><a href="16-sigma-protocols.html"><strong aria-hidden="true">16.</strong> Sigma Protocols</a></li><li class="chapter-item expanded "><a href="17-the-zero-knowledge-property.html"><strong aria-hidden="true">17.</strong> The Zero-Knowledge Property</a></li><li class="chapter-item expanded "><a href="18-making-proofs-zero-knowledge.html"><strong aria-hidden="true">18.</strong> Making Proofs Zero-Knowledge</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Topics</li><li class="chapter-item expanded "><a href="19-fast-sum-check-proving.html"><strong aria-hidden="true">19.</strong> Fast Sum-Check Proving</a></li><li class="chapter-item expanded "><a href="20-minimizing-commitment-costs.html"><strong aria-hidden="true">20.</strong> Minimizing Commitment Costs</a></li><li class="chapter-item expanded "><a href="21-the-two-classes-of-piops.html"><strong aria-hidden="true">21.</strong> The Two Classes of PIOPs</a></li><li class="chapter-item expanded "><a href="22-composition-and-recursion.html"><strong aria-hidden="true">22.</strong> Composition and Recursion</a></li><li class="chapter-item expanded "><a href="23-choosing-a-snark.html"><strong aria-hidden="true">23.</strong> Choosing a SNARK</a></li><li class="chapter-item expanded affix "><li class="part-title">Broader Context</li><li class="chapter-item expanded "><a href="24-mpc-and-zk-parallel-paths.html"><strong aria-hidden="true">24.</strong> MPC and ZK Parallel Paths</a></li><li class="chapter-item expanded "><a href="25-frontiers-and-open-problems.html"><strong aria-hidden="true">25.</strong> Frontiers and Open Problems</a></li><li class="chapter-item expanded "><a href="26-zk-in-the-cryptographic-landscape.html"><strong aria-hidden="true">26.</strong> ZK in the Cryptographic Landscape</a></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="appendix-a-cryptographic-primitives.html"><strong aria-hidden="true">27.</strong> Cryptographic Primitives</a></li><li class="chapter-item expanded "><a href="appendix-b-historical-timeline.html"><strong aria-hidden="true">28.</strong> Historical Timeline</a></li><li class="chapter-item expanded "><a href="appendix-c-field-equations-cheat-sheet.html"><strong aria-hidden="true">29.</strong> Field Equations Cheat Sheet</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Minimizing Trust, Maximizing Truth</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook/edit/main/web/src/08-from-circuits-to-polynomials.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-8-from-circuits-to-polynomials"><a class="header" href="#chapter-8-from-circuits-to-polynomials">Chapter 8: From Circuits to Polynomials</a></h1>
+<p>The GKR protocol can verify any arithmetic circuit. But where do these circuits come from? Real computations don't arrive as neat diagrams of addition and multiplication gates. They come as programs: loops, conditionals, function calls, memory accesses. Someone must translate the messy reality of computation into the algebraic form that proof systems understand.</p>
+<p>This translation process is called <strong>arithmetization</strong>, arguably the most creative and consequential step in building a ZK proof system. A good arithmetization can mean the difference between a proof that takes seconds and one that takes hours. It's where the magic happens, and where the engineering challenges live.</p>
+<h2 id="two-problems-two-paradigms"><a class="header" href="#two-problems-two-paradigms">Two Problems, Two Paradigms</a></h2>
+<p>Before diving in, we must distinguish two fundamentally different problems:</p>
+<p><strong>Circuit Evaluation</strong>: Given a circuit $C$ and input $x$, prove that $C(x) = y$.</p>
+<p>The prover claims they computed the circuit correctly. The verifier could recompute it themselves, but the ZK system just makes verification faster. GKR handles this directly.</p>
+<p><strong>Circuit Satisfiability</strong>: Given a circuit $C$, public input $x$, and output $y$, prove there exists a secret witness $w$ such that $C(x, w) = y$.</p>
+<p>The prover claims they <em>know</em> a secret input that makes the circuit output the desired value. They reveal nothing about this secret. This is the paradigm behind most real-world ZK applications, and it's what enables privacy.</p>
+<p>Note that GKR (Chapter 7) natively handles circuit <em>evaluation</em>, not satisfiability: it proves &quot;$C(x) = y$&quot; for public inputs, with no secrets involved. To handle satisfiability, where the prover has a private witness, you need additional machinery: polynomial commitments that hide the witness values, combined with sum-check to verify the computation. Systems like Jolt use GKR-style sum-check reductions but wrap them with commitment schemes that provide zero-knowledge. The distinction matters: &quot;GKR-based&quot; doesn't mean &quot;evaluation only&quot;; it means the verification logic uses sum-check over layered structure, while commitments handle privacy.</p>
+<p><strong>Example: Proving Knowledge of a Hash Preimage</strong></p>
+<p>Suppose $y = \text{SHA256}(w)$ for some secret $w$. The prover wants to demonstrate they know $w$ without revealing it.</p>
+<ul>
+<li>The circuit $C$ implements SHA256</li>
+<li>The public input is (essentially) empty</li>
+<li>The public output is $y$ (the hash)</li>
+<li>The witness is $w$ (the secret preimage)</li>
+</ul>
+<p>The prover demonstrates: &quot;I know a value $w$ such that when I run SHA256 on it, I get exactly $y$.&quot; The verifier learns nothing about $w$ except that it exists.</p>
+<p>This <em>satisfiability</em> paradigm underlies almost all practical ZK applications: proving password knowledge, transaction validity, computation integrity, and more.</p>
+<h2 id="understanding-the-witness"><a class="header" href="#understanding-the-witness">Understanding the Witness</a></h2>
+<p>The <strong>witness</strong> is central to zero-knowledge proofs. It's what separates a mere computation from a proof of knowledge.</p>
+<h3 id="what-exactly-is-a-witness"><a class="header" href="#what-exactly-is-a-witness">What Exactly Is a Witness?</a></h3>
+<p>A witness is a private input that, together with the public inputs, satisfies the circuit's constraints. In the equation $x^3 + x + 5 = 35$, the witness is $x = 3$. Anyone can verify that $3^3 + 3 + 5 = 35$, but the prover is demonstrating they <em>know</em> this solution.</p>
+<p>More precisely, for a relation $R$, a witness $w$ for statement $x$ is a value such that $R(x, w) = 1$. The relation encodes the computational problem:</p>
+<ul>
+<li><strong>Hash preimage</strong>: $R(y, w) = 1$ iff $\text{Hash}(w) = y$</li>
+<li><strong>Digital signature</strong>: $R((m, \sigma, \text{pk}), \text{sk}) = 1$ iff $\text{Sign}(\text{sk}, m) = \sigma$</li>
+<li><strong>Sudoku solution</strong>: $R(\text{puzzle}, \text{solution}) = 1$ iff the solution correctly fills the puzzle</li>
+</ul>
+<h3 id="the-witness-vector-structure"><a class="header" href="#the-witness-vector-structure">The Witness Vector Structure</a></h3>
+<p>In constraint systems like R1CS, the witness takes a specific form. The full <strong>witness vector</strong> $Z$ is a concatenation of three parts:</p>
+<p>$$Z = \begin{pmatrix} 1 \ \text{io} \ W \end{pmatrix}$$</p>
+<p><strong>The constant 1</strong>: Always the first element. This allows encoding constant additions and multiplications easily. To constrain $x = 5$, we can write $x \times 1 = 5 \times 1$.</p>
+<p><strong>The public inputs/outputs (io)</strong>: Values the verifier already knows and agrees upon. For a hash preimage proof, this is the hash value $y$. For a transaction validity proof, this might include the transaction amount and recipient.</p>
+<p><strong>The private witness (W)</strong>: The secret values only the prover knows. This is what the prover is demonstrating knowledge of without revealing.</p>
+<h3 id="a-concrete-example"><a class="header" href="#a-concrete-example">A Concrete Example</a></h3>
+<p>For our equation $x^3 + x + 5 = 35$ with $x = 3$:</p>
+<div class="table-wrapper"><table><thead><tr><th>Index</th><th>Value</th><th>Description</th></tr></thead><tbody>
+<tr><td>$Z_0$</td><td>1</td><td>Constant</td></tr>
+<tr><td>$Z_1$</td><td>35</td><td>Public output</td></tr>
+<tr><td>$Z_2$</td><td>3</td><td>Private: $x$</td></tr>
+<tr><td>$Z_3$</td><td>9</td><td>Private: $x^2$</td></tr>
+<tr><td>$Z_4$</td><td>27</td><td>Private: $x^3$</td></tr>
+<tr><td>$Z_5$</td><td>30</td><td>Private: $x^3 + x$</td></tr>
+<tr><td>$Z_6$</td><td>35</td><td>Private: $x^3 + x + 5$</td></tr>
+</tbody></table>
+</div>
+<p>Notice that the witness includes not just the input $x$, but all intermediate values computed along the way. This is crucial: the constraint system checks that each step was performed correctly.</p>
+<h2 id="the-execution-trace-witness-as-computation-history"><a class="header" href="#the-execution-trace-witness-as-computation-history">The Execution Trace: Witness as Computation History</a></h2>
+<p>Modern arithmetization uses a clever insight: instead of building a circuit that <em>performs</em> the computation, we build a circuit that <em>verifies</em> a claimed execution trace.</p>
+<h3 id="what-is-an-execution-trace"><a class="header" href="#what-is-an-execution-trace">What Is an Execution Trace?</a></h3>
+<p>An <strong>execution trace</strong> is a complete record of a computation's execution: every instruction, every intermediate value, every memory access. Think of it as a detailed log file that captures everything that happened during the computation.</p>
+<p><strong>The Key Insight</strong>: Checking that a trace is <em>valid</em> is much easier than <em>producing</em> the computation.</p>
+<p>Why? Because validity checking is <em>local</em>. To verify a trace, you only need to check that each step follows from the previous one according to the program's rules. You don't need to understand the whole program's logic, just that each individual transition is correct.</p>
+<h3 id="a-brief-detour-how-computers-execute-programs"><a class="header" href="#a-brief-detour-how-computers-execute-programs">A Brief Detour: How Computers Execute Programs</a></h3>
+<p>Before examining traces, we need a mental model of program execution. A computer at any moment has a <strong>state</strong>: the contents of its memory and a small set of fast storage locations called <strong>registers</strong>. Think of registers as the mathematician's scratch paper, a few variables (typically 8–32) that hold the values currently being manipulated. Memory is the larger workspace, addressed by integers: location 100, location 104, and so on.</p>
+<p>The <strong>program counter (PC)</strong> is a special register that holds the address of the current instruction. Each instruction is an <strong>opcode</strong> (the operation: ADD, MUL, LOAD, STORE, JUMP) plus <strong>operands</strong> (which registers or memory addresses to use). Execution proceeds in a loop: fetch the instruction at the PC, execute it, update the PC (usually PC + 1, unless we jumped), repeat.</p>
+<p>A LOAD instruction copies a value from memory into a register. A STORE does the reverse. Arithmetic opcodes like ADD or MUL operate on registers. A conditional jump like BEQ (&quot;branch if equal&quot;) changes the PC based on a comparison; this is how loops and conditionals are implemented at the machine level.</p>
+<p>The key insight for arithmetization: at each time step, the machine's entire state (registers, PC, memory) is just a tuple of field elements. Execution is a sequence of such tuples, and each transition is governed by simple local rules.</p>
+<h3 id="execution-trace-structure"><a class="header" href="#execution-trace-structure">Execution Trace Structure</a></h3>
+<p>A trace consists of rows, where each row represents the machine state at one time step:</p>
+<div class="table-wrapper"><table><thead><tr><th>Step</th><th>PC</th><th>Opcode</th><th>Operands</th><th>Registers</th><th>Memory Reads</th><th>Memory Writes</th></tr></thead><tbody>
+<tr><td>0</td><td>0</td><td>LOAD</td><td>r1, [100]</td><td>r1=0, r2=0, r3=0</td><td>[100]=42</td><td>-</td></tr>
+<tr><td>1</td><td>1</td><td>LOAD</td><td>r2, [104]</td><td>r1=42, r2=0, r3=0</td><td>[104]=17</td><td>-</td></tr>
+<tr><td>2</td><td>2</td><td>MUL</td><td>r3, r1, r2</td><td>r1=42, r2=17, r3=0</td><td>-</td><td>-</td></tr>
+<tr><td>3</td><td>3</td><td>STORE</td><td>r3, [108]</td><td>r1=42, r2=17, r3=714</td><td>-</td><td>[108]=714</td></tr>
+</tbody></table>
+</div>
+<p>Each row includes:</p>
+<ul>
+<li><strong>Program Counter (PC)</strong>: Which instruction we're executing</li>
+<li><strong>Opcode</strong>: What operation is being performed</li>
+<li><strong>Operands</strong>: Which registers/memory locations are involved</li>
+<li><strong>Register State</strong>: The values of all registers</li>
+<li><strong>Memory Operations</strong>: What was read from or written to memory</li>
+</ul>
+<h3 id="the-circuit-doesnt-compute-it-verifies"><a class="header" href="#the-circuit-doesnt-compute-it-verifies">The Circuit Doesn't Compute: It Verifies</a></h3>
+<p>Here's the paradigm shift: the circuit doesn't actually run the computation. It assumes the prover has already computed the trace (they have; they did the computation) and verifies that:</p>
+<ol>
+<li>Each transition follows the correct rules</li>
+<li>The trace starts with the correct initial state</li>
+<li>The trace ends with the claimed output</li>
+</ol>
+<p>The prover does the hard computational work. The circuit does the much easier work of checking consistency.</p>
+<h2 id="what-the-circuit-must-check"><a class="header" href="#what-the-circuit-must-check">What the Circuit Must Check</a></h2>
+<p>A trace verification circuit performs two categories of checks:</p>
+<h3 id="time-consistency-transition-rules"><a class="header" href="#time-consistency-transition-rules">Time Consistency (Transition Rules)</a></h3>
+<p>For every adjacent pair of rows $(S_t, S_{t+1})$, verify that the state transition follows from the instruction.</p>
+<p>The idea is simple: given the current state and the instruction being executed, the next state is completely determined. If the trace claims the machine went from state $A$ to state $B$, we can check whether that transition is legal without needing to know anything about the states before or after.</p>
+<p><strong>Example: Checking an ADD instruction</strong></p>
+<p>If the opcode at step $t$ is ADD with operands r1, r2, r3:</p>
+<ul>
+<li>Check: $\text{PC}_{t+1} = \text{PC}_t + 1$ (we move to the next instruction)</li>
+<li>Check: $r3_{t+1} = r1_t + r2_t$ (the destination register gets the sum)</li>
+<li>Check: All other registers unchanged: $r1_{t+1} = r1_t$, $r2_{t+1} = r2_t$</li>
+</ul>
+<p><strong>Example: Checking a conditional jump (BEQ r1, r2, label)</strong></p>
+<ul>
+<li>If $r1_t = r2_t$: Check $\text{PC}_{t+1} = \text{label}$ (branch taken)</li>
+<li>If $r1_t \neq r2_t$: Check $\text{PC}_{t+1} = \text{PC}_t + 1$ (branch not taken)</li>
+<li>Check: All registers unchanged</li>
+</ul>
+<p>These checks are <strong>local</strong>: they only look at two adjacent rows. This locality is crucial: checking $n$ transitions requires $n$ independent checks, each involving only $O(1)$ values. The circuit applies the same transition-checking logic at every time step, making it uniform and amenable to polynomial encoding.</p>
+<h3 id="memory-consistency"><a class="header" href="#memory-consistency">Memory Consistency</a></h3>
+<p>This is trickier. A read at time $t$ might depend on a write from much earlier. The naive approach, searching backward through the trace for the most recent write, would be expensive.</p>
+<p><strong>The Problem</strong>: Time consistency is local: step $t+1$ depends only on step $t$. But memory breaks this locality. A read at step 1000 might retrieve a value written at step 3. The dependency spans nearly the entire trace.</p>
+<p>Consider: step 0 writes value 42 to address 100. Steps 1 through 99 touch other addresses. Step 100 reads from address 100, and it should get 42. How do we check this without searching back through 100 steps?</p>
+<p><strong>The Permutation Trick</strong>:</p>
+<p>The solution is to view the same data from a different angle. Imagine the memory operations as a deck of cards, each labeled with (address, time, operation, value). In the execution trace, these cards appear in time order, shuffled from the perspective of memory addresses. But we can <em>sort</em> the deck by address, grouping all operations on address 12 together, all operations on address 18 together, and so on.</p>
+<p>Here's the insight: in the sorted view, operations on the same address are adjacent. Checking that a read returns the right value becomes a local check: just compare with the previous card in the sorted deck.</p>
+<p>The protocol works as follows:</p>
+<ol>
+<li>
+<p>Extract all memory operations from the trace: <code>(address, time, operation, value)</code></p>
+</li>
+<li>
+<p>Create two lists:</p>
+<ul>
+<li><strong>Time-ordered</strong> (the original sequence of operations)</li>
+<li><strong>Address-ordered</strong> (sorted by address, then by time within each address)</li>
+</ul>
+</li>
+<li>
+<p>Prove these lists are permutations of each other (same cards, different order). This uses polynomial fingerprinting: encode each list as a polynomial, and check they have the same &quot;signature&quot; at a random point.</p>
+</li>
+<li>
+<p>In the address-ordered list, checking memory consistency is <strong>local</strong>: each read should match the value from the immediately preceding operation at that address.</p>
+</li>
+</ol>
+<p><strong>Worked Example</strong>:</p>
+<p>Time-ordered operations:</p>
+<pre><code>t=1: write(addr=18, val=7)
+t=2: write(addr=12, val=5)
+t=3: read(addr=18) → expects 7
+t=4: write(addr=12, val=9)
+</code></pre>
+<p>Address-ordered (sorted first by address, then by time):</p>
+<pre><code>(addr=12, t=2, write, 5)
+(addr=12, t=4, write, 9)
+(addr=18, t=1, write, 7)
+(addr=18, t=3, read, 7)  ← easy to check: matches the previous row at this address
+</code></pre>
+<p>In the address-ordered view, operations on the same address are consecutive. The read at $t=3$ for address 18 appears immediately after the write at $t=1$ for address 18. Checking correctness is just comparing adjacent rows, with no searching required.</p>
+<p>The permutation check ensures the prover didn't fabricate operations or alter values when &quot;sorting.&quot; The local consistency check on the sorted list verifies that memory behaves correctly. Together, they reduce a non-local problem to local checks plus a permutation argument.</p>
+<h2 id="r1cs-the-constraint-language"><a class="header" href="#r1cs-the-constraint-language">R1CS: The Constraint Language</a></h2>
+<p>How do we express these checks algebraically? The classic approach is <strong>Rank-1 Constraint System (R1CS)</strong>.</p>
+<p>But first, a question: <em>why this particular algebraic form?</em></p>
+<p>The answer traces back to pairings. A bilinear map $e: \mathbb{G}_1 \times \mathbb{G}_2 \to \mathbb{G}_T$ has a remarkable property: it can check <em>one multiplication</em> &quot;for free.&quot; Given commitments to $a$ and $b$, you can verify $a \cdot b = c$ with a single pairing equation. But pairings are expensive, so you want exactly one multiplication per constraint, no more.</p>
+<p>This is why R1CS has its peculiar shape. The system was reverse-engineered from the verification equation: <em>what constraint format lets pairings check everything in one shot?</em> The answer is a product of two linear combinations.</p>
+<p>An R1CS instance consists of:</p>
+<ul>
+<li>Three matrices $A, B, C$ of dimension $m \times n$</li>
+<li>A witness vector $Z$ of length $n$</li>
+</ul>
+<p>The constraint is: for each row $i$,</p>
+<p>$$(A_i \cdot Z) \times (B_i \cdot Z) = C_i \cdot Z$$</p>
+<p>In words: (linear combination) × (linear combination) = (linear combination).</p>
+<p>The matrices encode which wires participate in each constraint; the product structure is the algebraic shape that pairings can verify.</p>
+<p><strong>Why is this form so expressive?</strong> At first glance, &quot;one multiplication per constraint&quot; seems limiting. But here's the key insight: any computation can be broken into steps where each step involves at most one multiplication. Addition is free: you can add as many terms as you want on either side. The constraint $(a + b + c) \times (d + e) = f + g$ is a single R1CS row.</p>
+<p>The trick is introducing intermediate variables. Suppose you need to compute $a \cdot b \cdot c$. You can't do this in one R1CS constraint (that would require two multiplications), but you can introduce a helper variable $t = a \cdot b$, then write:</p>
+<ul>
+<li>Constraint 1: $a \times b = t$</li>
+<li>Constraint 2: $t \times c = \text{result}$</li>
+</ul>
+<p>Two constraints, each with one multiplication. This is the general pattern: any polynomial computation of degree $d$ can be flattened into $O(d)$ R1CS constraints by naming intermediate products. The witness grows to include these intermediate values, but that's fine since the prover knows them.</p>
+<p>This decomposition is why R1CS can encode arbitrary arithmetic circuits. Every gate becomes one constraint. The &quot;one multiplication&quot; rule isn't a limitation; it's a <em>normal form</em> that any computation can be converted into.</p>
+<h3 id="basic-gates-in-r1cs"><a class="header" href="#basic-gates-in-r1cs">Basic Gates in R1CS</a></h3>
+<p><strong>Multiplication</strong> ($a \cdot b = c$):</p>
+<ul>
+<li>Row $i$ of $A$ selects $a$ from $Z$</li>
+<li>Row $i$ of $B$ selects $b$ from $Z$</li>
+<li>Row $i$ of $C$ selects $c$ from $Z$</li>
+<li>Constraint: $a \times b = c$</li>
+</ul>
+<p><strong>Addition</strong> ($a + b = c$):</p>
+<ul>
+<li>Set $B$ to select the constant 1</li>
+<li>Row $i$ of $A$ selects both $a$ and $b$ (with coefficients 1, 1)</li>
+<li>Row $i$ of $C$ selects $c$</li>
+<li>Constraint: $(a + b) \times 1 = c$</li>
+</ul>
+<p><strong>Constant multiplication</strong> ($k \cdot a = c$):</p>
+<ul>
+<li>Row $i$ of $A$ selects $a$</li>
+<li>Row $i$ of $B$ selects constant $k$ (or encode $k$ in $A$)</li>
+<li>Row $i$ of $C$ selects $c$</li>
+</ul>
+<h2 id="worked-example-x3--x--5--35"><a class="header" href="#worked-example-x3--x--5--35">Worked Example: $x^3 + x + 5 = 35$</a></h2>
+<p>Let's arithmetize a complete example. The prover claims to know $x$ such that $x^3 + x + 5 = 35$. (The secret is $x = 3$.)</p>
+<h3 id="step-1-flatten-to-basic-operations"><a class="header" href="#step-1-flatten-to-basic-operations">Step 1: Flatten to Basic Operations</a></h3>
+<p>Break the computation into primitive gates:</p>
+<pre><code>v1 = x * x        (compute x²)
+v2 = v1 * x       (compute x³)
+v3 = v2 + x       (compute x³ + x)
+v4 = v3 + 5       (compute x³ + x + 5)
+assert: v4 = 35   (check the result)
+</code></pre>
+<h3 id="step-2-define-the-witness-vector"><a class="header" href="#step-2-define-the-witness-vector">Step 2: Define the Witness Vector</a></h3>
+<p>The witness contains:</p>
+<ul>
+<li>The constant 1 (always included)</li>
+<li>The public output 35</li>
+<li>The secret input $x$</li>
+<li>All intermediate values</li>
+</ul>
+<p>$$Z = (1, ; 35, ; x, ; v_1, ; v_2, ; v_3, ; v_4)$$</p>
+<p>With $x = 3$:
+$$Z = (1, ; 35, ; 3, ; 9, ; 27, ; 30, ; 35)$$</p>
+<h3 id="step-3-build-the-constraint-matrices"><a class="header" href="#step-3-build-the-constraint-matrices">Step 3: Build the Constraint Matrices</a></h3>
+<p>Each gate becomes a row in the matrices:</p>
+<p><strong>Gate 1</strong>: $v_1 = x \cdot x$</p>
+<ul>
+<li>$A_1 = (0, 0, 1, 0, 0, 0, 0)$: selects $x$</li>
+<li>$B_1 = (0, 0, 1, 0, 0, 0, 0)$: selects $x$</li>
+<li>$C_1 = (0, 0, 0, 1, 0, 0, 0)$: selects $v_1$</li>
+</ul>
+<p>Check: $(A_1 \cdot Z) \times (B_1 \cdot Z) = 3 \times 3 = 9 = C_1 \cdot Z$</p>
+<p><strong>Gate 2</strong>: $v_2 = v_1 \cdot x$</p>
+<ul>
+<li>$A_2 = (0, 0, 0, 1, 0, 0, 0)$: selects $v_1$</li>
+<li>$B_2 = (0, 0, 1, 0, 0, 0, 0)$: selects $x$</li>
+<li>$C_2 = (0, 0, 0, 0, 1, 0, 0)$: selects $v_2$</li>
+</ul>
+<p>Check: $9 \times 3 = 27$</p>
+<p><strong>Gate 3</strong>: $v_3 = v_2 + x$</p>
+<p>For addition, we use the trick: $(v_2 + x) \times 1 = v_3$</p>
+<ul>
+<li>$A_3 = (0, 0, 1, 0, 1, 0, 0)$: selects $v_2 + x$</li>
+<li>$B_3 = (1, 0, 0, 0, 0, 0, 0)$: selects constant 1</li>
+<li>$C_3 = (0, 0, 0, 0, 0, 1, 0)$: selects $v_3$</li>
+</ul>
+<p>Check: $(27 + 3) \times 1 = 30$</p>
+<p><strong>Gate 4</strong>: $v_4 = v_3 + 5$</p>
+<ul>
+<li>$A_4 = (5, 0, 0, 0, 0, 1, 0)$: selects $5 \cdot 1 + v_3$</li>
+<li>$B_4 = (1, 0, 0, 0, 0, 0, 0)$: selects 1</li>
+<li>$C_4 = (0, 0, 0, 0, 0, 0, 1)$: selects $v_4$</li>
+</ul>
+<p>Check: $(5 + 30) \times 1 = 35$</p>
+<p><strong>Gate 5</strong>: $v_4 = 35$ (the public output constraint)</p>
+<ul>
+<li>$A_5 = (0, 0, 0, 0, 0, 0, 1)$: selects $v_4$</li>
+<li>$B_5 = (1, 0, 0, 0, 0, 0, 0)$: selects 1</li>
+<li>$C_5 = (0, 35, 0, 0, 0, 0, 0)$: selects $35 \cdot 1$</li>
+</ul>
+<p>Check: $35 \times 1 = 35$</p>
+<p>All five constraints are satisfied. The R1CS captures the entire computation.</p>
+<h2 id="two-ways-to-prove-r1cs"><a class="header" href="#two-ways-to-prove-r1cs">Two Ways to Prove R1CS</a></h2>
+<p>Once we have R1CS constraints, how do we prove they're all satisfied? There are two major approaches.</p>
+<h3 id="approach-1-qap-quadratic-arithmetic-program"><a class="header" href="#approach-1-qap-quadratic-arithmetic-program">Approach 1: QAP (Quadratic Arithmetic Program)</a></h3>
+<p><strong>Historical context</strong>: QAP was introduced by Gennaro, Gentry, Parno, and Rabin in the <strong>Pinocchio</strong> system (2013), one of the first practical SNARKs. Groth16 (2016) refined and optimized this approach, achieving the smallest proof size known for pairing-based systems. Today, QAP is primarily associated with Groth16. Modern systems have moved to other arithmetizations (PLONKish, AIR, sum-check), but QAP remains important for applications where proof size is paramount.</p>
+<p><strong>The Key Idea</strong>: Instead of checking $m$ separate constraints, check one polynomial divisibility.</p>
+<p>For each column $j$ of the R1CS matrices, define polynomials $A_j(X), B_j(X), C_j(X)$ that interpolate the column values at points ${1, 2, \ldots, m}$. (So $A_j(i)$ equals the entry in row $i$, column $j$ of matrix $A$.)</p>
+<p>Now let $\vec{Z} = (Z_0, Z_1, \ldots, Z_n)$ be the <strong>witness vector</strong>, the full assignment including the constant 1, public inputs, and private witness values. Define:
+$$A(X) = \sum_j Z_j \cdot A_j(X), \quad B(X) = \sum_j Z_j \cdot B_j(X), \quad C(X) = \sum_j Z_j \cdot C_j(X)$$</p>
+<p>Each $Z_j$ is a scalar (from the witness), while $A_j(X)$ is a polynomial. The sum computes a linear combination, exactly mirroring how R1CS constraints are matrix-vector products.</p>
+<p>The R1CS is satisfied iff $A(X) \cdot B(X) - C(X) = 0$ at all constraint points ${1, 2, \ldots, m}$.</p>
+<p>By the Factor Theorem, this means the vanishing polynomial $Z_H(X) = (X-1)(X-2)\cdots(X-m)$ divides $A(X) \cdot B(X) - C(X)$.</p>
+<p><strong>The QAP Check</strong>: Prover exhibits quotient $H(X)$ such that:
+$$A(X) \cdot B(X) - C(X) = H(X) \cdot Z_H(X)$$</p>
+<p>We develop QAP fully in Chapter 12, where Groth16 uses it to achieve the smallest possible pairing-based proofs.</p>
+<h3 id="approach-2-sum-check-on-multilinear-extensions-spartan"><a class="header" href="#approach-2-sum-check-on-multilinear-extensions-spartan">Approach 2: Sum-Check on Multilinear Extensions (Spartan)</a></h3>
+<p><strong>Historical context</strong>: Spartan was introduced by Setty in 2019, reviving ideas from the GKR protocol (2008) and sum-check literature. While Groth16 uses univariate polynomials and FFTs, Spartan showed that <strong>multilinear extensions</strong> and the <strong>sum-check protocol</strong> could handle R1CS directly, without Lagrange interpolation, without roots of unity, and with optimal prover time. This &quot;sum-check renaissance&quot; led to systems like Lasso, Jolt, and HyperNova.</p>
+<p><strong>The Core Insight</strong>: R1CS constraint satisfaction can be expressed as a polynomial sum equaling zero:</p>
+<p>$$\sum_{x \in {0,1}^k} \tilde{\text{eq}}(x) \cdot \left[\tilde{A}(x) \cdot \tilde{B}(x) - \tilde{C}(x)\right] = 0$$</p>
+<p>where $\tilde{A}(x) = \sum_{y \in {0,1}^k} \tilde{A}_{\text{matrix}}(x, y) \cdot \tilde{Z}(y)$ is the MLE of the matrix-vector product.</p>
+<p><strong>Why This Matters</strong>:</p>
+<ol>
+<li>
+<p><strong>Time-optimal proving</strong>: The prover's work is $O(N)$ where $N$ is the number of constraints, just reading the constraints, no FFTs.</p>
+</li>
+<li>
+<p><strong>Sparsity-preserving</strong>: Multilinear extensions preserve the structure of sparse matrices. In R1CS, most matrix entries are zero. The MLE directly reflects this sparsity.</p>
+</li>
+<li>
+<p><strong>Natural fit with sum-check</strong>: The sum-check protocol (Chapter 3) is designed exactly for this type of problem.</p>
+</li>
+</ol>
+<p><strong>Comparing QAP and Spartan</strong>:</p>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>QAP (Groth16)</th><th>Spartan</th></tr></thead><tbody>
+<tr><td>Polynomial type</td><td>Univariate, high-degree</td><td>Multilinear</td></tr>
+<tr><td>Core technique</td><td>Divisibility by $Z_H(X)$</td><td>Sum-check</td></tr>
+<tr><td>Prover time</td><td>$O(N \log N)$</td><td>$O(N)$</td></tr>
+<tr><td>Setup</td><td>Circuit-specific trusted</td><td>Transparent</td></tr>
+</tbody></table>
+</div>
+<p><strong>When to use each</strong>:</p>
+<ul>
+<li>
+<p><strong>Groth16 (QAP)</strong>: When proof size is the dominant constraint. On-chain verification on Ethereum costs gas proportional to proof size, making Groth16's 128-byte proofs attractive despite the circuit-specific setup. Use when your circuit is stable and you can afford a trusted ceremony.</p>
+</li>
+<li>
+<p><strong>Spartan / sum-check systems</strong>: When prover time matters most. The $O(N)$ prover (vs $O(N \log N)$ for FFT-based systems) becomes significant at scale. Transparent setup avoids trust assumptions entirely. Natural fit for recursive composition and folding schemes (Nova, HyperNova). The tradeoff: larger proofs and more expensive verification.</p>
+</li>
+</ul>
+<h2 id="plonkish-arithmetization"><a class="header" href="#plonkish-arithmetization">PLONKish Arithmetization</a></h2>
+<p>R1CS isn't the only way to encode computations. <strong>PLONKish</strong> takes a fundamentally different approach, one that's become so influential it dominates modern ZK applications.</p>
+<p><strong>Historical context</strong>: PLONK (Permutations over Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge) was introduced by Gabizon, Williamson, and Ciobotaru in 2019. It addressed Groth16's main limitation, circuit-specific trusted setup, by providing a <strong>universal</strong> setup: one ceremony works for any circuit up to a given size. PLONK spawned a family of &quot;PLONKish&quot; systems (Halo 2, Plonky2, HyperPlonk) that now power most production ZK applications.</p>
+<h3 id="the-universal-gate-equation"><a class="header" href="#the-universal-gate-equation">The Universal Gate Equation</a></h3>
+<p>PLONK's core innovation is a single standardized gate equation:</p>
+<p>$$Q_L \cdot a + Q_R \cdot b + Q_O \cdot c + Q_M \cdot a \cdot b + Q_C = 0$$</p>
+<p>The $Q$ values are <strong>selectors</strong>, public constants that &quot;program&quot; each gate.</p>
+<p><strong>Addition gate</strong> ($a + b = c$): Set $Q_L = 1, Q_R = 1, Q_O = -1$, rest zero.</p>
+<p><strong>Multiplication gate</strong> ($a \cdot b = c$): Set $Q_M = 1, Q_O = -1$, rest zero.</p>
+<p><strong>Public input</strong> ($a = k$): Set $Q_L = 1, Q_C = -k$, rest zero.</p>
+<p>The same equation handles all gate types!</p>
+<h3 id="copy-constraints-the-permutation-argument"><a class="header" href="#copy-constraints-the-permutation-argument">Copy Constraints: The Permutation Argument</a></h3>
+<p>PLONK's gate equation only relates wires <em>within</em> a single gate. It doesn't enforce that the output of gate 1 feeds into the input of gate 5.</p>
+<p>This is where the <strong>permutation argument</strong> enters. The circuit's wiring defines a permutation $\sigma$ on wire positions. Copy constraints are satisfied if:</p>
+<p>$$\text{value at position } i = \text{value at position } \sigma(i)$$</p>
+<p>PLONK proves this via a grand product check: with random challenges $\beta, \gamma$, verify:</p>
+<p>$$\prod_i \frac{f(i) + \beta \cdot i + \gamma}{f(i) + \beta \cdot \sigma(i) + \gamma} = 1$$</p>
+<p>If copy constraints hold, corresponding terms cancel. A mismatch disrupts the product.</p>
+<h3 id="when-to-use-plonkish"><a class="header" href="#when-to-use-plonkish">When to Use PLONKish</a></h3>
+<p>PLONKish shines when you need <strong>flexibility without sacrificing succinctness</strong>:</p>
+<ul>
+<li><strong>Universal setup</strong>: One ceremony covers all circuits up to a size bound, so you can deploy new circuits without new ceremonies</li>
+<li><strong>Custom gates</strong>: Optimize specific operations (hash functions, range checks, elliptic curve arithmetic)</li>
+<li><strong>Mature tooling</strong>: The PLONKish ecosystem (Halo 2, Plonky2) offers production-ready implementations</li>
+</ul>
+<p>The tradeoff versus Groth16: slightly larger proofs (~2-3x), but no circuit-specific ceremony.</p>
+<h2 id="air-algebraic-intermediate-representation"><a class="header" href="#air-algebraic-intermediate-representation">AIR: Algebraic Intermediate Representation</a></h2>
+<p>A third constraint format takes yet another path, designed specifically for computations with <strong>repetitive structure</strong>: state machines, virtual machines, and iterative algorithms.</p>
+<p>An AIR consists of:</p>
+<ul>
+<li><strong>Execution trace</strong>: A table where each row represents a &quot;state&quot; and columns hold state variables</li>
+<li><strong>Transition constraints</strong>: Polynomials that relate row $i$ to row $i+1$ (the local rules)</li>
+<li><strong>Boundary constraints</strong>: Conditions on specific rows (initial state, final state)</li>
+</ul>
+<p>The insight: many computations are naturally described as &quot;apply the same transition rule repeatedly.&quot; A CPU executes instructions in a loop. A hash function applies the same round function many times. AIR captures this by encoding the transition rule once and proving it holds for all consecutive row pairs.</p>
+<p><strong>Example</strong>: A simple counter that increments by 1:</p>
+<ul>
+<li>Transition constraint: $s_{i+1} - s_i - 1 = 0$</li>
+<li>Boundary constraint: $s_0 = 0$ (start at zero)</li>
+</ul>
+<p>This single transition constraint, applied to $n$ rows, proves correct execution of $n$ steps.</p>
+<p>AIR is the native format for <strong>STARKs</strong>, which we develop fully in <strong>Chapter 15</strong>. The combination of AIR's repetitive structure with FRI's hash-based commitments yields transparent, plausibly post-quantum proofs.</p>
+<h3 id="comparing-the-three-formats"><a class="header" href="#comparing-the-three-formats">Comparing the Three Formats</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Property</th><th>R1CS</th><th>PLONKish</th><th>AIR</th></tr></thead><tbody>
+<tr><td>Structure</td><td>Sparse matrices</td><td>Gates + selectors</td><td>Execution trace + transitions</td></tr>
+<tr><td>Gate flexibility</td><td>One mult/constraint</td><td>Custom gates</td><td>Transition polynomials</td></tr>
+<tr><td>Best for</td><td>Simple circuits</td><td>Complex, irregular ops</td><td>Repetitive state machines</td></tr>
+<tr><td>Used by</td><td>Groth16, Spartan</td><td>PLONK, Halo 2</td><td>STARKs, Cairo</td></tr>
+</tbody></table>
+</div>
+<p>In practice:</p>
+<ul>
+<li><strong>R1CS + Groth16</strong>: When proof size dominates (on-chain verification)</li>
+<li><strong>PLONKish</strong>: When you need flexibility and universal setup</li>
+<li><strong>AIR + STARKs</strong>: When transparency and post-quantum security matter</li>
+</ul>
+<h2 id="ccs-unifying-the-constraint-formats"><a class="header" href="#ccs-unifying-the-constraint-formats">CCS: Unifying the Constraint Formats</a></h2>
+<p>We now have three constraint formats (R1CS, PLONKish, AIR) each with distinct strengths. But this proliferation creates fragmentation: tools, optimizations, and folding schemes must be reimplemented for each format.</p>
+<p><strong>CCS (Customizable Constraint Systems)</strong> provides a unifying abstraction that captures all three without overhead.</p>
+<h3 id="the-ccs-framework"><a class="header" href="#the-ccs-framework">The CCS Framework</a></h3>
+<p>A CCS instance consists of:</p>
+<ul>
+<li><strong>Matrices</strong> $M_1, \ldots, M_t$: sparse matrices over $\mathbb{F}$, encoding constraint structure</li>
+<li><strong>Constraint specifications</strong>: which matrices combine in each constraint, with what operation</li>
+</ul>
+<p>The key insight: any constraint system can be expressed as:</p>
+<p>$$\sum_i c_i \cdot \bigcirc_{j \in S_i} M_j \cdot z = 0$$</p>
+<p>where:</p>
+<ul>
+<li>$z$ is the witness vector (including public inputs and the constant 1)</li>
+<li>$S_i$ specifies which matrices participate in term $i$</li>
+<li>$\bigcirc$ is the Hadamard (element-wise) product</li>
+<li>$c_i$ are scalar coefficients</li>
+</ul>
+<p><strong>Reading this formula</strong>: Each term $i$ in the sum works as follows:</p>
+<ol>
+<li>Take some subset of matrices ${M_j : j \in S_i}$</li>
+<li>Multiply each matrix by the witness vector $z$, getting vectors $M_j \cdot z$</li>
+<li>Hadamard-multiply these vectors together (element-wise): $\bigcirc_{j \in S_i} (M_j \cdot z)$</li>
+<li>Scale the result by coefficient $c_i$</li>
+</ol>
+<p>The constraint is satisfied when all these terms sum to zero.</p>
+<p><strong>Why Hadamard products?</strong> The Hadamard product is what lets CCS express multiplication. In R1CS, the constraint $(A \cdot z) \circ (B \cdot z) = C \cdot z$ involves multiplying two linear combinations element-wise, which is a Hadamard product. In PLONKish, the term $Q_M \cdot a \cdot b$ multiplies wire values, again element-wise across all gates. The Hadamard product is the &quot;multiplication primitive&quot; that CCS builds from.</p>
+<p><strong>Why this generalizes everything</strong>: The formula is a sum of scaled Hadamard products of matrix-vector products. This captures:</p>
+<ul>
+<li><strong>Linear constraints</strong>: Use a single matrix in $S_i$ (no Hadamard needed)</li>
+<li><strong>Quadratic constraints</strong>: Hadamard-multiply two matrix-vector products</li>
+<li><strong>Higher-degree constraints</strong>: Hadamard-multiply more matrices</li>
+<li><strong>Multiple constraint types</strong>: Different terms $i$ can have different structures</li>
+</ul>
+<h3 id="recovering-standard-formats"><a class="header" href="#recovering-standard-formats">Recovering Standard Formats</a></h3>
+<p><strong>R1CS as CCS:</strong></p>
+<ul>
+<li>Three matrices: $M_1 = A$, $M_2 = B$, $M_3 = C$</li>
+<li>Two terms: $S_1 = {1, 2}$ (Hadamard of $A$ and $B$), $S_2 = {3}$ (just $C$)</li>
+<li>Coefficients: $c_1 = 1$, $c_2 = -1$</li>
+</ul>
+<p>The CCS formula becomes:
+$$1 \cdot \big((M_1 \cdot z) \circ (M_2 \cdot z)\big) + (-1) \cdot (M_3 \cdot z) = 0$$</p>
+<p>which is exactly $(A \cdot z) \circ (B \cdot z) - C \cdot z = 0$, the R1CS equation.</p>
+<p><strong>PLONKish as CCS:</strong></p>
+<p>The PLONK gate equation $Q_L \cdot a + Q_R \cdot b + Q_O \cdot c + Q_M \cdot a \cdot b + Q_C = 0$ becomes:</p>
+<ul>
+<li>Matrices: $M_a$ (selects wire $a$), $M_b$ (selects wire $b$), $M_c$ (selects wire $c$), $M_{Q_L}$ (selector), $M_{Q_R}$, $M_{Q_O}$, $M_{Q_M}$, $M_{Q_C}$</li>
+<li>Terms map to the gate equation:
+<ul>
+<li>$Q_L \cdot a$: Hadamard of selector and wire → $S_1 = {Q_L, a}$</li>
+<li>$Q_M \cdot a \cdot b$: Hadamard of three matrices → $S_2 = {Q_M, a, b}$</li>
+<li>...and so on for each term</li>
+</ul>
+</li>
+</ul>
+<p>The CCS formula becomes:
+$$1 \cdot (M_{Q_L} \cdot z) \circ (M_a \cdot z) + 1 \cdot (M_{Q_R} \cdot z) \circ (M_b \cdot z) + \ldots = 0$$</p>
+<p>Each term in PLONK's gate equation maps to one term in the CCS sum.</p>
+<p><strong>AIR as CCS:</strong></p>
+<p>A transition constraint like $s_{i+1} = 2 \cdot s_i + 1$ becomes:</p>
+<ul>
+<li>Matrices: $M_{\text{curr}}$ (extracts current-row values), $M_{\text{next}}$ (extracts next-row values), $M_{\text{const}}$ (constant column)</li>
+<li>The constraint $s' - 2s - 1 = 0$ becomes:</li>
+</ul>
+<p>$$1 \cdot (M_{\text{next}} \cdot z) + (-2) \cdot (M_{\text{curr}} \cdot z) + (-1) \cdot (M_{\text{const}} \cdot z) = 0$$</p>
+<p>Here all terms have $|S_i| = 1$ (no Hadamard products), so the constraint is purely linear in state variables. Quadratic AIR constraints (like $s' = s^2$) would use Hadamard: $(M_{\text{next}} \cdot z) - (M_{\text{curr}} \cdot z) \circ (M_{\text{curr}} \cdot z) = 0$.</p>
+<h3 id="why-ccs-matters"><a class="header" href="#why-ccs-matters">Why CCS Matters</a></h3>
+<p><strong>1. Unified tooling.</strong> Compilers, analyzers, and optimizers can target CCS once. The specific frontend (Circom, Cairo, Noir) produces CCS; the backend (Spartan, Nova, HyperNova) consumes it.</p>
+<p><strong>2. Folding scheme compatibility.</strong> HyperNova folds CCS instances directly. Any constraint format expressible as CCS inherits folding for free, with no separate construction needed.</p>
+<p><strong>3. Format-agnostic optimization.</strong> Matrix sparsity, constraint reordering, and parallel proving apply uniformly regardless of the original constraint format.</p>
+<p><strong>4. Research unification.</strong> Theoretical results about CCS apply to all formats it subsumes.</p>
+<h3 id="ccs-in-practice"><a class="header" href="#ccs-in-practice">CCS in Practice</a></h3>
+<p>Modern systems increasingly use CCS as their internal representation:</p>
+<ul>
+<li><strong>HyperNova</strong>: Folds CCS directly, achieving the benefits of PLONK's flexibility with Nova's efficiency</li>
+<li><strong>Sonobe</strong>: A folding framework that targets CCS</li>
+<li><strong>Research prototypes</strong>: Use CCS for cleaner proofs of concept</li>
+</ul>
+<p>The constraint format ecosystem is consolidating. R1CS, PLONKish, and AIR remain useful surface-level abstractions, but CCS provides the common substrate beneath.</p>
+<h2 id="handling-non-arithmetic-operations"><a class="header" href="#handling-non-arithmetic-operations">Handling Non-Arithmetic Operations</a></h2>
+<p>Real programs use operations that aren't native to field arithmetic: comparisons, bitwise operations, conditionals, hash functions. These require careful encoding, and this is where constraint counts explode.</p>
+<h3 id="bit-decomposition-the-fundamental-technique"><a class="header" href="#bit-decomposition-the-fundamental-technique">Bit Decomposition: The Fundamental Technique</a></h3>
+<p>The standard technique: represent an integer $a$ as bits $(a_0, a_1, \ldots, a_{W-1})$.</p>
+<p><strong>Enforce &quot;bitness&quot;</strong>: Each $a_i$ must satisfy $a_i \cdot (a_i - 1) = 0$. This polynomial is zero iff $a_i \in {0, 1}$.</p>
+<p>Why? If $a_i = 0$: $0 \cdot (0-1) = 0$ (satisfied).
+If $a_i = 1$: $1 \cdot (1-1) = 0$ (satisfied).
+If $a_i = 2$: $2 \cdot (2-1) = 2 \neq 0$ (fails).</p>
+<p><strong>Reconstruct the value</strong>: Verify $a = \sum_{i=0}^{W-1} a_i \cdot 2^i$.</p>
+<h3 id="constraint-costs-a-reality-check"><a class="header" href="#constraint-costs-a-reality-check">Constraint Costs: A Reality Check</a></h3>
+<p>Here's where things get expensive. Let's count constraints for common operations:</p>
+<div class="table-wrapper"><table><thead><tr><th>Operation</th><th>Constraints</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Field addition</td><td>0</td><td>Free! Just combine wires</td></tr>
+<tr><td>Field multiplication</td><td>1</td><td>Native R1CS operation</td></tr>
+<tr><td>64-bit decomposition</td><td>64</td><td>One per bit (bitness check)</td></tr>
+<tr><td>64-bit reconstruction</td><td>1</td><td>Sum with powers of 2</td></tr>
+<tr><td>64-bit AND</td><td>~130</td><td>Decompose both, multiply bits, reconstruct</td></tr>
+<tr><td>64-bit XOR</td><td>~130</td><td>Decompose both, compute XOR per bit</td></tr>
+<tr><td>64-bit comparison</td><td>~200</td><td>Decompose, subtract, check sign bit</td></tr>
+<tr><td>64-bit range proof</td><td>~65</td><td>Decompose + bitness checks</td></tr>
+<tr><td>SHA256 hash</td><td>~20,000</td><td>Many bitwise operations</td></tr>
+<tr><td>Poseidon hash</td><td>~250</td><td>Field-native design</td></tr>
+</tbody></table>
+</div>
+<p><strong>The Takeaway</strong>: Bitwise operations are roughly 100x more expensive than field operations. This is why:</p>
+<ul>
+<li>ZK-friendly hash functions (Poseidon, Rescue) exist because they avoid bit operations</li>
+<li>zkVMs are expensive because they must handle arbitrary CPU instructions</li>
+<li>Custom circuits beat general-purpose approaches for specific computations</li>
+</ul>
+<h3 id="simulating-logic-gates"><a class="header" href="#simulating-logic-gates">Simulating Logic Gates</a></h3>
+<p>With bits exposed, we can simulate Boolean logic:</p>
+<p><strong>AND</strong> ($c = a \land b$): For each bit position $i$:
+$$c_i = a_i \cdot b_i$$
+Cost: 1 multiplication constraint per bit</p>
+<p><strong>OR</strong> ($c = a \lor b$): For each bit position $i$:
+$$c_i = a_i + b_i - a_i \cdot b_i$$
+Cost: 1 multiplication constraint per bit</p>
+<p><strong>XOR</strong> ($c = a \oplus b$): For each bit position $i$:
+$$c_i = a_i + b_i - 2 \cdot a_i \cdot b_i$$
+Cost: 1 multiplication constraint per bit</p>
+<p><strong>NOT</strong> ($c = \lnot a$): For each bit position $i$:
+$$c_i = 1 - a_i$$
+Cost: 0 (just linear combination)</p>
+<h3 id="range-proofs-proving-a--2k"><a class="header" href="#range-proofs-proving-a--2k">Range Proofs: Proving $a &lt; 2^k$</a></h3>
+<p>To prove a value is within a range $[0, 2^k)$:</p>
+<ol>
+<li>Decompose into $k$ bits</li>
+<li>Check each bit satisfies $b_i(b_i - 1) = 0$</li>
+<li>Verify reconstruction: $a = \sum_{i=0}^{k-1} b_i \cdot 2^i$</li>
+</ol>
+<p>Cost: $k$ bitness constraints + 1 reconstruction constraint</p>
+<h3 id="comparison-proving-a--b"><a class="header" href="#comparison-proving-a--b">Comparison: Proving $a &lt; b$</a></h3>
+<p>To prove $a &lt; b$ for values in range $[0, 2^k)$:</p>
+<p><strong>Approach 1: Subtraction with underflow</strong></p>
+<ol>
+<li>Compute $d = b - a + 2^k$ (shifted to avoid underflow)</li>
+<li>Decompose $d$ into $k+1$ bits</li>
+<li>Check the most significant bit equals 1 (meaning $b - a \geq 0$, so $b &gt; a$)</li>
+</ol>
+<p>Cost: ~$k+1$ constraints for bit decomposition + bitness checks</p>
+<p><strong>Approach 2: Lexicographic comparison</strong></p>
+<ol>
+<li>Decompose both $a$ and $b$ into bits</li>
+<li>Starting from the MSB, find the first position where they differ</li>
+<li>At that position, check $a_i = 0$ and $b_i = 1$</li>
+</ol>
+<p>Cost: More complex, often not better for general comparisons</p>
+<p>The pattern is clear: anything involving bits is expensive. For years, circuit designers accepted this cost as unavoidable, until lookup arguments changed everything.</p>
+<h2 id="lookup-tables-the-modern-approach"><a class="header" href="#lookup-tables-the-modern-approach">Lookup Tables: The Modern Approach</a></h2>
+<p>Lookup arguments represent the most significant optimization technique in modern ZK systems. They sidestep bit decomposition entirely by replacing computation with table membership.</p>
+<h3 id="the-core-idea"><a class="header" href="#the-core-idea">The Core Idea</a></h3>
+<p>Instead of proving <em>how</em> you computed a result, prove <em>that</em> the result appears in a precomputed table.</p>
+<p><strong>Example</strong>: To prove XOR of two 8-bit values:</p>
+<p><strong>Traditional approach</strong> (bit decomposition):</p>
+<ol>
+<li>Decompose both inputs into 8 bits each (16 bitness constraints)</li>
+<li>Compute XOR per bit: $c_i = a_i + b_i - 2a_i b_i$ (8 multiplication constraints)</li>
+<li>Reconstruct output (1 constraint)</li>
+<li>Total: ~25 constraints</li>
+</ol>
+<p><strong>Lookup approach</strong>:</p>
+<ol>
+<li>Precompute a table of all $256 \times 256 = 65,536$ XOR results: $(a, b, a \oplus b)$</li>
+<li>Prove the triple $(a, b, c)$ appears in this table</li>
+<li>Total: ~3 constraints (regardless of operation complexity!)</li>
+</ol>
+<p>The savings compound. A 64-bit XOR via bit decomposition costs ~130 constraints. Via lookups on 8-bit chunks: 8 lookups × 3 constraints = 24 constraints, a 5x improvement.</p>
+<h3 id="why-this-isnt-crazy"><a class="header" href="#why-this-isnt-crazy">Why This Isn't Crazy</a></h3>
+<p>At first glance, &quot;prove membership in a 65,536-entry table&quot; sounds worse than bit decomposition. Checking 65,536 possibilities naively would be astronomical. The key insight is that we don't check membership directly; we use <em>polynomial identity testing</em>.</p>
+<p>The table becomes a polynomial. If $T = [t_1, \ldots, t_N]$, encode it as:
+$$T(X) = \prod_{i=1}^{N} (X - t_i)$$</p>
+<p>A value $v$ is in the table if and only if $T(v) = 0$. But evaluating this polynomial at a random point, or checking divisibility relationships between polynomials, costs $O(\log N)$ work, not $O(N)$.</p>
+<p>The magic: polynomials let you reason about <em>all</em> table entries simultaneously via a single random evaluation. A table of size $2^{16}$ doesn't require $2^{16}$ checks; it requires one polynomial identity that holds only if every lookup is valid. The Schwartz-Zippel lemma guarantees that a cheating prover gets caught with overwhelming probability.</p>
+<p>This is the same principle underlying all polynomial-based SNARKs: compress exponentially many checks into a constant number of random evaluations. Lookups are just a particularly clean application of this principle.</p>
+<h3 id="how-lookup-arguments-work"><a class="header" href="#how-lookup-arguments-work">How Lookup Arguments Work</a></h3>
+<p>The prover has a table $T = [t_1, t_2, \ldots, t_N]$ and claims that values $f_1, \ldots, f_m$ all appear in $T$.</p>
+<p><strong>Plookup</strong> (2020, Gabizon and Williamson): Uses a grand product argument. Sort the lookup values and table together, then check that adjacent elements satisfy a relationship that's only possible if every lookup value came from the table.</p>
+<p><strong>LogUp</strong> (2022, Haböck): Reformulates the product check as a sum of logarithmic derivatives:
+$$\sum_i \frac{1}{X - f_i} = \sum_j \frac{m_j}{X - t_j}$$
+where $m_j$ is the multiplicity of table element $t_j$ among the lookups. This is more efficient for tables with repeated accesses.</p>
+<p><strong>Lasso</strong> (2023, Setty et al.): Combines lookups with sum-check, achieving prover time proportional to the number of lookups rather than the table size. This enables tables of size $2^{128}$ or larger, covering operations like full 64-bit multiplication in a single lookup.</p>
+<h3 id="what-lookups-enable"><a class="header" href="#what-lookups-enable">What Lookups Enable</a></h3>
+<p><strong>Range proofs without bit decomposition</strong>: A table $[0, 1, 2, \ldots, 2^{16}-1]$ proves 16-bit range with one lookup instead of 16 bitness constraints.</p>
+<p><strong>Efficient hash functions</strong>: Even non-ZK-friendly hashes become tractable. SHA-256's bitwise operations can be replaced by table lookups on chunks.</p>
+<p><strong>zkVMs at scale</strong>: Systems like Jolt prove CPU instruction execution via lookups. Each instruction (ADD, XOR, MUL, etc.) becomes a table lookup. The instruction's semantics are &quot;baked into&quot; the table; the circuit just checks membership.</p>
+<p><strong>Memory operations</strong>: Read-write memory can be verified via sorted lookup arguments, proving that memory accesses are consistent without encoding RAM semantics in constraints.</p>
+<h3 id="the-lookup-landscape"><a class="header" href="#the-lookup-landscape">The Lookup Landscape</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Protocol</th><th>Prover Cost</th><th>Table Size Limit</th><th>Best For</th></tr></thead><tbody>
+<tr><td>Plookup</td><td>$O(N \log N)$</td><td>~$2^{20}$</td><td>Moderate tables, PLONKish</td></tr>
+<tr><td>LogUp</td><td>$O(N \log N)$</td><td>~$2^{20}$</td><td>Repeated accesses</td></tr>
+<tr><td>Lasso</td><td>$O(m \log m)$</td><td>~$2^{128}$</td><td>Huge tables, zkVMs</td></tr>
+</tbody></table>
+</div>
+<p>Here $N$ is the circuit size and $m$ is the number of lookups.</p>
+<h3 id="design-implications"><a class="header" href="#design-implications">Design Implications</a></h3>
+<p>Lookups shift circuit design philosophy:</p>
+<p><strong>Before lookups</strong>: Minimize bit operations. Use ZK-friendly primitives. Accept that some operations are inherently expensive.</p>
+<p><strong>After lookups</strong>: Think in terms of table design. Any function with a reasonable domain can become a lookup. The question becomes: what's the optimal table decomposition?</p>
+<p>For a 64-bit operation, you might:</p>
+<ul>
+<li>Use 8 lookups into $2^{16}$-entry tables (8-bit chunks, twice per operand)</li>
+<li>Use 4 lookups into $2^{32}$-entry tables (16-bit chunks)</li>
+<li>Use 1 lookup into a $2^{128}$-entry virtual table (Lasso-style)</li>
+</ul>
+<p>The optimal choice depends on table construction costs, lookup argument efficiency, and memory constraints.</p>
+<h2 id="the-frontendbackend-split"><a class="header" href="#the-frontendbackend-split">The Frontend/Backend Split</a></h2>
+<p>This chapter describes <strong>frontends</strong>, compilers that transform high-level programs into arithmetic form. The <strong>backend</strong> is the proof system (GKR, Groth16, PLONK, STARKs) that proves the resulting constraints.</p>
+<p><strong>CPU-style frontends</strong> (Cairo, RISC-Zero, SP1, Jolt):</p>
+<ul>
+<li>Define a virtual machine with a fixed instruction set</li>
+<li>Any program compiles to that instruction set</li>
+<li>The arithmetization verifies instruction execution</li>
+<li>General-purpose but with overhead</li>
+</ul>
+<p><strong>ASIC-style frontends</strong> (Circom, custom circuits):</p>
+<ul>
+<li>Create a specialized circuit for each specific program</li>
+<li>Maximum efficiency for fixed computations</li>
+<li>Poor for general-purpose or data-dependent control flow</li>
+</ul>
+<p><strong>Hybrid approaches</strong>:</p>
+<ul>
+<li>Use custom circuits for the common case</li>
+<li>Fall back to general VM for edge cases</li>
+<li>Example: Specialized hash circuit + general VM for the rest</li>
+</ul>
+<p>The choice depends on your use case. Verifying a hash? A custom circuit is fastest. Running arbitrary computation? You need a zkVM. Running the same computation millions of times? The circuit development cost is amortized.</p>
+<h2 id="the-big-picture"><a class="header" href="#the-big-picture">The Big Picture</a></h2>
+<p>We've traced the path from programs to proofs:</p>
+<ol>
+<li>
+<p><strong>Program</strong> → A computation we want to prove</p>
+</li>
+<li>
+<p><strong>Execution trace</strong> → The witness, capturing every intermediate state (registers, memory, etc.)</p>
+</li>
+<li>
+<p><strong>Constraint system</strong> → Algebraic rules the trace must satisfy:</p>
+<ul>
+<li>R1CS: $(A \cdot Z) \circ (B \cdot Z) = C \cdot Z$</li>
+<li>PLONK: Universal gate + permutation</li>
+<li>AIR: Transition polynomials (STARKs)</li>
+</ul>
+</li>
+<li>
+<p><strong>Polynomial representation</strong> → The constraints become polynomial identities:</p>
+<ul>
+<li>QAP: Divisibility by vanishing polynomial</li>
+<li>Sum-check: Sum over hypercube equals zero</li>
+<li>PIOP: Polynomial oracle proofs</li>
+</ul>
+</li>
+<li>
+<p><strong>Proof system</strong> → Polynomial commitments + algebraic checks verify the identity</p>
+</li>
+</ol>
+<p>Arithmetization is the bridge between computation and algebra. It's where computer science meets cryptography, and where clever encoding can save orders of magnitude in proof cost.</p>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li>
+<p><strong>Circuit satisfiability vs. evaluation</strong>: Most applications prove knowledge of a secret witness, not just correct evaluation.</p>
+</li>
+<li>
+<p><strong>The witness is everything</strong>: It's the complete set of values (public, private, and intermediate) that satisfies the constraints.</p>
+</li>
+<li>
+<p><strong>Execution trace as witness</strong>: The prover records their entire computation; the circuit verifies the recording.</p>
+</li>
+<li>
+<p><strong>Time and memory consistency</strong>: The trace must follow transition rules (local checks) and memory rules (permutation checks).</p>
+</li>
+<li>
+<p><strong>R1CS</strong>: Expresses constraints as $(A \cdot Z) \times (B \cdot Z) = C \cdot Z$. Universal but can be verbose.</p>
+</li>
+<li>
+<p><strong>Three constraint formats</strong>: R1CS (sparse matrices), PLONKish (gates + selectors), AIR (transition constraints). CCS unifies them all.</p>
+</li>
+<li>
+<p><strong>Bit decomposition is expensive</strong>: A 64-bit operation costs ~65-200 constraints via traditional encoding.</p>
+</li>
+<li>
+<p><strong>Lookup arguments changed everything</strong>: Plookup, LogUp, and Lasso replace expensive bit operations with cheap table membership proofs, enabling efficient zkVMs and non-ZK-friendly operations.</p>
+</li>
+<li>
+<p><strong>Frontend/backend split</strong>: Frontends handle arithmetization; backends handle proving. They can be mixed and matched.</p>
+</li>
+<li>
+<p><strong>Constraint cost guides design</strong>: Choose field-friendly operations (hashes, curves) over bit-heavy operations.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="07-the-gkr-protocol.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="09-polynomial-commitment-schemes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="07-the-gkr-protocol.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="09-polynomial-commitment-schemes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

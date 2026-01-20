@@ -1,0 +1,559 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Sum-Check Protocol - Minimizing Trust, Maximizing Truth</title>
+
+
+        <!-- Custom HTML head -->
+        <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Foundations</li><li class="chapter-item expanded "><a href="01-the-trust-problem.html"><strong aria-hidden="true">1.</strong> The Trust Problem</a></li><li class="chapter-item expanded "><a href="02-the-alchemical-power-of-polynomials.html"><strong aria-hidden="true">2.</strong> The Alchemical Power of Polynomials</a></li><li class="chapter-item expanded "><a href="03-the-sum-check-protocol.html" class="active"><strong aria-hidden="true">3.</strong> The Sum-Check Protocol</a></li><li class="chapter-item expanded "><a href="04-multilinear-extensions.html"><strong aria-hidden="true">4.</strong> Multilinear Extensions</a></li><li class="chapter-item expanded "><a href="05-univariate-polynomials-and-finite-fields.html"><strong aria-hidden="true">5.</strong> Univariate Polynomials and Finite Fields</a></li><li class="chapter-item expanded "><a href="06-commitment-schemes.html"><strong aria-hidden="true">6.</strong> Commitment Schemes</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Protocols</li><li class="chapter-item expanded "><a href="07-the-gkr-protocol.html"><strong aria-hidden="true">7.</strong> The GKR Protocol</a></li><li class="chapter-item expanded "><a href="08-from-circuits-to-polynomials.html"><strong aria-hidden="true">8.</strong> From Circuits to Polynomials</a></li><li class="chapter-item expanded "><a href="09-polynomial-commitment-schemes.html"><strong aria-hidden="true">9.</strong> Polynomial Commitment Schemes</a></li><li class="chapter-item expanded "><a href="10-hash-based-commitments-and-fri.html"><strong aria-hidden="true">10.</strong> Hash-Based Commitments and FRI</a></li><li class="chapter-item expanded affix "><li class="part-title">SNARK Construction</li><li class="chapter-item expanded "><a href="11-the-snark-recipe.html"><strong aria-hidden="true">11.</strong> The SNARK Recipe</a></li><li class="chapter-item expanded "><a href="12-groth16.html"><strong aria-hidden="true">12.</strong> Groth16</a></li><li class="chapter-item expanded "><a href="13-plonk.html"><strong aria-hidden="true">13.</strong> PLONK</a></li><li class="chapter-item expanded "><a href="14-lookup-arguments.html"><strong aria-hidden="true">14.</strong> Lookup Arguments</a></li><li class="chapter-item expanded "><a href="15-starks.html"><strong aria-hidden="true">15.</strong> STARKs</a></li><li class="chapter-item expanded affix "><li class="part-title">Zero-Knowledge</li><li class="chapter-item expanded "><a href="16-sigma-protocols.html"><strong aria-hidden="true">16.</strong> Sigma Protocols</a></li><li class="chapter-item expanded "><a href="17-the-zero-knowledge-property.html"><strong aria-hidden="true">17.</strong> The Zero-Knowledge Property</a></li><li class="chapter-item expanded "><a href="18-making-proofs-zero-knowledge.html"><strong aria-hidden="true">18.</strong> Making Proofs Zero-Knowledge</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Topics</li><li class="chapter-item expanded "><a href="19-fast-sum-check-proving.html"><strong aria-hidden="true">19.</strong> Fast Sum-Check Proving</a></li><li class="chapter-item expanded "><a href="20-minimizing-commitment-costs.html"><strong aria-hidden="true">20.</strong> Minimizing Commitment Costs</a></li><li class="chapter-item expanded "><a href="21-the-two-classes-of-piops.html"><strong aria-hidden="true">21.</strong> The Two Classes of PIOPs</a></li><li class="chapter-item expanded "><a href="22-composition-and-recursion.html"><strong aria-hidden="true">22.</strong> Composition and Recursion</a></li><li class="chapter-item expanded "><a href="23-choosing-a-snark.html"><strong aria-hidden="true">23.</strong> Choosing a SNARK</a></li><li class="chapter-item expanded affix "><li class="part-title">Broader Context</li><li class="chapter-item expanded "><a href="24-mpc-and-zk-parallel-paths.html"><strong aria-hidden="true">24.</strong> MPC and ZK Parallel Paths</a></li><li class="chapter-item expanded "><a href="25-frontiers-and-open-problems.html"><strong aria-hidden="true">25.</strong> Frontiers and Open Problems</a></li><li class="chapter-item expanded "><a href="26-zk-in-the-cryptographic-landscape.html"><strong aria-hidden="true">26.</strong> ZK in the Cryptographic Landscape</a></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="appendix-a-cryptographic-primitives.html"><strong aria-hidden="true">27.</strong> Cryptographic Primitives</a></li><li class="chapter-item expanded "><a href="appendix-b-historical-timeline.html"><strong aria-hidden="true">28.</strong> Historical Timeline</a></li><li class="chapter-item expanded "><a href="appendix-c-field-equations-cheat-sheet.html"><strong aria-hidden="true">29.</strong> Field Equations Cheat Sheet</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Minimizing Trust, Maximizing Truth</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook/edit/main/web/src/03-the-sum-check-protocol.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-3-the-sum-check-protocol"><a class="header" href="#chapter-3-the-sum-check-protocol">Chapter 3: The Sum-Check Protocol</a></h1>
+<p>In 1990, four researchers at the University of Chicago were wrestling with a question that seemed absurd.</p>
+<p>Carsten Lund, Lance Fortnow, Howard Karloff, and Noam Nisan wanted to verify a sum: not a small sum, but a sum over $2^n$ terms, where $n$ could be in the hundreds. Computing such a sum directly would take longer than the lifetime of the universe. And yet, they wondered: could you <em>check</em> such a sum without computing it?</p>
+<p>The obvious answer was no. How can you verify an answer without doing the work yourself? It would be like confirming that someone correctly counted every grain of sand on a beach without counting any grains yourself.</p>
+<p>But the four researchers discovered something strange. They didn't need to look at every term. By asking the prover a series of clever questions, each answered with a simple polynomial, they could catch any cheater with overwhelming probability. The key was randomness: by challenging the prover at unpredictable points, any lie would propagate through the protocol until it became a simple falsehood that the verifier could catch.</p>
+<p>They called it the <strong>sum-check protocol</strong>. It would become, arguably, the most important protocol in all of interactive proof theory.</p>
+<p>Here's the paradox it resolves:</p>
+<blockquote>
+<p>Verify a sum of $2^n$ terms by checking $O(n)$ values? Impossible. The prover claims the sum is $H$, but computing it yourself requires evaluating a function at every point of an exponentially large domain. Even if each evaluation takes constant time, you'd need $2^{100}$ operations for a 100-variable polynomial. Centuries of computation, just to check someone's arithmetic.</p>
+<p>And yet, there is a way.</p>
+</blockquote>
+<p>The sum-check protocol takes a claim that seems fundamentally expensive to verify, the sum of a polynomial over all points of the boolean hypercube, and reduces it to something trivial: a single evaluation at a random point. The verifier's work scales <em>linearly</em> with the number of variables, not exponentially with the size of the domain.</p>
+<p>This chapter develops the sum-check protocol from first principles. We'll see exactly how the protocol works, why it's sound, and how any lie propagates through the protocol until it becomes a simple falsehood the verifier can catch. Along the way, we'll trace through complete worked examples with actual field values, because this protocol is too important to understand only abstractly.</p>
+<h2 id="the-problem-verifying-exponential-sums"><a class="header" href="#the-problem-verifying-exponential-sums">The Problem: Verifying Exponential Sums</a></h2>
+<p>Suppose a prover claims to know the value of the following sum:</p>
+<p>$$H = \sum_{b_1 \in {0,1}} \sum_{b_2 \in {0,1}} \cdots \sum_{b_\nu \in {0,1}} g(b_1, b_2, \ldots, b_\nu)$$</p>
+<p>Here $g$ is a $\nu$-variate polynomial over a finite field $\mathbb{F}$, and the sum ranges over all $2^\nu$ points of the <strong>boolean hypercube</strong> ${0,1}^\nu$. The prover says the answer is $H$. Do you believe it?</p>
+<p>A naive verifier would evaluate $g$ at every point of the hypercube and add up the results. But this requires $2^\nu$ evaluations, exponential in the number of variables. For $\nu = 100$, this is hopelessly infeasible.</p>
+<p>The sum-check protocol solves this problem. It allows a verifier to check the claimed value of $H$ with high probability, in time that is only linear in $\nu$ and the time it takes to evaluate $g$ at a <em>single</em> random point. This represents an exponential speedup.</p>
+<p>But how can you verify a sum without computing it? The answer lies in a beautiful idea: <strong>claim reduction via deferred evaluation</strong>. Instead of computing the sum directly, the verifier engages in a multi-round dialogue with the prover. In each round, the prover makes a smaller, more specific claim, and the verifier uses randomness to drill down on a single point. An initial lie, no matter how cleverly constructed, gets amplified at each step until it becomes a simple falsehood about a single evaluation, which the verifier catches at the end.</p>
+<h2 id="the-compression-game"><a class="header" href="#the-compression-game">The Compression Game</a></h2>
+<p>Think of the sum-check protocol as a game of progressive compression.</p>
+<p>The prover holds an enormous object: a table of $2^\nu$ values. The verifier wants to know their sum but cannot afford to examine the table. So instead, the prover compresses the table (not into a hash, but into a <em>polynomial</em>).</p>
+<p>In round 1, the prover compresses a table of $2^\nu$ values into a univariate polynomial of degree $d$. The verifier can't check the compression directly, but she can probe it: she picks a random point $r_1$ and asks &quot;what does your polynomial say here?&quot; That answer becomes the new target, a compressed representation of a table half the size.</p>
+<p>Each round, the table shrinks by half while the verifier accumulates random coordinates. After $\nu$ rounds, the &quot;table&quot; has size 1: a single value. The verifier can compute that value herself.</p>
+<p>Here's the key insight: <strong>honest compression is consistent, but lies leave fingerprints</strong>. If the prover's initial polynomial doesn't actually represent the true sum, it must differ from the honest polynomial somewhere. The random probes find these differences with overwhelming probability. A cheating prover would need to predict all $\nu$ random challenges in advance to construct a lie that survives; and against cryptographic randomness, that's impossible.</p>
+<p>The protocol converts an exponential verification problem into a linear-round dialogue where randomness does the heavy lifting.</p>
+<h2 id="the-protocol-specification"><a class="header" href="#the-protocol-specification">The Protocol Specification</a></h2>
+<p>Let's make this precise. The sum-check protocol verifies a claim of the form:</p>
+<p>$$H = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g(b_1, \ldots, b_\nu)$$</p>
+<p>where $g$ is a $\nu$-variate polynomial of degree at most $d$ in each variable. The protocol proceeds in $\nu$ rounds.</p>
+<h3 id="round-1"><a class="header" href="#round-1">Round 1</a></h3>
+<p>The prover computes and sends a univariate polynomial $g_1(X_1)$, claimed to equal:</p>
+<p>$$g_1(X_1) = \sum_{(b_2, \ldots, b_\nu) \in {0,1}^{\nu-1}} g(X_1, b_2, \ldots, b_\nu)$$</p>
+<p>In words: $g_1$ is the polynomial obtained by summing $g$ over all boolean values of the last $\nu-1$ variables, leaving $X_1$ as a formal variable.</p>
+<p>The verifier performs two checks:</p>
+<ol>
+<li>
+<p><strong>Consistency check</strong>: Verify that $g_1(0) + g_1(1) = H$. This ensures the prover's polynomial is consistent with the claimed total sum.</p>
+</li>
+<li>
+<p><strong>Degree check</strong>: Verify that $g_1$ has degree at most $d$ in $X_1$. This is essential for soundness; without it, the protocol breaks completely.</p>
+</li>
+</ol>
+<p><strong>Why the degree check matters</strong>: The soundness argument relies on Schwartz-Zippel: two <em>distinct</em> degree-$d$ polynomials agree on at most $d$ points, so a random evaluation catches the difference with probability $\geq 1 - d/|\mathbb{F}|$. But what if the prover sends a high-degree polynomial instead?</p>
+<p><em>Attack without degree check</em>: Suppose the true sum is $H^* = 6$ but the prover claims $H = 100$. The honest polynomial is $s_1(X) = 2X + 2$, with $s_1(0) + s_1(1) = 6$. The prover needs a polynomial passing through $(0, a)$ and $(1, b)$ where $a + b = 100$.</p>
+<p>With no degree bound, the prover can use Lagrange interpolation to construct a polynomial that passes through <em>any</em> set of points, including $(0, 50)$, $(1, 50)$, <em>and</em> agreeing with $s_1$ at every other point in the field! A degree-$(|\mathbb{F}| - 1)$ polynomial can match $s_1$ everywhere except at 0 and 1, making it indistinguishable from the honest polynomial at any random challenge $r_1 \notin {0, 1}$.</p>
+<p>The degree bound closes this attack. If the prover must send a degree-$d$ polynomial, Lagrange interpolation on $d+1$ points fully determines it. The prover cannot simultaneously satisfy $g_1(0) + g_1(1) = H$ and have $g_1$ agree with $s_1$ at more than $d$ points (unless $g_1 = s_1$, which requires $H = H^*$).</p>
+<p>If either check fails, the verifier rejects. Otherwise, she samples a random challenge $r_1 \leftarrow \mathbb{F}$ and sends it to the prover.</p>
+<p><strong>The implicit claim</strong>: After sampling $r_1$, the verifier holds the value $V_1 = g_1(r_1)$. This value represents what the prover is <em>implicitly</em> asserting about the reduced sum. The verifier doesn't compute this sum herself; she simply records what the prover's polynomial claims it to be. This $V_1$ becomes the target for round 2: the prover must now justify that the sum over $2^{\nu-1}$ points, with the first variable fixed to $r_1$, actually equals $V_1$.</p>
+<p>The key observation: the verifier has now <em>reduced</em> the original claim about a sum over $2^\nu$ points to a new claim about a sum over $2^{\nu-1}$ points. Specifically, the prover is now implicitly claiming that:</p>
+<p>$$g_1(r_1) = \sum_{(b_2, \ldots, b_\nu) \in {0,1}^{\nu-1}} g(r_1, b_2, \ldots, b_\nu)$$</p>
+<h3 id="round-j-for-j--2-ldots-nu"><a class="header" href="#round-j-for-j--2-ldots-nu">Round $j$ (for $j = 2, \ldots, \nu$)</a></h3>
+<p>At the start of round $j$, the verifier holds a value $V_{j-1} = g_{j-1}(r_{j-1})$ from the previous round. This represents the prover's implicit claim about a sum over $2^{\nu-j+1}$ points.</p>
+<p>The prover sends the next univariate polynomial $g_j(X_j)$, claimed to equal:</p>
+<p>$$g_j(X_j) = \sum_{(b_{j+1}, \ldots, b_\nu) \in {0,1}^{\nu-j}} g(r_1, \ldots, r_{j-1}, X_j, b_{j+1}, \ldots, b_\nu)$$</p>
+<p>The verifier checks:</p>
+<ol>
+<li>
+<p><strong>Consistency check</strong>: $g_j(0) + g_j(1) = V_{j-1}$</p>
+</li>
+<li>
+<p><strong>Degree check</strong>: $\deg(g_j) \leq d$</p>
+</li>
+</ol>
+<p>If checks pass, she samples $r_j \leftarrow \mathbb{F}$ and computes $V_j = g_j(r_j)$.</p>
+<h3 id="final-check-after-round-nu"><a class="header" href="#final-check-after-round-nu">Final Check (After Round $\nu$)</a></h3>
+<p>After $\nu$ rounds, the verifier has received $g_\nu(X_\nu)$ and chosen $r_\nu$. The prover's final claim is that $g_\nu(r_\nu) = g(r_1, \ldots, r_\nu)$.</p>
+<p>The verifier now evaluates $g$ at the single point $(r_1, \ldots, r_\nu)$, using her &quot;oracle access&quot; to $g$, and checks whether this equals $g_\nu(r_\nu)$.</p>
+<p>If the values match, she accepts. Otherwise, she rejects.</p>
+<h3 id="a-note-on-oracle-access"><a class="header" href="#a-note-on-oracle-access">A Note on Oracle Access</a></h3>
+<p>In the theoretical model, we say the verifier has <strong>oracle access</strong> to $g$. This means she can evaluate $g$ at any point efficiently, even though the full evaluation table has exponential size. In practice, this works because the verifier understands the <em>structure</em> of $g$ (perhaps it arises from the arithmetization of a circuit or formula) and can compute $g(r)$ for any specific $r$ in polynomial time.</p>
+<h2 id="why-does-this-work"><a class="header" href="#why-does-this-work">Why Does This Work?</a></h2>
+<h3 id="completeness"><a class="header" href="#completeness">Completeness</a></h3>
+<p>If the prover is honest, all checks pass trivially. The polynomials $g_j$ are computed exactly as specified, so the consistency checks hold by construction. The verifier accepts.</p>
+<h3 id="soundness"><a class="header" href="#soundness">Soundness</a></h3>
+<p>The soundness argument is more subtle and relies on the <strong>Schwartz-Zippel lemma</strong> we developed in Chapter 2.</p>
+<p>Suppose the prover's initial claim is false: the true sum is $H^* \neq H$. For the first consistency check to pass, the prover must send some polynomial $g_1(X_1)$ such that $g_1(0) + g_1(1) = H$.</p>
+<p>Let $s_1(X_1)$ be the <em>true</em> polynomial: the one computed by honestly summing $g$ over the hypercube. By assumption, $s_1(0) + s_1(1) = H^* \neq H$. So the prover's polynomial $g_1$ must be different from $s_1$.</p>
+<p>Here's where Schwartz-Zippel enters. Both $g_1$ and $s_1$ are univariate polynomials of degree at most $d$. If they're different, they can agree on at most $d$ points. When the verifier samples a random $r_1$ from $\mathbb{F}$, the probability that $g_1(r_1) = s_1(r_1)$ is at most $d/|\mathbb{F}|$.</p>
+<p>With overwhelming probability, $g_1(r_1) \neq s_1(r_1)$. The prover has &quot;gotten lucky&quot; only if the random challenge happened to land on one of the few points where the two polynomials agree.</p>
+<p>But what does $g_1(r_1) \neq s_1(r_1)$ mean? It means the prover is now committed to defending a <em>false</em> claim in round 2: he must convince the verifier that the sum $\sum_{b_2, \ldots} g(r_1, b_2, \ldots)$ equals $g_1(r_1)$, when in fact it equals $s_1(r_1)$.</p>
+<p>The same logic cascades through all $\nu$ rounds. In each round, either the prover gets lucky (probability $\leq d/|\mathbb{F}|$) or he's forced to defend a new false claim. By the final round, the prover must convince the verifier that $g_\nu(r_\nu) = g(r_1, \ldots, r_\nu)$, but the verifier checks this directly.</p>
+<p>By a union bound, the total probability that a cheating prover succeeds is at most:</p>
+<p>$$\delta_s \leq \frac{\nu \cdot d}{|\mathbb{F}|}$$</p>
+<p>In cryptographic applications, $|\mathbb{F}|$ is enormous (e.g., $2^{256}$), so this probability is negligible.</p>
+<h2 id="worked-example-honest-prover-and-cheating-prover"><a class="header" href="#worked-example-honest-prover-and-cheating-prover">Worked Example: Honest Prover and Cheating Prover</a></h2>
+<p>Let's trace through the entire protocol with actual values: first with an honest prover, then with a cheater. Seeing both cases with the same polynomial makes the soundness argument concrete.</p>
+<p><strong>Setup</strong>: Consider the polynomial $g(x_1, x_2) = x_1 + 2x_2$ over a large field $\mathbb{F}$. We have $\nu = 2$ variables.</p>
+<p><strong>Goal</strong>: The prover wants to convince the verifier of the sum over ${0,1}^2$:</p>
+<p>$$H = g(0,0) + g(0,1) + g(1,0) + g(1,1) = 0 + 2 + 1 + 3 = 6$$</p>
+<h3 id="the-honest-case"><a class="header" href="#the-honest-case">The Honest Case</a></h3>
+<p><strong>Round 1</strong>: The prover claims $H = 6$ and sends:</p>
+<p>$$g_1(X_1) = g(X_1, 0) + g(X_1, 1) = (X_1 + 0) + (X_1 + 2) = 2X_1 + 2$$</p>
+<p>The verifier checks: $g_1(0) + g_1(1) = 2 + 4 = 6 = H$. $\checkmark$</p>
+<p>She samples $r_1 = 5$ and computes $V_1 = g_1(5) = 12$.</p>
+<p><strong>Round 2</strong>: The prover sends $g_2(X_2) = g(5, X_2) = 5 + 2X_2$.</p>
+<p>The verifier checks: $g_2(0) + g_2(1) = 5 + 7 = 12 = V_1$. $\checkmark$</p>
+<p>She samples $r_2 = 10$.</p>
+<p><strong>Final check</strong>: The verifier computes $g(5, 10) = 5 + 20 = 25$ and compares to $g_2(10) = 25$. They match. <strong>Accept.</strong></p>
+<h3 id="the-cheating-case"><a class="header" href="#the-cheating-case">The Cheating Case</a></h3>
+<p>Now suppose the prover lies: he claims $H = 7$ instead of the true sum $H^* = 6$.</p>
+<p><strong>Round 1</strong>: To pass the consistency check, the prover must send some $g_1(X_1)$ with $g_1(0) + g_1(1) = 7$. The true polynomial $s_1(X_1) = 2X_1 + 2$ sums to 6, so he can't use it.</p>
+<p>He sends a lie: $g_1(X_1) = 2X_1 + 2.5$. Check: $g_1(0) + g_1(1) = 2.5 + 4.5 = 7$. $\checkmark$</p>
+<p><strong>The critical moment</strong>: The verifier samples $r_1 = 5$.</p>
+<ul>
+<li>Prover's value: $g_1(5) = 12.5$</li>
+<li>True value: $s_1(5) = 12$</li>
+</ul>
+<p>The prover is now committed to defending a false claim: $\sum_{x_2} g(5, x_2) = 12.5$. But the true sum is 12.</p>
+<p><strong>Round 2</strong>: The prover needs $g_2(0) + g_2(1) = 12.5$. He sends $g_2(X_2) = 5.25 + 2X_2$.</p>
+<p>The verifier samples $r_2 = 10$.</p>
+<p><strong>Final check</strong>:</p>
+<ul>
+<li>Prover claims: $g_2(10) = 25.25$</li>
+<li>Verifier computes: $g(5, 10) = 25$</li>
+</ul>
+<p>$25.25 \neq 25$. <strong>Reject.</strong></p>
+<h3 id="the-moral"><a class="header" href="#the-moral">The Moral</a></h3>
+<p>The initial lie forced the prover to send polynomials different from the true ones. By Schwartz-Zippel, the random challenges almost certainly landed on points where these polynomials disagreed. The lie didn't just persist; it <em>amplified</em> through the rounds until it became a simple, detectable falsehood.</p>
+<p>Notice what happened to the cheating prover. After sending the first dishonest polynomial, they weren't free. The verifier's random challenge $r_1 = 5$ created a new constraint: the prover must now justify that $\sum_{x_2} g(5, x_2) = 12.5$. But they didn't choose 5; the verifier did, unpredictably. The prover is forced to fabricate an answer for a question they couldn't anticipate.</p>
+<p>Each round tightens the trap. The second lie must be consistent with the first. The third with the second. Each fabrication constrains the next, and the prover never controls which constraints they'll face. By the final round, the accumulated lies have painted the cheater into a corner: they must claim that $g(5, 10) = 25.25$ when any honest evaluation reveals 25. The system of fabrications collapses under its own weight.</p>
+<p>The prover's only hope is that every random challenge happens to land on a point where the cheating polynomial agrees with the true one. For degree-$d$ polynomials over a field of size $|\mathbb{F}|$, this probability is at most $d/|\mathbb{F}|$ per round, negligible in cryptographic settings.</p>
+<h2 id="application-counting-satisfying-assignments-sat"><a class="header" href="#application-counting-satisfying-assignments-sat">Application: Counting Satisfying Assignments (#SAT)</a></h2>
+<p>The sum-check protocol becomes truly powerful when combined with <strong>arithmetization</strong>: the process of translating computational problems into polynomial form. Let's see how to use sum-check to verify the count of satisfying assignments to a boolean formula.</p>
+<p><strong>The #SAT problem</strong>: Given a boolean formula $\phi$ with $\nu$ variables, count how many of the $2^\nu$ possible assignments make $\phi$ true.</p>
+<p>This is a canonical #P-complete problem, even harder than NP. Verifying the count naively requires checking all $2^\nu$ assignments. But with sum-check, a prover can convince a verifier of the correct count in polynomial time.</p>
+<h3 id="arithmetization-of-boolean-formulas"><a class="header" href="#arithmetization-of-boolean-formulas">Arithmetization of Boolean Formulas</a></h3>
+<p>The key insight is to transform the boolean formula into a polynomial that equals 1 on satisfying assignments and 0 otherwise.</p>
+<p><strong>Step 1: Arithmetize literals</strong></p>
+<ul>
+<li>
+<p>The variable $x_i$ stays as $x_i$</p>
+</li>
+<li>
+<p>The negation $\neg x_i$ becomes $1 - x_i$</p>
+</li>
+</ul>
+<p>Over ${0,1}$, these give the right values: if $x_i = 1$, then $\neg x_i = 0$, and $1 - x_i = 0$. $\checkmark$</p>
+<p><strong>Step 2: Arithmetize clauses</strong>
+Consider a clause $C = (z_1 \lor z_2 \lor z_3)$ where each $z_i$ is a literal. The clause is false only when all three literals are false. So:</p>
+<p>$$g_C(x) = 1 - (1 - z_1)(1 - z_2)(1 - z_3)$$</p>
+<p>where each $z_i$ is the polynomial form of the literal.</p>
+<p><strong>Example</strong>: For the clause $C = (x_1 \lor \neg x_2 \lor x_3)$:
+$$g_C(x_1, x_2, x_3) = 1 - (1 - x_1) \cdot x_2 \cdot (1 - x_3)$$</p>
+<p>This equals 0 precisely when $x_1 = 0$, $x_2 = 1$, $x_3 = 0$: the only assignment that falsifies the clause.</p>
+<p><strong>Step 3: Arithmetize the full formula</strong>
+For a CNF formula $\phi = C_1 \land C_2 \land \cdots \land C_m$, the formula is satisfied when <em>all</em> clauses are satisfied:</p>
+<p>$$g_\phi(x_1, \ldots, x_\nu) = \prod_{j=1}^m g_{C_j}(x_1, \ldots, x_\nu)$$</p>
+<p>Over ${0,1}^\nu$, this product equals 1 if all clauses are satisfied and 0 otherwise.</p>
+<h3 id="the-protocol"><a class="header" href="#the-protocol">The Protocol</a></h3>
+<p>The number of satisfying assignments is:</p>
+<p>$$\#SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g_\phi(b_1, \ldots, b_\nu)$$</p>
+<p>This is exactly a sum over the boolean hypercube! The prover can use the sum-check protocol to convince the verifier of this count.</p>
+<p><strong>Degree analysis</strong>: For a 3-CNF formula, each clause polynomial has degree at most 3. With $m$ clauses, the product $g_\phi$ has total degree at most $3m$. The degree in any single variable is at most $3m$ as well (though often much smaller due to variable sharing).</p>
+<p><strong>Verifier's work</strong>: The verifier performs $\nu$ rounds of sum-check, checking polynomials of degree at most $3m$. The final check requires evaluating $g_\phi$ at a random point; this takes $O(m)$ time since $g_\phi$ is a product of $m$ clause polynomials.</p>
+<p>Total verifier time: $O(\nu \cdot m)$, polynomial in the formula size, despite the exponentially large space of assignments.</p>
+<h3 id="worked-example-a-tiny-sat-instance"><a class="header" href="#worked-example-a-tiny-sat-instance">Worked Example: A Tiny #SAT Instance</a></h3>
+<p>Consider the formula $\phi = (x_1 \lor x_2) \land (\neg x_1 \lor x_2)$ with $\nu = 2$ variables and $m = 2$ clauses.</p>
+<p><strong>Step 1: Arithmetize.</strong></p>
+<p>Clause 1: $(x_1 \lor x_2) \to 1 - (1-x_1)(1-x_2) = x_1 + x_2 - x_1 x_2$</p>
+<p>Clause 2: $(\neg x_1 \lor x_2) \to 1 - x_1(1-x_2) = 1 - x_1 + x_1 x_2$</p>
+<p>Full formula: $g_\phi(x_1, x_2) = (x_1 + x_2 - x_1 x_2)(1 - x_1 + x_1 x_2)$</p>
+<p><strong>Step 2: Evaluate on ${0,1}^2$.</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>$(x_1, x_2)$</th><th>Clause 1</th><th>Clause 2</th><th>$g_\phi$</th><th>$\phi$ satisfied?</th></tr></thead><tbody>
+<tr><td>$(0, 0)$</td><td>$0$</td><td>$1$</td><td>$0$</td><td>No</td></tr>
+<tr><td>$(0, 1)$</td><td>$1$</td><td>$1$</td><td>$1$</td><td>Yes</td></tr>
+<tr><td>$(1, 0)$</td><td>$1$</td><td>$0$</td><td>$0$</td><td>No</td></tr>
+<tr><td>$(1, 1)$</td><td>$1$</td><td>$1$</td><td>$1$</td><td>Yes</td></tr>
+</tbody></table>
+</div>
+<p><strong>Step 3: Count.</strong></p>
+<p>$$\#SAT(\phi) = \sum_{(b_1, b_2) \in {0,1}^2} g_\phi(b_1, b_2) = 0 + 1 + 0 + 1 = 2$$</p>
+<p>The formula has exactly 2 satisfying assignments: $(0,1)$ and $(1,1)$ (both require $x_2 = 1$).</p>
+<p>The prover uses sum-check to convince the verifier of this count. The polynomial $g_\phi$ has degree 2 in each variable (degree 4 total), so each round polynomial has degree at most 2, requiring 3 field elements per round.</p>
+<h2 id="the-protocol-flow-a-visual-guide"><a class="header" href="#the-protocol-flow-a-visual-guide">The Protocol Flow: A Visual Guide</a></h2>
+<p>The following diagram traces the claim reduction through each round:</p>
+<pre><code>+------------------------------------------------------------------+
+|  INITIAL CLAIM: H = sum of g(b_1, b_2, ..., b_v) over 2^v points |
++------------------------------------------------------------------+
+                               |
+                               v
++------------------------------------------------------------------+
+|  ROUND 1: Prover sends g_1(X_1)                                  |
+|                                                                  |
+|  Verifier checks: g_1(0) + g_1(1) = H                            |
+|  Verifier picks random r_1                                       |
+|  New claim: g_1(r_1) = sum of g(r_1, b_2, ..., b_v)              |
+|             over 2^(v-1) points                                  |
++------------------------------------------------------------------+
+                               |
+                               v
++------------------------------------------------------------------+
+|  ROUND 2: Prover sends g_2(X_2)                                  |
+|                                                                  |
+|  Verifier checks: g_2(0) + g_2(1) = g_1(r_1)                     |
+|  Verifier picks random r_2                                       |
+|  New claim: g_2(r_2) = sum of g(r_1, r_2, b_3, ..., b_v)         |
+|             over 2^(v-2) points                                  |
++------------------------------------------------------------------+
+                               |
+                               v
+                             . . .
+                               |
+                               v
++------------------------------------------------------------------+
+|  ROUND v: Prover sends g_v(X_v)                                  |
+|                                                                  |
+|  Verifier checks: g_v(0) + g_v(1) = g_{v-1}(r_{v-1})             |
+|  Verifier picks random r_v                                       |
+|  Final claim: g_v(r_v) = g(r_1, r_2, ..., r_v) -- a SINGLE point!|
++------------------------------------------------------------------+
+                               |
+                               v
++------------------------------------------------------------------+
+|  FINAL CHECK: Verifier evaluates g(r_1, ..., r_v) directly       |
+|                                                                  |
+|  Compare with g_v(r_v). If equal -&gt; ACCEPT. Otherwise -&gt; REJECT. |
++------------------------------------------------------------------+
+</code></pre>
+<p>The reduction is exponential: $2^\nu \to 2^{\nu-1} \to 2^{\nu-2} \to \ldots \to 2^0 = 1$.</p>
+<h2 id="the-magic-of-deferred-evaluation"><a class="header" href="#the-magic-of-deferred-evaluation">The Magic of Deferred Evaluation</a></h2>
+<p>The sum-check protocol embodies a profound principle: <strong>you don't need to compute a sum to verify it</strong>.</p>
+<p>Consider what the verifier actually does:</p>
+<ol>
+<li>
+<p>She receives polynomials $g_1, g_2, \ldots, g_\nu$ from the prover.</p>
+</li>
+<li>
+<p>She checks consistency: does $g_j(0) + g_j(1)$ equal the previous round's value?</p>
+</li>
+<li>
+<p>She checks degree bounds.</p>
+</li>
+<li>
+<p>At the very end, she evaluates $g$ at a single random point.</p>
+</li>
+</ol>
+<p>The verifier never computes any intermediate sums. She never evaluates $g$ at any point of the boolean hypercube. All the hard work, computing the actual sums, is done by the prover. The verifier merely checks that the prover's story is internally consistent.</p>
+<p>This is claim reduction in action. Each round, the claim shrinks:</p>
+<ul>
+<li>
+<p>Round 0: &quot;The sum over $2^\nu$ points is $H$&quot;</p>
+</li>
+<li>
+<p>Round 1: &quot;The sum over $2^{\nu-1}$ points (at a random slice) is $V_1$&quot;</p>
+</li>
+<li>
+<p>Round 2: &quot;The sum over $2^{\nu-2}$ points is $V_2$&quot;</p>
+</li>
+<li>
+<p>...</p>
+</li>
+<li>
+<p>Round $\nu$: &quot;The value at one specific point is $V_\nu$&quot;</p>
+</li>
+</ul>
+<p>By the end, we've reduced an exponential claim to a trivial one. And the random challenges ensure that any cheating at an earlier stage propagates into a detectable error at the final stage.</p>
+<h2 id="complexity-analysis"><a class="header" href="#complexity-analysis">Complexity Analysis</a></h2>
+<p>Let's be precise about the efficiency gains.</p>
+<p><strong>Prover complexity</strong>: In round $j$, the prover must compute a univariate polynomial of degree at most $d$. To specify this polynomial, the prover evaluates it at $d+1$ points (say, $0, 1, 2, \ldots, d$). For each such point $\alpha$, the prover computes:</p>
+<p>$$g_j(\alpha) = \sum_{(b_{j+1}, \ldots, b_\nu) \in {0,1}^{\nu-j}} g(r_1, \ldots, r_{j-1}, \alpha, b_{j+1}, \ldots, b_\nu)$$</p>
+<p>This requires summing over $2^{\nu-j}$ terms. Across all rounds, the prover's total work is:</p>
+<p>$$O\left(\sum_{j=1}^{\nu} (d+1) \cdot 2^{\nu-j}\right) = O(d \cdot 2^\nu)$$</p>
+<p>The prover does work proportional to the size of the hypercube, but crucially, this is what the prover would need to do anyway to compute the sum. The sum-check protocol doesn't add significant overhead to the prover.</p>
+<p><strong>Verifier complexity</strong>: In each round, the verifier:</p>
+<ul>
+<li>
+<p>Receives a degree-$d$ polynomial (specified by $d+1$ coefficients)</p>
+</li>
+<li>
+<p>Checks that $g_j(0) + g_j(1)$ equals the previous value</p>
+</li>
+<li>
+<p>Samples a random field element</p>
+</li>
+<li>
+<p>Evaluates $g_j$ at the random point</p>
+</li>
+</ul>
+<p>This is $O(d)$ work per round, or $O(\nu d)$ total.</p>
+<p>At the end, the verifier evaluates $g$ at a single point $(r_1, \ldots, r_\nu)$. Let $T$ be the time to evaluate $g$ at one point. The verifier's total work is:</p>
+<p>$$O(\nu d + T)$$</p>
+<p><strong>The speedup</strong>: The verifier avoids evaluating $g$ at $2^\nu$ points, an exponential savings. If $g$ arises from a &quot;structured&quot; computation (like a circuit or formula), then $T$ is polynomial in the description of that structure, making the whole protocol efficient.</p>
+<p><strong>Communication complexity</strong>: The prover sends $\nu$ univariate polynomials, each of degree at most $d$. Naively, this requires $d+1$ field elements per polynomial (to specify the coefficients), for a total of $\nu(d+1)$ field elements. But there's a trick.</p>
+<p><strong>The one-coefficient trick</strong>: At each round, the verifier checks $s_i(0) + s_i(1) = V_{i-1}$. This is one linear equation in the polynomial's coefficients, so the polynomial has only $d$ degrees of freedom, not $d+1$.</p>
+<p>Write $s_i(X) = c_0 + c_1 X + c_2 X^2 + \cdots + c_d X^d$. Then:
+$$s_i(0) + s_i(1) = c_0 + (c_0 + c_1 + c_2 + \cdots + c_d) = 2c_0 + c_1 + c_2 + \cdots + c_d = V_{i-1}$$</p>
+<p>So: $c_1 = V_{i-1} - 2c_0 - c_2 - c_3 - \cdots - c_d$.</p>
+<p>The prover sends only $(c_0, c_2, c_3, \ldots, c_d)$, and the verifier recovers $c_1$ from the constraint. This saves one field element per round: $\nu d$ field elements total instead of $\nu(d+1)$.</p>
+<p>For the common case of multilinear polynomials ($d = 1$), this halves communication: one field element per round instead of two.</p>
+<p><strong>Soundness error</strong>: As computed earlier, the probability that a cheating prover succeeds is at most $\nu d / |\mathbb{F}|$. For a 256-bit field and reasonable values of $\nu$ and $d$, this is negligible.</p>
+<h2 id="a-bridge-to-physics-partition-functions"><a class="header" href="#a-bridge-to-physics-partition-functions">A Bridge to Physics: Partition Functions</a></h2>
+<p>There's a striking parallel between sum-check and statistical mechanics that hints at something deeper.</p>
+<p>In physics, the <strong>partition function</strong> $Z$ governs the thermodynamics of a system:
+$$Z = \sum_{\text{all microstates } s} e^{-E(s)/kT}$$</p>
+<p>This sum ranges over every possible configuration of a physical system; for $n$ particles that can each be in one of two states, that's $2^n$ microstates. Sound familiar?</p>
+<p>The sum-check protocol verifies:
+$$H = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g(b_1, \ldots, b_\nu)$$</p>
+<p>Both are exponential sums that seem intractable yet encode essential global information. In physics, $Z$ determines free energy, entropy, and phase behavior. In verification, $H$ determines whether a computation was performed correctly.</p>
+<p>The deep connection: both sums have <strong>structure</strong> that can be exploited. Statistical physicists don't enumerate $2^n$ microstates; they use techniques like mean-field theory, renormalization, or Monte Carlo sampling to extract macroscopic properties. Sum-check exploits a different kind of structure, polynomial smoothness, to reduce the exponential sum to a linear-round protocol.</p>
+<p>The multilinear extension is like finding a &quot;free energy&quot; formulation: a smooth interpolation that captures the same information as the discrete sum, but admits efficient manipulation. In both domains, the art is finding the right representation that makes the intractable tractable.</p>
+<p>This isn't merely analogy. Recent work has explored using sum-check techniques to verify approximate computation of partition functions, and conversely, using insights from statistical physics (like belief propagation) to understand constraint satisfaction problems that arise in arithmetization. The mathematics of exponential sums connects these seemingly distant fields.</p>
+<h2 id="why-sum-check-enables-everything-else"><a class="header" href="#why-sum-check-enables-everything-else">Why Sum-Check Enables Everything Else</a></h2>
+<p>The sum-check protocol is not just one protocol among many; it's the foundation upon which much of modern verifiable computation is built.</p>
+<p><strong>Interactive proofs</strong>: The celebrated IP = PSPACE theorem, which shows that every problem solvable in polynomial space has an efficient interactive proof, uses sum-check as its core building block. The LFKN protocol arithmetizes quantified boolean formulas and applies sum-check recursively.</p>
+<p><strong>The GKR protocol</strong>: To verify that an arithmetic circuit was evaluated correctly, the GKR protocol (Chapter 7) expresses the relationship between adjacent circuit layers as a sum over a hypercube. Sum-check reduces a claim about one layer to a claim about the next, peeling back the circuit layer by layer until we reach the inputs.</p>
+<p><strong>Modern SNARKs</strong>: Many of today's practical succinct arguments (Spartan, HyperPlonk, and the entire family of &quot;sum-check based&quot; SNARKs) use sum-check as their information-theoretic core. The protocol's structure, where a prover commits to polynomials and a verifier checks random evaluations, maps cleanly onto polynomial commitment schemes.</p>
+<p><strong>The multilinear paradigm</strong>: As we'll see in the next chapter, multilinear polynomials (those with degree at most 1 in each variable) have a natural correspondence with functions on the boolean hypercube. The sum-check protocol works especially elegantly with multilinear polynomials, and this paradigm has become one of the two major approaches to building modern proof systems.</p>
+<p><strong>The sum-check renaissance</strong>: For years after the initial theoretical breakthroughs, practical SNARK systems moved away from sum-check toward other approaches (PCPs, linear PCPs, univariate techniques). But recently, sum-check has made a dramatic comeback. Systems like Lasso and Jolt use sum-check at their core, achieving remarkable prover efficiency. Why the return? It turns out that sum-check provers can run in <em>linear time</em> for structured polynomials, and the protocol meshes beautifully with modern polynomial commitment schemes. We'll explore this renaissance in depth in Chapter 19.</p>
+<p>The sum-check protocol is where the abstract power of polynomials (their rigidity, their compression of constraints, their amenability to random testing) first crystallizes into a concrete verification procedure. Every protocol we study from here forward either uses sum-check directly or is in dialogue with the principles it established.</p>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li>
+<p><strong>The sum-check protocol verifies exponential sums efficiently</strong>: A prover can convince a verifier that $\sum_{b \in {0,1}^\nu} g(b) = H$ with the verifier doing only $O(\nu)$ work, plus one evaluation of $g$.</p>
+</li>
+<li>
+<p><strong>Claim reduction is the key mechanism</strong>: Each round reduces a claim about a sum over $2^k$ points to a claim about a sum over $2^{k-1}$ points, using a random challenge to &quot;pin down&quot; one variable.</p>
+</li>
+<li>
+<p><strong>Lies propagate and amplify</strong>: If the prover starts with a false claim, the Schwartz-Zippel lemma ensures that random challenges will, with overwhelming probability, force the lie into an inconsistent position by the final round.</p>
+</li>
+<li>
+<p><strong>The verifier never computes any sum</strong>: All the hard work is done by the prover. The verifier only checks consistency and makes one evaluation at the end.</p>
+</li>
+<li>
+<p><strong>Soundness error is $\nu d / |\mathbb{F}|$</strong>: For large fields, this is negligible. The protocol can be made arbitrarily secure by using a sufficiently large field.</p>
+</li>
+<li>
+<p><strong>Arithmetization turns problems into polynomials</strong>: Problems like #SAT can be encoded as sums over the boolean hypercube, making them amenable to sum-check verification.</p>
+</li>
+<li>
+<p><strong>Oracle access is required</strong>: The verifier must be able to evaluate $g$ at random points efficiently. In practice, this means $g$ has a known, efficiently computable structure.</p>
+</li>
+<li>
+<p><strong>Sum-check is the foundation of modern verifiable computation</strong>: From IP = PSPACE to GKR to contemporary SNARKs, the sum-check protocol's ideas pervade the field.</p>
+</li>
+<li>
+<p><strong>The compression game captures the intuition</strong>: Each round compresses an exponentially large table into a low-degree polynomial; random probing catches any inconsistency between the prover's compression and the true one.</p>
+</li>
+<li>
+<p><strong>Efficiency comes from structure</strong>: The protocol exploits the algebraic structure of polynomials, specifically, that low-degree polynomials are &quot;rigid&quot; and can't match arbitrary values at many points.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="02-the-alchemical-power-of-polynomials.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="04-multilinear-extensions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="02-the-alchemical-power-of-polynomials.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="04-multilinear-extensions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

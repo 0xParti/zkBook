@@ -1,0 +1,701 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>PLONK - Minimizing Trust, Maximizing Truth</title>
+
+
+        <!-- Custom HTML head -->
+        <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Foundations</li><li class="chapter-item expanded "><a href="01-the-trust-problem.html"><strong aria-hidden="true">1.</strong> The Trust Problem</a></li><li class="chapter-item expanded "><a href="02-the-alchemical-power-of-polynomials.html"><strong aria-hidden="true">2.</strong> The Alchemical Power of Polynomials</a></li><li class="chapter-item expanded "><a href="03-the-sum-check-protocol.html"><strong aria-hidden="true">3.</strong> The Sum-Check Protocol</a></li><li class="chapter-item expanded "><a href="04-multilinear-extensions.html"><strong aria-hidden="true">4.</strong> Multilinear Extensions</a></li><li class="chapter-item expanded "><a href="05-univariate-polynomials-and-finite-fields.html"><strong aria-hidden="true">5.</strong> Univariate Polynomials and Finite Fields</a></li><li class="chapter-item expanded "><a href="06-commitment-schemes.html"><strong aria-hidden="true">6.</strong> Commitment Schemes</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Protocols</li><li class="chapter-item expanded "><a href="07-the-gkr-protocol.html"><strong aria-hidden="true">7.</strong> The GKR Protocol</a></li><li class="chapter-item expanded "><a href="08-from-circuits-to-polynomials.html"><strong aria-hidden="true">8.</strong> From Circuits to Polynomials</a></li><li class="chapter-item expanded "><a href="09-polynomial-commitment-schemes.html"><strong aria-hidden="true">9.</strong> Polynomial Commitment Schemes</a></li><li class="chapter-item expanded "><a href="10-hash-based-commitments-and-fri.html"><strong aria-hidden="true">10.</strong> Hash-Based Commitments and FRI</a></li><li class="chapter-item expanded affix "><li class="part-title">SNARK Construction</li><li class="chapter-item expanded "><a href="11-the-snark-recipe.html"><strong aria-hidden="true">11.</strong> The SNARK Recipe</a></li><li class="chapter-item expanded "><a href="12-groth16.html"><strong aria-hidden="true">12.</strong> Groth16</a></li><li class="chapter-item expanded "><a href="13-plonk.html" class="active"><strong aria-hidden="true">13.</strong> PLONK</a></li><li class="chapter-item expanded "><a href="14-lookup-arguments.html"><strong aria-hidden="true">14.</strong> Lookup Arguments</a></li><li class="chapter-item expanded "><a href="15-starks.html"><strong aria-hidden="true">15.</strong> STARKs</a></li><li class="chapter-item expanded affix "><li class="part-title">Zero-Knowledge</li><li class="chapter-item expanded "><a href="16-sigma-protocols.html"><strong aria-hidden="true">16.</strong> Sigma Protocols</a></li><li class="chapter-item expanded "><a href="17-the-zero-knowledge-property.html"><strong aria-hidden="true">17.</strong> The Zero-Knowledge Property</a></li><li class="chapter-item expanded "><a href="18-making-proofs-zero-knowledge.html"><strong aria-hidden="true">18.</strong> Making Proofs Zero-Knowledge</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Topics</li><li class="chapter-item expanded "><a href="19-fast-sum-check-proving.html"><strong aria-hidden="true">19.</strong> Fast Sum-Check Proving</a></li><li class="chapter-item expanded "><a href="20-minimizing-commitment-costs.html"><strong aria-hidden="true">20.</strong> Minimizing Commitment Costs</a></li><li class="chapter-item expanded "><a href="21-the-two-classes-of-piops.html"><strong aria-hidden="true">21.</strong> The Two Classes of PIOPs</a></li><li class="chapter-item expanded "><a href="22-composition-and-recursion.html"><strong aria-hidden="true">22.</strong> Composition and Recursion</a></li><li class="chapter-item expanded "><a href="23-choosing-a-snark.html"><strong aria-hidden="true">23.</strong> Choosing a SNARK</a></li><li class="chapter-item expanded affix "><li class="part-title">Broader Context</li><li class="chapter-item expanded "><a href="24-mpc-and-zk-parallel-paths.html"><strong aria-hidden="true">24.</strong> MPC and ZK Parallel Paths</a></li><li class="chapter-item expanded "><a href="25-frontiers-and-open-problems.html"><strong aria-hidden="true">25.</strong> Frontiers and Open Problems</a></li><li class="chapter-item expanded "><a href="26-zk-in-the-cryptographic-landscape.html"><strong aria-hidden="true">26.</strong> ZK in the Cryptographic Landscape</a></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="appendix-a-cryptographic-primitives.html"><strong aria-hidden="true">27.</strong> Cryptographic Primitives</a></li><li class="chapter-item expanded "><a href="appendix-b-historical-timeline.html"><strong aria-hidden="true">28.</strong> Historical Timeline</a></li><li class="chapter-item expanded "><a href="appendix-c-field-equations-cheat-sheet.html"><strong aria-hidden="true">29.</strong> Field Equations Cheat Sheet</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Minimizing Trust, Maximizing Truth</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook/edit/main/web/src/13-plonk.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-13-plonk-universal-snarks-and-the-permutation-argument"><a class="header" href="#chapter-13-plonk-universal-snarks-and-the-permutation-argument">Chapter 13: PLONK: Universal SNARKs and the Permutation Argument</a></h1>
+<p>By 2018, SNARKs had a deployment problem.</p>
+<p>Groth16 gave you the smallest possible proofs (128 bytes, verified in milliseconds). But every circuit required its own trusted setup ceremony. For Zcash, this meant coordinating dozens of participants, generating gigabytes of parameters, and carefully destroying secrets. Change one constraint and the entire process repeated. For production systems deploying many circuits, or circuits that evolve, this constraint became untenable.</p>
+<p>Ariel Gabizon, Zachary Williamson, and Oana Ciobotaru found a different path. Their insight was <em>permutations</em>: instead of encoding circuit structure directly into the setup, separate two concerns: what each gate computes (local) and how gates connect (global). The wiring could be encoded as a permutation, checked with a polynomial argument that worked identically for any circuit.</p>
+<p>The result was PLONK (2019): <strong>P</strong>ermutations over <strong>L</strong>agrange-bases for <strong>O</strong>ecumenical <strong>N</strong>oninteractive arguments of <strong>K</strong>nowledge. &quot;Oecumenical&quot; signals universality: one ceremony suffices for all circuits up to a maximum size. The setup is also <strong>updatable</strong>: new participants can strengthen its security at any time, without coordination with previous contributors.</p>
+<p>PLONK's modularity extends to the commitment scheme. The core is a <strong>Polynomial IOP</strong>: an interactive protocol where the prover sends polynomials and the verifier queries evaluations. Compile it with KZG for constant-size proofs with trusted setup. Compile with FRI for larger proofs without trust assumptions. The IOP is unchanged; only the cryptographic layer differs.</p>
+<p>The cost of universality is larger proofs (~400-500 bytes versus 128) and more verification work (~10 pairings versus 3). For most applications, this is an acceptable trade. The ecosystem has voted: PLONK and its descendants dominate production deployments.</p>
+<h2 id="architecture-gates-and-copy-constraints"><a class="header" href="#architecture-gates-and-copy-constraints">Architecture: Gates and Copy Constraints</a></h2>
+<p>PLONK's arithmetization differs fundamentally from R1CS. Where R1CS flattens the entire computation into a single witness vector with implicit wiring, PLONK separates two concerns:</p>
+<p><strong>Gate constraints</strong>: Each gate satisfies a polynomial equation relating its input and output wires.</p>
+<p><strong>Copy constraints</strong>: Wires at different positions carry equal values when the circuit's topology demands it.</p>
+<p>This separation has profound consequences. Gate logic becomes uniform: one equation for all gates. Wiring becomes explicit: a permutation argument proves all copy constraints simultaneously. The result is a cleaner architecture that generalizes naturally to custom gates and lookup arguments.</p>
+<h3 id="the-gate-equation"><a class="header" href="#the-gate-equation">The Gate Equation</a></h3>
+<p>Every gate in PLONK has three wires: left input $a_i$, right input $b_i$, output $c_i$. The gate's behavior is specified by <strong>selectors</strong>: public field elements fixed at circuit compilation.</p>
+<p>The universal gate equation:</p>
+<p>$$Q_L \cdot a + Q_R \cdot b + Q_O \cdot c + Q_M \cdot ab + Q_C = 0$$</p>
+<p>Different selector values program different operations:</p>
+<p><strong>Addition</strong> $(a + b = c)$: Set $Q_L = 1$, $Q_R = 1$, $Q_O = -1$, others zero.</p>
+<ul>
+<li>Check: $1 \cdot a + 1 \cdot b + (-1) \cdot c + 0 + 0 = a + b - c = 0$</li>
+</ul>
+<p><strong>Multiplication</strong> $(ab = c)$: Set $Q_M = 1$, $Q_O = -1$, others zero.</p>
+<ul>
+<li>Check: $0 + 0 + (-1) \cdot c + 1 \cdot ab + 0 = ab - c = 0$</li>
+</ul>
+<p><strong>Constant assignment</strong> $(a = k)$: Set $Q_L = 1$, $Q_C = -k$, others zero.</p>
+<ul>
+<li>Check: $1 \cdot a + 0 + 0 + 0 + (-k) = a - k = 0$</li>
+</ul>
+<p>The equation's generality is its power. One algebraic form handles arbitrary gate types. Modern variants extend to more wires (5+ instead of 3) and higher-degree terms ($a^5$ for Poseidon S-boxes).</p>
+<h3 id="from-discrete-checks-to-polynomial-identity"><a class="header" href="#from-discrete-checks-to-polynomial-identity">From Discrete Checks to Polynomial Identity</a></h3>
+<p>The circuit has $n$ gates. We want to verify all $n$ gate equations simultaneously.</p>
+<p>Define a domain $H = {1, \omega, \omega^2, \ldots, \omega^{n-1}}$ where $\omega$ is a primitive $n$-th root of unity. The $i$-th gate corresponds to domain point $\omega^i$.</p>
+<p><strong>Selector polynomials</strong>: For each selector (e.g., $Q_L$), interpolate its values across gates to obtain polynomial $Q_L(X)$ satisfying $Q_L(\omega^i) = Q_{L,i}$.</p>
+<p><strong>Witness polynomials</strong>: Interpolate wire values. Polynomial $a(X)$ satisfies $a(\omega^i) = a_i$ (the left input at gate $i$).</p>
+<p><strong>Witness structure differs from R1CS.</strong> In R1CS (Chapter 7), the witness is a single flattened vector $Z = (1, \text{public inputs}, \text{private inputs}, \text{intermediate values})$. Each wire has exactly one index in $Z$. When two constraints reference the same wire, they use the same index; wiring is implicit in the indexing scheme.</p>
+<p>PLONK structures the witness differently: three separate vectors $(a, b, c)$, each of length $n$ (the number of gates). Entry $a_i$ is gate $i$'s left input; $b_i$ is its right input; $c_i$ is its output. When the same value appears in multiple positions (say, a variable feeding two different gates) it occupies multiple slots in these vectors. This has a crucial consequence: PLONK needs explicit &quot;copy constraints&quot; to enforce that slots holding the same logical wire actually contain the same value. We'll see how this works shortly.</p>
+<p><strong>Concrete example: the same circuit in both formats.</strong> Consider $y = (x + z) \cdot z$ with $x = 3$, $z = 2$, so $y = 10$.</p>
+<p><em>R1CS representation</em> (2 constraints, 5 wires):</p>
+<p>Witness vector: $Z = (1, x, z, v_1, y) = (1, 3, 2, 5, 10)$ where $v_1 = x + z$.</p>
+<p>$$A = \begin{pmatrix} 1 &amp; 1 &amp; 0 &amp; 0 \ 0 &amp; 0 &amp; 1 &amp; 0 \end{pmatrix}, \quad B = \begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \ 0 &amp; 1 &amp; 0 &amp; 0 \end{pmatrix}, \quad C = \begin{pmatrix} 0 &amp; 0 &amp; 1 &amp; 0 \ 0 &amp; 0 &amp; 0 &amp; 1 \end{pmatrix}$$</p>
+<p>(Columns correspond to $x, z, v_1, y$; we omit the constant column for brevity.)</p>
+<p>Row 1: </p>
+<p>$(1 \cdot x + 1 \cdot z) \times (1) = v_1$ checks $x + z = v_1$.</p>
+<p>Row 2:</p>
+<p>$(1 \cdot z) \times (1 \cdot v_1) = y$ checks $z \cdot v_1 = y$.</p>
+<p>The matrices encode <em>which wires participate in which constraints</em>. Wire $z$ (column 2) appears in both rows; the matrix structure encodes this sharing.</p>
+<p><em>PLONK representation</em> (2 gates):</p>
+<div class="table-wrapper"><table><thead><tr><th>Gate</th><th>$a$</th><th>$b$</th><th>$c$</th><th>$Q_L$</th><th>$Q_R$</th><th>$Q_O$</th><th>$Q_M$</th><th>$Q_C$</th></tr></thead><tbody>
+<tr><td>1</td><td>3</td><td>2</td><td>5</td><td>1</td><td>1</td><td>-1</td><td>0</td><td>0</td></tr>
+<tr><td>2</td><td>5</td><td>2</td><td>10</td><td>0</td><td>0</td><td>-1</td><td>1</td><td>0</td></tr>
+</tbody></table>
+</div>
+<p>Witness vectors: $a = (3, 5)$, $b = (2, 2)$, $c = (5, 10)$.</p>
+<p>Gate 1:</p>
+<p>$1 \cdot 3 + 1 \cdot 2 + (-1) \cdot 5 + 0 + 0 = 0$ $\checkmark$ (addition)</p>
+<p>Gate 2:</p>
+<p>$0 + 0 + (-1) \cdot 10 + 1 \cdot 5 \cdot 2 + 0 = 0$ $\checkmark$ (multiplication)</p>
+<p>Notice: $z = 2$ appears twice ($b_1$ and $b_2$), and $v_1 = 5$ appears twice ($c_1$ and $a_2$). The gate equations don't enforce $b_1 = b_2$ or $c_1 = a_2$; a cheating prover could use different values. Copy constraints will enforce these equalities.</p>
+<p><strong>The structural difference</strong>: R1CS has matrices that <em>select</em> from a shared witness vector (same wire, same column, automatic equality). PLONK has vectors where each gate slot is independent (same value, different slots, explicit copy constraints needed).</p>
+<p><strong>Contrast with QAP (Chapter 12)</strong>: QAP interpolates <em>column-wise</em>: for each wire $j$, create polynomials encoding how that wire participates across all constraints. The witness appears as coefficients weighting basis polynomials. PLONK interpolates <em>row-wise</em>: wire values are directly the polynomial evaluations, and selectors are separate polynomials encoding gate types. This is why QAP bakes circuit structure into the SRS (changing the circuit changes the basis polynomials), while PLONK's SRS is universal (selectors are just committed data, independent of the setup).</p>
+<p>The gate equation becomes a polynomial identity:</p>
+<p>$$Q_L(X) \cdot a(X) + Q_R(X) \cdot b(X) + Q_O(X) \cdot c(X) + Q_M(X) \cdot a(X) \cdot b(X) + Q_C(X) = 0$$</p>
+<p>for all $X \in H$.</p>
+<p>If this holds on $H$, the vanishing polynomial $Z_H(X) = X^n - 1$ divides the left side. There exists quotient $t(X)$ with:</p>
+<p>$$Q_L(X)a(X) + Q_R(X)b(X) + Q_O(X)c(X) + Q_M(X)a(X)b(X) + Q_C(X) = Z_H(X) \cdot t(X)$$</p>
+<p>The prover demonstrates this divisibility: a single polynomial identity encoding all gate constraints.</p>
+<h2 id="the-copy-constraint-problem"><a class="header" href="#the-copy-constraint-problem">The Copy Constraint Problem</a></h2>
+<p>Gate equations ensure internal consistency: the output of each gate equals the specified function of its inputs. They say nothing about how gates connect.</p>
+<p>Consider a circuit computing $y = (x + z) \cdot z$:</p>
+<ul>
+<li>Gate 1: Addition, output $c_1 = a_1 + b_1$</li>
+<li>Gate 2: Multiplication, output $c_2 = a_2 \cdot b_2$</li>
+</ul>
+<p>The wiring requires $c_1 = a_2$ (Gate 1's output feeds Gate 2's left input) and $b_1 = b_2$ (variable $z$ feeds both gates).</p>
+<p>Because PLONK's witness consists of three separate vectors $(a, b, c)$, nothing in the gate equation relates $c_1$ to $a_2$; they're independent entries. A cheating prover could satisfy all gate equations with disconnected, inconsistent values. The circuit would &quot;verify&quot; despite computing garbage.</p>
+<p><strong>Copy constraints</strong> are the explicit assertions: wire $i$ equals wire $j$. The challenge is proving all copy constraints efficiently (potentially thousands of equality assertions) without enumerating them individually.</p>
+<h2 id="the-permutation-argument"><a class="header" href="#the-permutation-argument">The Permutation Argument</a></h2>
+<p>PLONK's central innovation is reducing all copy constraints to a single polynomial identity via a <strong>permutation argument</strong>, building on techniques from Bayer and Groth (Eurocrypt 2012).</p>
+<h3 id="representing-wiring-as-a-permutation"><a class="header" href="#representing-wiring-as-a-permutation">Representing Wiring as a Permutation</a></h3>
+<p>Give each wire slot a unique identity (think of it as an &quot;index&quot; or &quot;address&quot;):</p>
+<ul>
+<li>Gate $i$'s left wire: $\text{id}(a_i) = \omega^i$</li>
+<li>Gate $i$'s right wire: $\text{id}(b_i) = k_1 \omega^i$</li>
+<li>Gate $i$'s output wire: $\text{id}(c_i) = k_2 \omega^i$</li>
+</ul>
+<p>where $k_1, k_2$ are distinct constants separating the three wire &quot;columns.&quot; The identity function $\text{id}$ maps wire slots to field elements; it's just a naming scheme.</p>
+<p>The circuit's wiring defines a permutation $\sigma$ on wire identities. If wire $c_1$ connects to wire $a_2$, then $\sigma$ maps $c_1$'s identity to $a_2$'s identity (and vice versa; connected wires form cycles under $\sigma$). Unconnected wires map to themselves.</p>
+<p><strong>Example</strong>: For our circuit $y = (x + z) \cdot z$ with 2 gates, label the 6 wire slots as $a_1, b_1, c_1, a_2, b_2, c_2$. The copy constraints are $c_1 = a_2$ (output of gate 1 feeds gate 2) and $b_1 = b_2$ (variable $z$ used twice). The permutation $\sigma$ encodes this: $\sigma(c_1) = a_2$, $\sigma(a_2) = c_1$ (a 2-cycle), and $\sigma(b_1) = b_2$, $\sigma(b_2) = b_1$ (another 2-cycle). Wires $a_1$ and $c_2$ aren't copied anywhere, so $\sigma(a_1) = a_1$ and $\sigma(c_2) = c_2$ (fixed points).</p>
+<p><strong>The key insight</strong>: All copy constraints hold if and only if every wire's value equals the value at its connected position. Here $\sigma(w)$ denotes the <em>position</em> that wire $w$ is connected to (not a transformed value):</p>
+<p>$$\text{value at position } w = \text{value at position } \sigma(w) \quad \forall w$$</p>
+<h3 id="the-grand-product-check"><a class="header" href="#the-grand-product-check">The Grand Product Check</a></h3>
+<p>How do we verify this equality-under-permutation efficiently?</p>
+<p>Consider two multisets: the wire values ${v_1, v_2, \ldots, v_{3n}}$ and the same values permuted according to $\sigma$. If copy constraints hold, these multisets are identical; they contain the same elements, just in different order.</p>
+<p>Testing multiset equality via products fails: ${1, 6}$ and ${2, 3}$ have equal products but differ. A randomized check succeeds with overwhelming probability.</p>
+<p>Given random challenge $\gamma$:</p>
+<p>$$\prod_{i=1}^{3n} (v_i + \gamma) = \prod_{i=1}^{3n} (v_{\sigma(i)} + \gamma)$$</p>
+<p>By Schwartz-Zippel, equality at random $\gamma$ implies the multisets match.</p>
+<h3 id="binding-values-to-locations"><a class="header" href="#binding-values-to-locations">Binding Values to Locations</a></h3>
+<p>The multiset check has a flaw. A cheating prover could satisfy copy constraints on some wires by <em>violating</em> them on others, as long as they swap equal amounts. The overall multiset remains unchanged even though specific equalities fail.</p>
+<p><strong>Example</strong>: Circuit requires $c_1 = a_2$. Honest values: $c_1 = 5$, $a_2 = 5$. Cheating prover sets $c_1 = 5$, $a_2 = 99$, but compensates by swapping some other wire that should be $99$ to $5$. The multiset of all values is preserved.</p>
+<p>The fix: bind each value to its <strong>location</strong> using a second challenge $\beta$:</p>
+<p>$$\text{randomized value} = v_i + \beta \cdot \text{id}_i + \gamma$$</p>
+<p>where $\text{id}_i$ is the wire's identity (its domain point).</p>
+<p>The grand product check becomes:</p>
+<p>$$\prod_{w \in \text{wires}} \left( \text{value}(w) + \beta \cdot \text{id}(w) + \gamma \right) = \prod_{w \in \text{wires}} \left( \text{value}(w) + \beta \cdot \sigma(\text{id}(w)) + \gamma \right)$$</p>
+<p><strong>Why this works (mini-example)</strong>: Suppose we have just two wires that should be equal: wire $A$ at position 1 with value $v$, and wire $B$ at position 2 with value $v$. The permutation swaps their positions: $\sigma(1) = 2$, $\sigma(2) = 1$. Left side: $(v + \beta \cdot 1 + \gamma)(v + \beta \cdot 2 + \gamma)$. Right side: $(v + \beta \cdot 2 + \gamma)(v + \beta \cdot 1 + \gamma)$. Same factors, just reordered; products match. But if wire $B$ had value $v' \neq v$, the right side would be $(v + \beta \cdot 2 + \gamma)(v' + \beta \cdot 1 + \gamma)$; different factors, products don't match. The $\beta$ term &quot;tags&quot; each value with its location, so swapping positions only works if the values actually match.</p>
+<p>The left side combines each wire's value with its own identity. The right side combines each wire's value with its <em>permuted</em> identity.</p>
+<p>If $c_1 = a_2$ (copy constraint holds), the term for $c_1$ on the right equals the term for $a_2$ on the left; they cancel in the product. If $c_1 \neq a_2$, no cancellation occurs; the products differ.</p>
+<h3 id="the-accumulator-polynomial"><a class="header" href="#the-accumulator-polynomial">The Accumulator Polynomial</a></h3>
+<p>Computing a product over $3n$ terms naively requires $O(n)$ work per verification query, which is not succinct. PLONK encodes the product as a polynomial.</p>
+<p>Define the <strong>accumulator polynomial</strong> $Z(X)$ recursively:</p>
+<p><strong>Initialization</strong>: $Z(\omega) = 1$</p>
+<p><strong>Recursion</strong>: For domain points $\omega^i$:</p>
+<p>$$Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{(a_i + \beta \omega^i + \gamma)(b_i + \beta k_1\omega^i + \gamma)(c_i + \beta k_2\omega^i + \gamma)}{(a_i + \beta S_{\sigma_1}(\omega^i) + \gamma)(b_i + \beta S_{\sigma_2}(\omega^i) + \gamma)(c_i + \beta S_{\sigma_3}(\omega^i) + \gamma)}$$</p>
+<p>where $S_{\sigma_1}, S_{\sigma_2}, S_{\sigma_3}$ are <strong>permutation polynomials</strong> encoding $\sigma$ for the three wire columns.</p>
+<p>The accumulator starts at 1 and multiplies through all gates. Each step contributes: numerator terms for &quot;original&quot; identities, denominator terms for &quot;permuted&quot; identities. If copy constraints hold, terms cancel across the cycle, and the accumulator returns to 1 at the end.</p>
+<p><strong>The permutation constraints</strong>:</p>
+<ol>
+<li>
+<p><strong>Initialization</strong>: $Z(\omega) = 1$</p>
+<p>Enforced by: $(Z(X) - 1) \cdot L_1(X) = 0$ where $L_1(X)$ is the first Lagrange basis polynomial.</p>
+</li>
+<li>
+<p><strong>Recursion</strong>: The step-by-step product relation holds across the domain.</p>
+<p>Enforced by a polynomial identity involving $Z(X)$ and $Z(X\omega)$ (the &quot;shifted&quot; evaluation).</p>
+</li>
+</ol>
+<p>Both constraints, like the gate constraint, reduce to divisibility by $Z_H(X)$.</p>
+<h2 id="worked-example-the-permutation-argument-in-action"><a class="header" href="#worked-example-the-permutation-argument-in-action">Worked Example: The Permutation Argument in Action</a></h2>
+<p>The abstraction clarifies; the concrete convinces. Let's trace through the permutation argument on a minimal circuit: proving $z = (x + y) \cdot y$ for inputs $x = 2$, $y = 3$.</p>
+<h3 id="the-circuit"><a class="header" href="#the-circuit">The Circuit</a></h3>
+<p><strong>Gate 1</strong> (addition): $c_1 = a_1 + b_1$
+<strong>Gate 2</strong> (multiplication): $c_2 = a_2 \cdot b_2$</p>
+<p><strong>Witness assignment</strong> (for $x=2$, $y=3$, $z=15$):</p>
+<ul>
+<li>Gate 1: $a_1 = 2$, $b_1 = 3$, $c_1 = 5$</li>
+<li>Gate 2: $a_2 = 5$, $b_2 = 3$, $c_2 = 15$</li>
+</ul>
+<p><strong>Copy constraints</strong>:</p>
+<ul>
+<li>$c_1 = a_2$ (the intermediate value 5 feeds from Gate 1's output to Gate 2's left input)</li>
+<li>$b_1 = b_2$ (the input $y=3$ is used in both gates)</li>
+</ul>
+<h3 id="wire-identities"><a class="header" href="#wire-identities">Wire Identities</a></h3>
+<p>With domain $H = {1, \omega}$ (two gates) and constants $k_1, k_2$:</p>
+<div class="table-wrapper"><table><thead><tr><th>Wire</th><th>Identity</th><th>Value</th></tr></thead><tbody>
+<tr><td>$a_1$</td><td>$1$</td><td>$2$</td></tr>
+<tr><td>$b_1$</td><td>$k_1$</td><td>$3$</td></tr>
+<tr><td>$c_1$</td><td>$k_2$</td><td>$5$</td></tr>
+<tr><td>$a_2$</td><td>$\omega$</td><td>$5$</td></tr>
+<tr><td>$b_2$</td><td>$k_1\omega$</td><td>$3$</td></tr>
+<tr><td>$c_2$</td><td>$k_2\omega$</td><td>$15$</td></tr>
+</tbody></table>
+</div>
+<h3 id="the-permutation-sigma"><a class="header" href="#the-permutation-sigma">The Permutation $\sigma$</a></h3>
+<p>The wiring groups wire identities into cycles:</p>
+<p><strong>Cycle 1</strong> (the $y$ input): $b_1 \leftrightarrow b_2$
+$$\sigma(k_1) = k_1\omega, \quad \sigma(k_1\omega) = k_1$$</p>
+<p><strong>Cycle 2</strong> (the intermediate value): $c_1 \leftrightarrow a_2$
+$$\sigma(k_2) = \omega, \quad \sigma(\omega) = k_2$$</p>
+<p><strong>Fixed points</strong> (unconnected wires):
+$$\sigma(1) = 1, \quad \sigma(k_2\omega) = k_2\omega$$</p>
+<h3 id="permutation-polynomials"><a class="header" href="#permutation-polynomials">Permutation Polynomials</a></h3>
+<p>The polynomials $S_{\sigma_1}(X)$, $S_{\sigma_2}(X)$, $S_{\sigma_3}(X)$ encode $\sigma$ for each wire column.</p>
+<p><strong>$S_{\sigma_1}(X)$</strong> (the $a$ wires):</p>
+<ul>
+<li>$S_{\sigma_1}(1) = \sigma(1) = 1$ (wire $a_1$ is a fixed point)</li>
+<li>$S_{\sigma_1}(\omega) = \sigma(\omega) = k_2$ (wire $a_2$ connects to $c_1$)</li>
+</ul>
+<p><strong>$S_{\sigma_2}(X)$</strong> (the $b$ wires):</p>
+<ul>
+<li>$S_{\sigma_2}(1) = \sigma(k_1) = k_1\omega$ (wire $b_1$ connects to $b_2$)</li>
+<li>$S_{\sigma_2}(\omega) = \sigma(k_1\omega) = k_1$ (wire $b_2$ connects to $b_1$)</li>
+</ul>
+<p><strong>$S_{\sigma_3}(X)$</strong> (the $c$ wires):</p>
+<ul>
+<li>$S_{\sigma_3}(1) = \sigma(k_2) = \omega$ (wire $c_1$ connects to $a_2$)</li>
+<li>$S_{\sigma_3}(\omega) = \sigma(k_2\omega) = k_2\omega$ (wire $c_2$ is a fixed point)</li>
+</ul>
+<p>These evaluations uniquely determine the permutation polynomials (degree at most 1 over a domain of size 2).</p>
+<h3 id="the-accumulator-trace"><a class="header" href="#the-accumulator-trace">The Accumulator Trace</a></h3>
+<p>Let random challenges be $\beta$ and $\gamma$. The accumulator $Z(X)$ computes a running product.</p>
+<p><strong>Initialization</strong>: $Z(1) = 1$</p>
+<p><strong>Step at $X = 1$</strong> (processing Gate 1):</p>
+<p>$$Z(\omega) = Z(1) \cdot \frac{(a_1 + \beta \cdot 1 + \gamma)(b_1 + \beta \cdot k_1 + \gamma)(c_1 + \beta \cdot k_2 + \gamma)}{(a_1 + \beta \cdot S_{\sigma_1}(1) + \gamma)(b_1 + \beta \cdot S_{\sigma_2}(1) + \gamma)(c_1 + \beta \cdot S_{\sigma_3}(1) + \gamma)}$$</p>
+<p>Substituting values:</p>
+<p><strong>Numerator</strong> = $(2 + \beta + \gamma)(3 + \beta k_1 + \gamma)(5 + \beta k_2 + \gamma)$</p>
+<p><strong>Denominator</strong> = $(2 + \beta \cdot 1 + \gamma)(3 + \beta \cdot k_1\omega + \gamma)(5 + \beta \cdot \omega + \gamma)$</p>
+<p>The $a_1$ term $(2 + \beta + \gamma)$ appears in both numerator and denominator; it cancels (wire $a_1$ is a fixed point).</p>
+<p>The $b_1$ numerator term is $(3 + \beta k_1 + \gamma)$; the denominator has $(3 + \beta k_1\omega + \gamma)$.</p>
+<p>The $c_1$ numerator term is $(5 + \beta k_2 + \gamma)$; the denominator has $(5 + \beta\omega + \gamma)$.</p>
+<p><strong>Step at $X = \omega$</strong> (processing Gate 2):</p>
+<p>$$Z(\omega^2) = Z(\omega) \cdot \frac{(a_2 + \beta\omega + \gamma)(b_2 + \beta k_1\omega + \gamma)(c_2 + \beta k_2\omega + \gamma)}{(a_2 + \beta \cdot S_{\sigma_1}(\omega) + \gamma)(b_2 + \beta \cdot S_{\sigma_2}(\omega) + \gamma)(c_2 + \beta \cdot S_{\sigma_3}(\omega) + \gamma)}$$</p>
+<p>Substituting:</p>
+<p><strong>Numerator</strong> = $(5 + \beta\omega + \gamma)(3 + \beta k_1\omega + \gamma)(15 + \beta k_2\omega + \gamma)$</p>
+<p><strong>Denominator</strong> = $(5 + \beta k_2 + \gamma)(3 + \beta k_1 + \gamma)(15 + \beta k_2\omega + \gamma)$</p>
+<h3 id="the-cancellation"><a class="header" href="#the-cancellation">The Cancellation</a></h3>
+<p>Now examine the full product $Z(\omega^2) = Z(1) \cdot [\text{fraction}_1] \cdot [\text{fraction}_2]$.</p>
+<p>The copy constraint $c_1 = a_2 = 5$ means:</p>
+<ul>
+<li>Numerator of fraction 1 contains $(5 + \beta k_2 + \gamma)$</li>
+<li>Denominator of fraction 2 contains $(5 + \beta k_2 + \gamma)$</li>
+</ul>
+<p>These cancel.</p>
+<p>The copy constraint $b_1 = b_2 = 3$ means:</p>
+<ul>
+<li>Numerator of fraction 1 contains $(3 + \beta k_1 + \gamma)$</li>
+<li>Denominator of fraction 2 contains $(3 + \beta k_1 + \gamma)$</li>
+</ul>
+<p>These cancel.</p>
+<p>And conversely:</p>
+<ul>
+<li>Denominator of fraction 1 contains $(5 + \beta\omega + \gamma)$</li>
+<li>Numerator of fraction 2 contains $(5 + \beta\omega + \gamma)$</li>
+</ul>
+<p>These cancel.</p>
+<ul>
+<li>Denominator of fraction 1 contains $(3 + \beta k_1\omega + \gamma)$</li>
+<li>Numerator of fraction 2 contains $(3 + \beta k_1\omega + \gamma)$</li>
+</ul>
+<p>These cancel.</p>
+<p><strong>Every term in the numerator has a matching term in the denominator across the full cycle.</strong> The product collapses to $Z(\omega^2) = 1$.</p>
+<p>Since $\omega^2 = 1$ for $n = 2$, we have $Z(1) = 1$ as required. The accumulator returns to its starting value, confirming all copy constraints hold.</p>
+<h3 id="what-if-a-constraint-were-violated"><a class="header" href="#what-if-a-constraint-were-violated">What If a Constraint Were Violated?</a></h3>
+<p>Suppose the prover cheats: sets $a_2 = 7$ instead of $5$ (breaking $c_1 = a_2$).</p>
+<p>The term $(5 + \beta k_2 + \gamma)$ from $c_1$ no longer matches $(7 + \beta k_2 + \gamma)$ from the fraudulent $a_2$. No cancellation occurs. The accumulator ends at a value $\neq 1$, and the constraint $(Z(X) - 1) \cdot L_n(X) = 0$ fails.</p>
+<p>The random challenges $\beta, \gamma$ ensure this failure is detectable with overwhelming probability.</p>
+<h2 id="the-full-protocol"><a class="header" href="#the-full-protocol">The Full Protocol</a></h2>
+<p>We now specify the complete PLONK protocol with KZG commitments.</p>
+<h3 id="preprocessed-data-circuit-specific"><a class="header" href="#preprocessed-data-circuit-specific">Preprocessed Data (Circuit-Specific)</a></h3>
+<p>Fixed at circuit compilation:</p>
+<ul>
+<li>Selector polynomial commitments: $[Q_L]_1, [Q_R]_1, [Q_O]_1, [Q_M]_1, [Q_C]_1$</li>
+<li>Permutation polynomial commitments: $[S_{\sigma_1}]<em>1, [S</em>{\sigma_2}]<em>1, [S</em>{\sigma_3}]_1$</li>
+</ul>
+<h3 id="common-reference-string-universal"><a class="header" href="#common-reference-string-universal">Common Reference String (Universal)</a></h3>
+<p>The SRS, shared across all circuits up to size $n$:</p>
+<ul>
+<li>${[1]_1, [\tau]_1, [\tau^2]_1, \ldots, [\tau^{n+5}]_1}$</li>
+<li>$[\tau]_2$</li>
+</ul>
+<p>The prover needs the full $\mathbb{G}_1$ sequence. The verifier needs only $[\tau]_2$, an asymmetry that enables efficient verification.</p>
+<h3 id="round-1-commit-to-witness"><a class="header" href="#round-1-commit-to-witness">Round 1: Commit to Witness</a></h3>
+<p>The prover:</p>
+<ol>
+<li>Computes witness polynomials $a(X), b(X), c(X)$ by interpolating wire values</li>
+<li><strong>Blinds</strong> each polynomial for zero-knowledge: $a(X) \leftarrow a(X) + (b_1 X + b_2) Z_H(X)$, where $b_1, b_2$ are random field elements</li>
+<li>Commits: sends $[a]_1, [b]_1, [c]_1$</li>
+</ol>
+<p><strong>Why blinding works</strong>: The term $(b_1 X + b_2) Z_H(X)$ is zero on $H$ (since $Z_H(\omega^i) = 0$ for all $\omega^i \in H$), so adding it doesn't change the polynomial's values at gate positions; correctness is preserved. But outside $H$, this random term &quot;scrambles&quot; the polynomial, hiding information about the original witness values. The verifier will later query the polynomial at a random point $\zeta \notin H$; without blinding, these evaluations could leak witness information.</p>
+<h3 id="round-2-commit-to-accumulator"><a class="header" href="#round-2-commit-to-accumulator">Round 2: Commit to Accumulator</a></h3>
+<p>The prover:</p>
+<ol>
+<li>Derives challenges $\beta, \gamma$ via Fiat-Shamir (hash of transcript including Round 1 commitments)</li>
+<li>Computes accumulator polynomial $Z(X)$ from the recursive definition</li>
+<li>Blinds with higher-degree term (three random scalars, since $Z$ is checked at two points: $z$ and $z\omega$)</li>
+<li>Commits: sends $[Z]_1$</li>
+</ol>
+<h3 id="round-3-compute-quotient"><a class="header" href="#round-3-compute-quotient">Round 3: Compute Quotient</a></h3>
+<p>The prover:</p>
+<ol>
+<li>Derives challenge $\alpha$ via Fiat-Shamir</li>
+<li>Forms the combined constraint polynomial using $\alpha$ for random linear combination:</li>
+</ol>
+<p>$$P(X) = \text{(gate constraint)} + \alpha \cdot \text{(permutation recursion)} + \alpha^2 \cdot \text{(permutation initialization)}$$</p>
+<p>The <strong>permutation recursion</strong> is the constraint that forces the accumulator to update correctly at each step: the polynomial form of &quot;$Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\text{numerator}}{\text{denominator}}$&quot; from the grand product. The <strong>permutation initialization</strong> is the boundary condition: the accumulator must start at 1, encoded as $(Z(X) - 1) \cdot L_1(X)$ where $L_1$ is the Lagrange polynomial that equals 1 at $\omega$ and 0 elsewhere.</p>
+<ol start="3">
+<li>Computes quotient: $t(X) = P(X) / Z_H(X)$</li>
+<li>Splits $t(X)$ into lower-degree pieces for commitment (since $\deg(t) &gt; n$)</li>
+<li>Commits to quotient pieces</li>
+</ol>
+<h3 id="round-4-evaluate-and-open"><a class="header" href="#round-4-evaluate-and-open">Round 4: Evaluate and Open</a></h3>
+<p>The prover:</p>
+<ol>
+<li>
+<p>Derives evaluation point $\zeta$ via Fiat-Shamir</p>
+</li>
+<li>
+<p>Evaluates all relevant polynomials at $\zeta$:</p>
+<ul>
+<li>Witness: $a(\zeta), b(\zeta), c(\zeta)$</li>
+<li>Accumulator: $Z(\zeta)$, and crucially $Z(\zeta\omega)$ (the shifted evaluation)</li>
+<li>Permutation: $S_{\sigma_1}(\zeta), S_{\sigma_2}(\zeta)$</li>
+</ul>
+</li>
+<li>
+<p>Sends evaluations to verifier</p>
+</li>
+<li>
+<p>Computes batched opening proofs (linearization optimization)</p>
+</li>
+</ol>
+<h3 id="round-5-batched-opening-proofs"><a class="header" href="#round-5-batched-opening-proofs">Round 5: Batched Opening Proofs</a></h3>
+<p>The prover:</p>
+<ol>
+<li>Derives batching challenge $v$ via Fiat-Shamir</li>
+<li>Constructs opening proof for all evaluations at $\zeta$ (batched)</li>
+<li>Constructs opening proof for evaluation at $\zeta\omega$ (the shifted point)</li>
+<li>Sends two KZG proofs</li>
+</ol>
+<h3 id="verification"><a class="header" href="#verification">Verification</a></h3>
+<p>The verifier performs the following steps:</p>
+<p><strong>1. Reconstruct Challenges</strong></p>
+<p>From the transcript (all prover commitments), derive:</p>
+<ul>
+<li>$\beta, \gamma$ from Round 1 commitments (for permutation argument)</li>
+<li>$\alpha$ from Round 2 commitments (for constraint aggregation)</li>
+<li>$\zeta$ from Round 3 commitments (evaluation point)</li>
+<li>$v$ from Round 4 evaluations (batching challenge)</li>
+</ul>
+<p>All challenges are deterministic functions of the transcript via Fiat-Shamir.</p>
+<p><strong>2. Compute the Linearization Polynomial Commitment</strong></p>
+<p>The verifier computes a commitment $[r]_1$ to the &quot;linearization polynomial&quot;: a carefully constructed combination that, when evaluated at $\zeta$, should equal zero if all constraints hold.</p>
+<p>The linearization includes:</p>
+<ul>
+<li><strong>Gate constraint</strong>: $[Q_L]_1 \cdot a(\zeta) + [Q_R]_1 \cdot b(\zeta) + [Q_O]_1 \cdot c(\zeta) + [Q_M]_1 \cdot a(\zeta)b(\zeta) + [Q_C]_1$</li>
+<li><strong>Permutation recursion</strong> (scaled by $\alpha$): Terms involving $[Z]_1$, the permutation polynomials, and the evaluated witness values</li>
+<li><strong>Permutation initialization</strong> (scaled by $\alpha^2$): $(Z(\zeta) - 1) \cdot L_1(\zeta)$</li>
+</ul>
+<p>The key insight: most terms are linear combinations of known evaluations and committed polynomials. The verifier can compute $[r]_1$ using only the commitments received from the prover and the evaluation values.</p>
+<p><strong>3. Compute the Expected Evaluation</strong></p>
+<p>The verifier computes what $r(\zeta)$ <em>should</em> equal if the prover is honest. This involves:</p>
+<ul>
+<li>The quotient polynomial contribution: $t(\zeta) \cdot Z_H(\zeta)$</li>
+<li>Witness polynomial contributions at $\zeta$</li>
+</ul>
+<p><strong>4. Batched Opening Verification</strong></p>
+<p>The verifier checks two batched KZG opening proofs:</p>
+<p><strong>Opening at $\zeta$</strong>: All polynomials evaluated at $\zeta$ are batched using challenge $v$:
+$$[F]_1 = [r]_1 + v[a]_1 + v^2[b]_1 + v^3[c]<em>1 + v^4[S</em>{\sigma_1}]<em>1 + v^5[S</em>{\sigma_2}]_1$$</p>
+<p>The verifier checks that $[F]_1$ opens to the batched evaluation:
+$$F(\zeta) = r(\zeta) + v \cdot a(\zeta) + v^2 \cdot b(\zeta) + \ldots$$</p>
+<p><strong>Opening at $\zeta\omega$</strong>: The accumulator's shifted evaluation:
+$$e([Z]_1 - [Z(\zeta\omega)]_1, [\tau]<em>2) \stackrel{?}{=} e([W</em>{\zeta\omega}]_1, [\tau - \zeta\omega]_2)$$</p>
+<p>where $[W_{\zeta\omega}]_1$ is the KZG opening proof for evaluation at $\zeta\omega$.</p>
+<p><strong>5. Pairing Check</strong></p>
+<p>The final verification reduces to two pairing equations (often combined into one via random linear combination):</p>
+<p>$$e([W_\zeta]<em>1 + u \cdot [W</em>{\zeta\omega}]_1, [\tau]<em>2) = e(\zeta \cdot [W</em>\zeta]<em>1 + u\zeta\omega \cdot [W</em>{\zeta\omega}]_1 + [F]_1 - [E]_1, [1]_2)$$</p>
+<p>where $u$ is a random challenge for batching the two opening proofs, and $[E]_1$ is the commitment to the expected evaluations.</p>
+<p><strong>Verification Cost</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Operation</th><th>Count</th></tr></thead><tbody>
+<tr><td>Scalar multiplications in $\mathbb{G}_1$</td><td>~15-20</td></tr>
+<tr><td>Field multiplications</td><td>~30-50</td></tr>
+<tr><td>Pairing computations</td><td>2</td></tr>
+</tbody></table>
+</div>
+<p>Total verification time: ~5-10ms on commodity hardware, independent of circuit size.</p>
+<h2 id="proof-size-analysis"><a class="header" href="#proof-size-analysis">Proof Size Analysis</a></h2>
+<p>With KZG over BN254:</p>
+<div class="table-wrapper"><table><thead><tr><th>Element</th><th>Size</th><th>Count</th><th>Total</th></tr></thead><tbody>
+<tr><td>$\mathbb{G}_1$ commitments</td><td>32 bytes</td><td>~10</td><td>320 bytes</td></tr>
+<tr><td>$\mathbb{G}_1$ opening proofs</td><td>32 bytes</td><td>2</td><td>64 bytes</td></tr>
+<tr><td>Field element evaluations</td><td>32 bytes</td><td>~7</td><td>224 bytes</td></tr>
+</tbody></table>
+</div>
+<p><strong>Total: ~600 bytes</strong> (varies with optimizations)</p>
+<p>This is 4-5× larger than Groth16's 128 bytes. The cost buys universality: one setup ceremony, any circuit.</p>
+<h2 id="why-roots-of-unity"><a class="header" href="#why-roots-of-unity">Why Roots of Unity?</a></h2>
+<p>PLONK's use of roots of unity (multiplicative subgroup of order $2^k$) is not arbitrary.</p>
+<p><strong>FFT efficiency</strong>: Polynomial operations (interpolation, multiplication, division) run in $O(n \log n)$ via FFT. Without roots of unity, these operations cost $O(n^2)$.</p>
+<p><strong>Simple vanishing polynomial</strong>: $Z_H(X) = X^n - 1$. Compact representation, efficient evaluation.</p>
+<p><strong>Shift structure</strong>: The accumulator's recursive relation compares $Z(X)$ and $Z(X\omega)$. Multiplication by $\omega$ shifts through the domain cyclically. This algebraic structure is essential for encoding the step-by-step product check.</p>
+<p>Groth16 uses an arithmetic progression ${1, 2, \ldots, m}$ because its prover doesn't interpolate; it computes linear combinations of precomputed basis polynomials. The FFT advantage doesn't apply.</p>
+<h2 id="comparison-plonk-vs-groth16"><a class="header" href="#comparison-plonk-vs-groth16">Comparison: PLONK vs. Groth16</a></h2>
+<p>The systems embody different engineering philosophies.</p>
+<h3 id="witness-treatment"><a class="header" href="#witness-treatment">Witness Treatment</a></h3>
+<p><strong>Groth16</strong>: Witness values are <em>coefficients</em>. The setup computes basis polynomials $A_j(X), B_j(X), C_j(X)$ for each wire. The prover forms $A(X) = \sum_j z_j A_j(X)$ as a linear combination.</p>
+<p><strong>PLONK</strong>: Witness values are <em>evaluations</em>. The prover interpolates to find polynomials passing through $(ω^i, a_i)$ for each gate.</p>
+<p>This distinction explains why Groth16's setup is circuit-specific (it precomputes basis polynomials for the specific circuit) while PLONK's is universal (the prover does interpolation at proving time using generic powers of $\tau$).</p>
+<h3 id="wiring-mechanism"><a class="header" href="#wiring-mechanism">Wiring Mechanism</a></h3>
+<p><strong>Groth16</strong>: Copy constraints are implicit. The R1CS matrices reference the same witness index for connected wires. No separate mechanism needed.</p>
+<p><strong>PLONK</strong>: Copy constraints are explicit via the permutation argument. This separation enables the universal setup: wiring information lives in circuit-specific preprocessed polynomials, not in the SRS.</p>
+<h3 id="constraint-expressiveness"><a class="header" href="#constraint-expressiveness">Constraint Expressiveness</a></h3>
+<p><strong>Groth16/R1CS</strong>: Each constraint has form $(a \cdot w)(b \cdot w) = c \cdot w$, a single multiplication with linear combinations. High fan-in additions compress into one constraint.</p>
+<p><strong>PLONK</strong>: The gate equation handles one multiplication or addition per gate. But custom gates and lookup arguments extend expressiveness far beyond R1CS for complex operations.</p>
+<h3 id="trade-off-summary"><a class="header" href="#trade-off-summary">Trade-off Summary</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Aspect</th><th>Groth16</th><th>PLONK</th></tr></thead><tbody>
+<tr><td>Setup</td><td>Circuit-specific</td><td>Universal</td></tr>
+<tr><td>Proof size</td><td>128 bytes</td><td>~500 bytes</td></tr>
+<tr><td>Verification</td><td>3 pairings</td><td>~10 pairings</td></tr>
+<tr><td>Prover work</td><td>MSM-dominated</td><td>FFT + MSM</td></tr>
+<tr><td>Extensibility</td><td>Fixed</td><td>Custom gates, lookups</td></tr>
+</tbody></table>
+</div>
+<h2 id="custom-gates-and-extensions"><a class="header" href="#custom-gates-and-extensions">Custom Gates and Extensions</a></h2>
+<p>PLONK's gate equation generalizes naturally.</p>
+<h3 id="more-wires"><a class="header" href="#more-wires">More Wires</a></h3>
+<p>Modern systems (Halo2, UltraPLONK) use 5+ wires per gate:</p>
+<p>$$\sum_{i=1}^{5} Q_i \cdot w_i + Q_{M_{12}} w_1 w_2 + Q_{M_{34}} w_3 w_4 + \cdots = 0$$</p>
+<p>More wires mean fewer gates for complex operations.</p>
+<h3 id="higher-degree-terms"><a class="header" href="#higher-degree-terms">Higher-Degree Terms</a></h3>
+<p>The Poseidon hash uses $x^5$ in its S-box. A custom gate term $Q_{\text{pow5}} \cdot a^5$ computes this in one gate rather than five multiplications.</p>
+<h3 id="boolean-constraints"><a class="header" href="#boolean-constraints">Boolean Constraints</a></h3>
+<p>Enforcing $x \in {0, 1}$ requires $x(x-1) = 0$, equivalently $x^2 - x = 0$. With selector $Q_{\text{bool}}$:</p>
+<p>$$Q_{\text{bool}} \cdot (a^2 - a) = 0$$</p>
+<p>One gate, one constraint.</p>
+<h3 id="lookup-arguments"><a class="header" href="#lookup-arguments">Lookup Arguments</a></h3>
+<p>The most powerful extension. Rather than computing a function in gates, prove that (input, output) pairs appear in a precomputed table.</p>
+<p><strong>Example</strong>: Range check. Proving $x \in [0, 2^{16})$ via bit decomposition costs 16 gates. A lookup into a table of ${0, 1, \ldots, 2^{16}-1}$ costs ~3 constraints.</p>
+<p>Chapter 14 develops lookup arguments in detail.</p>
+<h2 id="ultraplonk"><a class="header" href="#ultraplonk">UltraPLONK</a></h2>
+<p>&quot;UltraPLONK&quot; denotes PLONK variants combining custom gates and lookup arguments. These systems achieve dramatic efficiency gains for real-world circuits.</p>
+<p><strong>Composite gates</strong>: A single gate encoding multiple operations (e.g., $a + b = c$ AND $d \cdot e = f$ simultaneously).</p>
+<p><strong>Lookup integration</strong>: The permutation argument extends to prove set membership in lookup tables.</p>
+<p><strong>Optimized hashing</strong>: Poseidon-specific gates reduce hash computation by 10-20× compared to vanilla PLONK.</p>
+<p>The architecture remains: polynomial IOP compiled with KZG (or alternatives). The IOP grows more sophisticated, but the verification structure persists.</p>
+<p><strong>Aztec's evolution</strong>: Aztec Labs, co-founded by Zac Williamson (one of PLONK's creators), developed UltraPLONK in their Barretenberg library. Their system has since evolved to <strong>Honk</strong>, which replaces the univariate polynomial IOP with sum-check over multilinear polynomials (similar to Spartan's approach). Honk retains PLONKish arithmetization but gains the memory efficiency of sum-check. For on-chain verification, Aztec compresses Honk proofs into UltraPLONK proofs; UltraPLONK's simpler verifier (fewer selector polynomials, no multilinear machinery) reduces gas costs. Their <strong>Goblin PLONK</strong> technique further optimizes recursive proof composition by deferring expensive elliptic curve operations rather than computing them at each recursion layer.</p>
+<h2 id="security-considerations"><a class="header" href="#security-considerations">Security Considerations</a></h2>
+<h3 id="trusted-setup"><a class="header" href="#trusted-setup">Trusted Setup</a></h3>
+<p>PLONK's universality doesn't eliminate trust; it redistributes it.</p>
+<p>The SRS still encodes secret $\tau$. If known, proofs can be forged. The advantage is logistical: one ceremony covers all circuits. Updates strengthen security without coordination.</p>
+<p>Production deployments (Aztec, zkSync, Scroll) run multi-party ceremonies with hundreds of participants. The 1-of-N trust model, where security holds if any participant is honest, provides strong guarantees.</p>
+<h3 id="random-oracle-model"><a class="header" href="#random-oracle-model">Random Oracle Model</a></h3>
+<p>Fiat-Shamir security assumes hash functions behave as random oracles. Real hash functions are deterministic algorithms with structure.</p>
+<p>No practical attacks are known. The gap between model and reality is a persistent concern across all Fiat-Shamir-compiled protocols.</p>
+<h3 id="soundness-assumptions"><a class="header" href="#soundness-assumptions">Soundness Assumptions</a></h3>
+<p>With KZG:</p>
+<ul>
+<li><strong>q-SDH</strong>: Given powers of $\tau$, cannot produce $(c, g^{1/(\tau+c)})$</li>
+<li><strong>Discrete log</strong>: Cannot compute $\tau$ from $g^\tau$</li>
+</ul>
+<p>Without KZG (FRI compilation):</p>
+<ul>
+<li><strong>Collision resistance</strong>: Hash function security</li>
+</ul>
+<p>The assumption stack is well-studied. Pairing-based systems carry more algebraic structure (and assumption weight) than hash-based alternatives.</p>
+<h2 id="worked-example-three-gate-circuit"><a class="header" href="#worked-example-three-gate-circuit">Worked Example: Three-Gate Circuit</a></h2>
+<p>Consider proving knowledge of $x$ such that $(x + 1) \cdot x = 6$.</p>
+<p><strong>Circuit</strong>:</p>
+<ul>
+<li>Gate 1: Constant assignment, $b_1 = 1$</li>
+<li>Gate 2: Addition, $c_2 = a_2 + b_2$</li>
+<li>Gate 3: Multiplication, $c_3 = a_3 \cdot b_3$, constrained to equal 6</li>
+</ul>
+<p><strong>Witness</strong> (with $x = 2$):</p>
+<ul>
+<li>Gate 1: $a_1 = 0$, $b_1 = 1$, $c_1 = 0$ (unused output)</li>
+<li>Gate 2: $a_2 = 2$, $b_2 = 1$, $c_2 = 3$</li>
+<li>Gate 3: $a_3 = 3$, $b_3 = 2$, $c_3 = 6$</li>
+</ul>
+<p><strong>Copy constraints</strong>:</p>
+<ul>
+<li>$b_1 = b_2$ (constant 1 reused)</li>
+<li>$a_2 = b_3$ (input $x$ reused)</li>
+<li>$c_2 = a_3$ (addition output feeds multiplication)</li>
+</ul>
+<p><strong>Permutation</strong>:
+Wires $b_1$ and $b_2$ form a cycle. Wires $a_2$ and $b_3$ form a cycle. Wires $c_2$ and $a_3$ form a cycle. Remaining wires are fixed points.</p>
+<p><strong>Selector polynomials</strong>: Interpolate selector values over domain $H = {1, \omega, \omega^2}$.</p>
+<p><strong>Witness polynomials</strong>: Interpolate $(a_1, a_2, a_3)$, $(b_1, b_2, b_3)$, $(c_1, c_2, c_3)$.</p>
+<p><strong>Accumulator</strong>: Starts at 1. After processing all gates, if copy constraints hold, returns to 1.</p>
+<p><strong>Verification</strong>: Evaluate combined constraint polynomial at random $\zeta$. If constraints satisfied, the evaluation is zero. Verify via KZG opening proofs.</p>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li>
+<p><strong>Universal setup</strong>: One ceremony, all circuits up to a size bound. Updateable security model.</p>
+</li>
+<li>
+<p><strong>Separation of concerns</strong>: Gate constraints (local correctness) separate from copy constraints (global wiring). Each has its own polynomial mechanism.</p>
+</li>
+<li>
+<p><strong>The permutation argument</strong>: Reduces all copy constraints to one polynomial identity via randomized grand product check.</p>
+</li>
+<li>
+<p><strong>Witness as evaluations</strong>: PLONK interpolates witness values. Groth16 uses them as coefficients. This architectural choice enables universality.</p>
+</li>
+<li>
+<p><strong>Roots of unity</strong>: FFT efficiency for polynomial operations. Shift structure for accumulator recursion. Not cosmetic but essential.</p>
+</li>
+<li>
+<p><strong>Custom gates</strong>: The framework generalizes. More wires, higher degrees, specialized operations. UltraPLONK extends vanilla PLONK dramatically.</p>
+</li>
+<li>
+<p><strong>Lookup arguments</strong>: Prove table membership instead of computation. Game-changing for non-arithmetic operations.</p>
+</li>
+<li>
+<p><strong>Proof size trade-off</strong>: ~500 bytes vs. Groth16's 128. Universality has a cost.</p>
+</li>
+<li>
+<p><strong>Verification structure</strong>: Two batched KZG proofs. Constant work regardless of circuit size.</p>
+</li>
+<li>
+<p><strong>Ecosystem dominance</strong>: PLONK derivatives power most production ZK systems. The universal setup won the deployment battle.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="12-groth16.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="14-lookup-arguments.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="12-groth16.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="14-lookup-arguments.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>

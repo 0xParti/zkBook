@@ -1,0 +1,381 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js navy">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Frontiers and Open Problems - Minimizing Trust, Maximizing Truth</title>
+
+
+        <!-- Custom HTML head -->
+        <script>
+        window.MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true
+          },
+          options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          }
+        };
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "navy";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('navy')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="introduction.html">Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">Foundations</li><li class="chapter-item expanded "><a href="01-the-trust-problem.html"><strong aria-hidden="true">1.</strong> The Trust Problem</a></li><li class="chapter-item expanded "><a href="02-the-alchemical-power-of-polynomials.html"><strong aria-hidden="true">2.</strong> The Alchemical Power of Polynomials</a></li><li class="chapter-item expanded "><a href="03-the-sum-check-protocol.html"><strong aria-hidden="true">3.</strong> The Sum-Check Protocol</a></li><li class="chapter-item expanded "><a href="04-multilinear-extensions.html"><strong aria-hidden="true">4.</strong> Multilinear Extensions</a></li><li class="chapter-item expanded "><a href="05-univariate-polynomials-and-finite-fields.html"><strong aria-hidden="true">5.</strong> Univariate Polynomials and Finite Fields</a></li><li class="chapter-item expanded "><a href="06-commitment-schemes.html"><strong aria-hidden="true">6.</strong> Commitment Schemes</a></li><li class="chapter-item expanded affix "><li class="part-title">Core Protocols</li><li class="chapter-item expanded "><a href="07-the-gkr-protocol.html"><strong aria-hidden="true">7.</strong> The GKR Protocol</a></li><li class="chapter-item expanded "><a href="08-from-circuits-to-polynomials.html"><strong aria-hidden="true">8.</strong> From Circuits to Polynomials</a></li><li class="chapter-item expanded "><a href="09-polynomial-commitment-schemes.html"><strong aria-hidden="true">9.</strong> Polynomial Commitment Schemes</a></li><li class="chapter-item expanded "><a href="10-hash-based-commitments-and-fri.html"><strong aria-hidden="true">10.</strong> Hash-Based Commitments and FRI</a></li><li class="chapter-item expanded affix "><li class="part-title">SNARK Construction</li><li class="chapter-item expanded "><a href="11-the-snark-recipe.html"><strong aria-hidden="true">11.</strong> The SNARK Recipe</a></li><li class="chapter-item expanded "><a href="12-groth16.html"><strong aria-hidden="true">12.</strong> Groth16</a></li><li class="chapter-item expanded "><a href="13-plonk.html"><strong aria-hidden="true">13.</strong> PLONK</a></li><li class="chapter-item expanded "><a href="14-lookup-arguments.html"><strong aria-hidden="true">14.</strong> Lookup Arguments</a></li><li class="chapter-item expanded "><a href="15-starks.html"><strong aria-hidden="true">15.</strong> STARKs</a></li><li class="chapter-item expanded affix "><li class="part-title">Zero-Knowledge</li><li class="chapter-item expanded "><a href="16-sigma-protocols.html"><strong aria-hidden="true">16.</strong> Sigma Protocols</a></li><li class="chapter-item expanded "><a href="17-the-zero-knowledge-property.html"><strong aria-hidden="true">17.</strong> The Zero-Knowledge Property</a></li><li class="chapter-item expanded "><a href="18-making-proofs-zero-knowledge.html"><strong aria-hidden="true">18.</strong> Making Proofs Zero-Knowledge</a></li><li class="chapter-item expanded affix "><li class="part-title">Advanced Topics</li><li class="chapter-item expanded "><a href="19-fast-sum-check-proving.html"><strong aria-hidden="true">19.</strong> Fast Sum-Check Proving</a></li><li class="chapter-item expanded "><a href="20-minimizing-commitment-costs.html"><strong aria-hidden="true">20.</strong> Minimizing Commitment Costs</a></li><li class="chapter-item expanded "><a href="21-the-two-classes-of-piops.html"><strong aria-hidden="true">21.</strong> The Two Classes of PIOPs</a></li><li class="chapter-item expanded "><a href="22-composition-and-recursion.html"><strong aria-hidden="true">22.</strong> Composition and Recursion</a></li><li class="chapter-item expanded "><a href="23-choosing-a-snark.html"><strong aria-hidden="true">23.</strong> Choosing a SNARK</a></li><li class="chapter-item expanded affix "><li class="part-title">Broader Context</li><li class="chapter-item expanded "><a href="24-mpc-and-zk-parallel-paths.html"><strong aria-hidden="true">24.</strong> MPC and ZK Parallel Paths</a></li><li class="chapter-item expanded "><a href="25-frontiers-and-open-problems.html" class="active"><strong aria-hidden="true">25.</strong> Frontiers and Open Problems</a></li><li class="chapter-item expanded "><a href="26-zk-in-the-cryptographic-landscape.html"><strong aria-hidden="true">26.</strong> ZK in the Cryptographic Landscape</a></li><li class="chapter-item expanded affix "><li class="part-title">Appendices</li><li class="chapter-item expanded "><a href="appendix-a-cryptographic-primitives.html"><strong aria-hidden="true">27.</strong> Cryptographic Primitives</a></li><li class="chapter-item expanded "><a href="appendix-b-historical-timeline.html"><strong aria-hidden="true">28.</strong> Historical Timeline</a></li><li class="chapter-item expanded "><a href="appendix-c-field-equations-cheat-sheet.html"><strong aria-hidden="true">29.</strong> Field Equations Cheat Sheet</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Minimizing Trust, Maximizing Truth</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/0xParti/zkBook/edit/main/web/src/25-frontiers-and-open-problems.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="chapter-25-frontiers-and-open-problems"><a class="header" href="#chapter-25-frontiers-and-open-problems">Chapter 25: Frontiers and Open Problems</a></h1>
+<p>How much trust can we actually remove?</p>
+<p>This book has traced a progression: from interactive proofs that required back-and-forth dialogue, to non-interactive systems that need only a single message; from trusted setups where a coordinator could forge proofs, to transparent systems where security rests on public randomness alone; from proofs that scale linearly with computation, to ones logarithmic or even constant in size. Each advance eliminated a form of trust. Each made verification more accessible, more universal, more credible.</p>
+<p>But we are not done. Today's proof systems still demand trust in places we would prefer to eliminate. They rely on cryptographic assumptions that quantum computers may shatter. They waste enormous computational resources proving that small integers satisfy constraints designed for 256-bit fields. They require setup ceremonies that, while transparent, still involve coordination and complexity. The frontier of research is the frontier of trust removal: finding what remains assumed, and engineering it away.</p>
+<p>This chapter surveys those frontiers. Some involve hardness assumptions we cannot yet prove. Others involve efficiency gaps between what theory permits and what practice achieves. A few touch questions so deep that resolving them would reshape our understanding of computation itself. Think of what follows as a map of the territory we have not yet conquered.</p>
+<h2 id="small-field-snarks-and-binius"><a class="header" href="#small-field-snarks-and-binius">Small-Field SNARKs and Binius</a></h2>
+<h3 id="the-overhead-problem"><a class="header" href="#the-overhead-problem">The Overhead Problem</a></h3>
+<p>Every proof system in this book operates over large prime fields (typically 254-bit or 256-bit elements). But most real-world data is small: booleans, bytes, 32-bit integers. Representing a single bit as a 256-bit field element wastes 255 bits of capacity.</p>
+<p>This isn't merely inelegant; it's expensive. Field multiplications dominate prover time. Each multiplication operates on the full 256 bits even when the &quot;meaningful&quot; data is tiny. For bit-level operations (hashing, AES, bitwise logic) the overhead is a factor of 256×.</p>
+<h3 id="binary-fields-the-natural-solution"><a class="header" href="#binary-fields-the-natural-solution">Binary Fields: The Natural Solution</a></h3>
+<p><strong>Binius</strong> takes a radical approach: work over binary fields $\mathbb{F}_{2^k}$ where field elements are actual $k$-bit strings. A boolean is a 1-bit field element. A byte is an 8-bit field element. No padding, no waste.</p>
+<p>The arithmetic of binary fields differs from prime fields. Addition is XOR (free in hardware). Multiplication uses polynomial arithmetic over $\mathbb{F}_2$. There are no &quot;negative&quot; elements; the field characteristic is 2. This seems like a step backward; binary fields lack the convenient structure of prime-order groups. But Binius recovers efficiency through clever protocol design.</p>
+<h3 id="the-binius-architecture"><a class="header" href="#the-binius-architecture">The Binius Architecture</a></h3>
+<p>Binius combines several innovations:</p>
+<p><strong>Multilinear polynomials over towers of binary fields.</strong> Instead of a single large field, use a tower: $\mathbb{F}<em>2 \subset \mathbb{F}</em>{2^2} \subset \mathbb{F}<em>{2^4} \subset \mathbb{F}</em>{2^8} \subset \ldots$ Each level doubles the extension degree. Small values live in small fields; only the cryptographic randomness requires the full tower height.</p>
+<p>What does &quot;operating in a tower&quot; mean concretely? Each level is a field extension: $\mathbb{F}<em>2$ contains just ${0,1}$ with XOR addition; $\mathbb{F}</em>{2^8}$ contains 8-bit elements (bytes); $\mathbb{F}_{2^{128}}$ provides cryptographic security. The key insight: <em>elements of smaller fields are also elements of larger fields</em>. A bit in $\mathbb{F}<em>2$ can be viewed as an element of $\mathbb{F}</em>{2^{128}}$—it's just a very special element.</p>
+<p>This enables a crucial optimization: store witness data in the smallest field that fits (bits stay bits, bytes stay bytes), perform arithmetic at the appropriate level, and only &quot;lift&quot; to the full tower when random challenges enter. The 256× overhead of representing a single bit as a 256-bit field element vanishes.</p>
+<p>(Note: this &quot;tower&quot; is unrelated to the &quot;tower of proofs&quot; in Chapter 22's recursion discussion. There, &quot;tower&quot; refers to proofs-of-proofs: $\pi_1 \to \pi_2 \to \pi_3$. Here, &quot;tower&quot; refers to nested field extensions. Both exploit hierarchical structure—recursion avoids re-proving entire computations; field towers avoid doing large-field arithmetic on small values—but the mechanisms are distinct.)</p>
+<p><strong>GKR-based multiplication.</strong> Binary field multiplication is non-trivial: it's polynomial multiplication modulo an irreducible polynomial. Rather than encoding this as constraints (expensive), Binius uses the GKR protocol to verify multiplications. The prover commits only to inputs and outputs; intermediate multiplication steps are checked via sum-check.</p>
+<p><strong>FRI over binary fields (FRI-Binius).</strong> The FRI low-degree test adapts to binary domains, but the standard folding approach doesn't directly transfer: the squaring map $x \mapsto x^2$ is not 2-to-1 on binary fields as it is over roots of unity. FRI-Binius instead uses <em>subspace vanishing polynomials</em> combined with an <em>additive NTT</em> to achieve the necessary folding structure. The technique draws a connection between the Novel Polynomial Basis and binary field FRI, enabling efficient commitment to polynomials over tiny fields like $\mathbb{F}_2$ with no embedding overhead.</p>
+<h3 id="performance-implications"><a class="header" href="#performance-implications">Performance Implications</a></h3>
+<p>For bit-intensive computations, Binius achieves order-of-magnitude improvements:</p>
+<div class="table-wrapper"><table><thead><tr><th>Operation</th><th>Traditional (256-bit field)</th><th>Binius</th></tr></thead><tbody>
+<tr><td>SHA-256 hash</td><td>~25,000 constraints</td><td>~5,000 constraints</td></tr>
+<tr><td>AES block</td><td>~10,000 constraints</td><td>~1,000 constraints</td></tr>
+<tr><td>Bitwise AND</td><td>1 constraint + range check</td><td>1 native operation</td></tr>
+</tbody></table>
+</div>
+<p>The savings compound: fewer constraints mean smaller polynomials, faster FFTs, smaller proofs.</p>
+<h3 id="current-status-and-challenges"><a class="header" href="#current-status-and-challenges">Current Status and Challenges</a></h3>
+<p>Binius is under active development. Polygon and Irreducible have been building production-grade Binius-based systems, with ongoing testing and iteration. But despite the compelling performance numbers, several challenges explain why existing zkVMs haven't switched wholesale.</p>
+<p><strong>The tradeoff: prover speed vs proof size.</strong> Binius achieves much faster proving but produces larger proofs and slower verification than FRI-based systems. For on-chain verification where calldata costs dominate, this tradeoff matters. A 5× faster prover doesn't help if verification gas costs double.</p>
+<p><strong>Recursion is harder.</strong> Verifying a Binius proof inside another Binius proof requires embedding binary field arithmetic, which is non-trivial when the verifier circuit itself uses binary fields. The algebraic structure that makes Binius fast for computation makes it awkward for recursive self-verification.</p>
+<p><strong>The workload mix.</strong> Binius shines for bit-intensive operations: hashing, AES, bitwise logic. But zkVMs also do 32/64-bit arithmetic, memory operations, control flow. The benefits are less dramatic for these. Some researchers suggest Binius may be better suited for <em>precompiles</em> (hash functions, signature verification) rather than full VM execution—use Binius where it wins, prime fields elsewhere.</p>
+<p><strong>Prover memory.</strong> The tower structure requires careful memory management. Naive implementations have high memory overhead.</p>
+<p><strong>Tooling gap.</strong> Existing circuit languages target prime fields. New frontends that exploit binary field structure are needed.</p>
+<p>The broader lesson: matching the proof system's field to the computation's natural representation eliminates artificial overhead. Binius is the most developed example, but the principle applies generally. The future likely involves <em>hybrid</em> systems: Binius for hash-heavy components, traditional fields for arithmetic-heavy components, composed via the techniques from Chapter 22.</p>
+<p>But field representation is only one axis of adaptation. Another looms larger on the horizon: the cryptographic assumptions themselves.</p>
+<h2 id="post-quantum-snarks"><a class="header" href="#post-quantum-snarks">Post-Quantum SNARKs</a></h2>
+<h3 id="the-coming-storm"><a class="header" href="#the-coming-storm">The Coming Storm</a></h3>
+<p>Shor's algorithm threatens the foundations of modern cryptography. Running in polynomial time on a quantum computer, it breaks discrete logarithm (the assumption underlying Schnorr, Pedersen, Bulletproofs), integer factoring (the assumption underlying RSA), and elliptic curve discrete log (the assumption underlying all pairing-based SNARKs).</p>
+<p>What do these problems share? They all have <strong>hidden periodic structure in abelian groups</strong>. Factoring $N$ reduces to finding the period of $a^x \mod N$. Discrete log in $\langle g \rangle$ reduces to finding the period of $g^a h^b$. Shor's algorithm applies the <em>quantum Fourier transform</em> (QFT) to extract this periodicity in polynomial time. The QFT is the key ingredient: it converts quantum superposition over exponentially many values into a measurement that reveals the period. Any problem with hidden abelian group structure falls to this attack.</p>
+<p>Hash functions survive because they're designed to have <em>no</em> exploitable structure—no periodicity, no algebraic relations. Grover's algorithm provides only a generic $\sqrt{N}$ search speedup (quadratic, not exponential), which doubling the hash output neutralizes.</p>
+<p>Every system in Part IV of this book (Groth16, PLONK, KZG-based constructions) will become insecure once cryptographically-relevant quantum computers exist.</p>
+<p>Timeline estimates vary wildly: 10 years, 20 years, 30 years, never. But &quot;never&quot; is a dangerous bet for infrastructure with long lifespans. Financial systems, identity infrastructure, archival signatures: these need security guarantees that extend decades into the future.</p>
+<h3 id="current-paths-forward"><a class="header" href="#current-paths-forward">Current Paths Forward</a></h3>
+<p><strong>Hash-based systems.</strong> STARKs and FRI rely only on collision-resistant hashing. Since hash functions resist Shor (no hidden periodic structure) and Grover only provides quadratic speedup, STARKs are the current practical choice for post-quantum proofs. Their large proof sizes limit some applications, but they work today.</p>
+<p><strong>Lattice-based commitments.</strong> Replace Pedersen commitments with schemes based on Module-LWE or similar lattice problems. Why do lattices resist quantum attacks? Because they lack the hidden periodic structure that Shor exploits. The problem &quot;find a short vector in this high-dimensional lattice&quot; has no known abelian group structure for QFT to extract.</p>
+<p>The approach: commit to a polynomial $f(X)$ by encoding its coefficients as a lattice point. The &quot;hardness of finding short vectors&quot; ensures binding (can't open to a different polynomial). Noise flooding or rejection sampling provides hiding.</p>
+<p>The algebraic structure is richer than hashes—you can perform homomorphic operations on commitments (add them, sometimes multiply). This enables sum-check-style protocols without the overhead of pure symmetric-key approaches. But there's a catch: the noise in LWE grows with operations. After too many homomorphic steps, noise overwhelms signal. Managing this requires larger parameters, meaning larger commitments and proofs. Current constructions run 10-100× slower than hash-based alternatives for equivalent security.</p>
+<p><strong>Symmetric-key SNARKs.</strong> Build entirely from symmetric primitives: hashes, block ciphers, nothing else. The MPC-in-the-head paradigm (Ligero, Limbo, and descendants) follows this path.</p>
+<p>The key insight: instead of algebraic assumptions, simulate an MPC protocol <em>inside the prover's head</em>. The prover imagines $n$ virtual parties holding secret shares of the witness. These virtual parties execute an MPC protocol that verifies the computation. The prover commits (via hash) to all parties' views: their inputs, randomness, and messages exchanged.</p>
+<p>The verifier challenges: &quot;reveal the views of parties $i$ and $j$.&quot; The verifier checks that those two views are consistent with honest execution. If the prover cheated, at least one pair of parties has inconsistent views. With enough challenges, cheating is detected with high probability.</p>
+<p>Why is this post-quantum? The only cryptographic primitive is the hash-based commitment to parties' views. No discrete log, no pairings, no lattices. Security reduces to collision resistance of the hash function.</p>
+<p>Why is it slow? The MPC protocol has communication overhead. Even efficient protocols require $O(|C|)$ work per multiplication gate, where $|C|$ is the circuit size. The prover must simulate all of this. Ligero improved this with linear-time proving via interleaved Reed-Solomon codes, but constants remain large—typically 10-100× slower than algebraic SNARKs.</p>
+<p>See Chapter 24 for the underlying MPC techniques.</p>
+<h3 id="open-problems"><a class="header" href="#open-problems">Open Problems</a></h3>
+<p>The post-quantum SNARK landscape faces three interrelated challenges. First, lattice-based polynomial commitments remain 10-100× slower than hash-based alternatives. Can we close this gap while maintaining rigorous security? Second, security reductions are often loose; the concrete security is much worse than asymptotic claims suggest. Tighter reductions would either increase confidence or reveal that larger parameters are needed. Third, the transition period creates its own problem: can we build hybrid systems secure against <em>both</em> classical and quantum adversaries without paying twice the cost?</p>
+<p>The post-quantum transition will reshape the SNARK landscape, but it operates on a timescale of years to decades. Meanwhile, a different revolution is already underway: the race to prove arbitrary computation.</p>
+<h2 id="zkvms-the-universal-prover"><a class="header" href="#zkvms-the-universal-prover">zkVMs: The Universal Prover</a></h2>
+<h3 id="the-vision"><a class="header" href="#the-vision">The Vision</a></h3>
+<p>Every proof system we've studied requires translating the computation into a constraint system: R1CS, AIR, PLONKish gates. This translation is a specialized craft. Experts hand-optimize circuits for months; a single bug invalidates the work. The barrier to entry is enormous.</p>
+<p>zkVMs invert this relationship. Instead of adapting computations to proof systems, adapt proof systems to computations. Compile any program to a standard virtual machine (RISC-V, EVM, WASM) and prove correct execution. The zkVM handles memory reads and writes, branching and loops, function calls and returns. Write your logic in Rust or any high-level language. Compile to the target ISA. Prove execution. No circuit engineering required.</p>
+<h3 id="the-current-race"><a class="header" href="#the-current-race">The Current Race</a></h3>
+<p>The zkVM landscape has stratified into distinct architectural approaches, each with different tradeoffs.</p>
+<p><strong>Jolt (a16z).</strong> The sum-check purist. Built entirely on multilinear polynomials and the Lasso lookup argument from Chapter 20. The philosophy: &quot;Just One Lookup Table.&quot; Implement CPU instructions via lookups into structured tables rather than hand-crafted constraint systems. As of mid-2025, achieves over 1 million RISC-V cycles per second on a 32-core CPU, with ~50KB proof sizes (an order of magnitude smaller than STARK-based alternatives). The lookup-centric architecture sidesteps quotient polynomials and grand products. A streaming prover is under development that will prove arbitrarily long executions in under 2GB RAM, enabling mobile proving with minimal recursion overhead.</p>
+<p><strong>RISC Zero.</strong> The production workhorse. STARK-based with FRI commitments over the Baby Bear field, targeting RISC-V. Uses continuations to split large computations into bounded segments (~$10^6$ cycles), proves each with STARK, then aggregates via recursion. Final proofs wrap in Groth16 for cheap on-chain verification. The Bonsai network provides prover-as-a-service infrastructure, abstracting away proof generation entirely. R0VM 2.0 (April 2025) reduced Ethereum block proving from 35 minutes to 44 seconds. The &quot;dual-engine&quot; strategy: Bonsai for hosted enterprise proving, Boundless for a decentralized proof marketplace.</p>
+<p><strong>SP1 (Succinct).</strong> The precompile optimizer. Cross-table lookup architecture with a flexible precompile system that accelerates common operations (signature verification, hashing) by 5-10× over raw RISC-V. SP1 Hypercube (2025) moved from STARKs to multilinear polynomials, achieving real-time Ethereum proving: 99.7% of L1 blocks proven in under 12 seconds on 16 GPUs. First general-purpose zkVM to eliminate proximity gap conjectures. The team estimates a real-time prover cluster could be built for ~$100K in hardware.</p>
+<p><strong>Zisk (Polygon spinoff).</strong> The latency minimizer. Spun out of Polygon's zkEVM team (led by co-founder Jordi Baylina) in June 2025, with all Polygon zkEVM IP transferred to the new entity. Built on RISC-V 64, designed from the ground up for low-latency distributed proving. Features a 1.5GHz zkVM execution engine, highly parallelized proof generation, GPU-optimized code, and advanced aggregation circuits. The architecture targets real-time Ethereum block proving via massive parallelization across prover clusters.</p>
+<p><strong>zkWASM and others.</strong> Target WebAssembly, enabling proofs of browser-compatible code. Useful when the goal is proving execution of existing web applications rather than purpose-built programs.</p>
+<p>The competition is fierce and productive. Notice the convergence: multiple teams moving toward multilinear polynomials (away from univariate STARKs), real-time proving as the target, and precompiles for common operations. Techniques developed for one system often transfer to others.</p>
+<h3 id="architectural-insights-from-production-systems"><a class="header" href="#architectural-insights-from-production-systems">Architectural Insights from Production Systems</a></h3>
+<p>Several zkVM design patterns have emerged that generalize beyond specific implementations:</p>
+<p><strong>The stack machine insight.</strong> Traditional CPU architectures distinguish registers (fast, few) from memory (slow, large). In ZK circuits, this distinction vanishes: both register access and memory access are polynomial lookups with identical cost. Valida exploited this by eliminating general-purpose registers entirely, using a stack machine instead. The simplification reduces per-cycle constraint count and CPU state complexity. Any zkVM designer should ask: does our architecture carry assumptions from physical hardware that don't apply in ZK?</p>
+<p><strong>Segment-based proving.</strong> Long computations face a memory wall: proving $10^9$ cycles requires holding intermediate state for $10^9$ steps. RISC Zero's approach: split execution into bounded segments (~$10^6$ cycles each), prove each segment independently, then aggregate via recursive composition (lift/join). Peak prover memory stays bounded regardless of total computation length. This is a general pattern: unbounded computation can always be factored into bounded pieces with recursive aggregation.</p>
+<p><strong>Challenge-based memory arguments.</strong> Memory consistency can be verified two ways: Merkle trees (commit to memory state, prove access via authentication paths) or algebraic challenges (accumulate memory operations into fingerprint polynomials, verify consistency via Schwartz-Zippel). The Merkle approach requires hashing inside the circuit, which is expensive. The challenge approach (used in SP1, related to Twist-and-Shout from Chapter 20) uses only field arithmetic. For memory-heavy workloads, the difference is 10×+.</p>
+<p><strong>The precompile pattern.</strong> Some operations appear frequently and have specialized efficient circuits: SHA256, Keccak, ECDSA, pairing computations. Rather than interpreting these through the general VM, zkVMs expose &quot;precompiles,&quot; direct circuit implementations that run 10-100× faster than interpreted execution. The trade-off: each precompile adds engineering complexity and circuit size. The design question: which operations justify dedicated circuits? Current heuristics target cryptographic primitives, as they're both expensive (many constraints per operation) and common (appear in most blockchain applications).</p>
+<h3 id="open-problems-1"><a class="header" href="#open-problems-1">Open Problems</a></h3>
+<p>The zkVM overhead problem dominates. Current systems run 100-1000× slower than native computation. A program that runs in 1 second requires 100-1000 seconds to prove. Can we approach 10×? Approaching 1× seems impossible with current techniques, but every generation of proof systems has surprised us.</p>
+<p>Memory efficiency presents a related challenge. A 4GB address space means $2^{32}$ potential memory cells, far too many to commit individually. Virtual polynomial techniques (Chapter 20) help, but scaling to gigabytes of working memory remains challenging.</p>
+<p>Then there's the precompile selection problem. Adding dedicated circuits for common operations (hashing, signatures) improves performance 10-100× for those operations, but each precompile requires engineering effort. Current systems hand-pick based on blockchain workloads. General-purpose proving may need different choices. Can we automate precompile discovery, identifying hot operations and generating specialized circuits?</p>
+<blockquote>
+<p><strong>A note on circuit-friendly signatures</strong>: The ECDSA verification bottleneck has driven adoption of EdDSA over &quot;embedded&quot; curves like BabyJubJub, curves whose base field equals the scalar field of the outer proving curve (typically BN254 or BLS12-381). EdDSA verification becomes native field arithmetic rather than expensive non-native simulation. This design pattern, choosing cryptographic primitives for circuit efficiency, recurs throughout ZK system design.</p>
+</blockquote>
+<p>Finally, parallelization: most zkVMs are inherently sequential, each instruction depending on the previous state. But physical computation increasingly relies on parallelism. How do we prove parallel programs efficiently? How do we exploit prover parallelism for sequential programs?</p>
+<p>The zkVM race demonstrates a recurring pattern: performance improvements come from both algorithms (better proof systems, smarter memory arguments) and systems engineering (GPU kernels, distributed proving, careful memory management). The field is young enough that order-of-magnitude gains still come regularly.</p>
+<p>But speed means nothing if the proofs are wrong.</p>
+<h2 id="formal-verification"><a class="header" href="#formal-verification">Formal Verification</a></h2>
+<h3 id="the-invisible-bugs"><a class="header" href="#the-invisible-bugs">The Invisible Bugs</a></h3>
+<p>A bug in a ZK system is uniquely dangerous. Unlike a crash, which announces itself loudly, a soundness bug operates in silence. An attacker exploits it to forge proofs; the verifier accepts; the system behaves as though everything is fine. By the time the compromise is discovered, the damage is done.</p>
+<p>High-profile vulnerabilities have been found in deployed systems: missing constraint checks that allowed witnesses to satisfy constraints they shouldn't, incorrect range assumptions that permitted overflow attacks, field confusion bugs where values were interpreted in the wrong field. These are not hypothetical risks. They have happened. They will happen again.</p>
+<h3 id="current-efforts"><a class="header" href="#current-efforts">Current Efforts</a></h3>
+<p>Several approaches are gaining traction. Verified compilers prove that compilation from a high-level circuit language to low-level constraints preserves semantics. If the compiler is verified, bugs in the source circuit remain bugs in the source circuit, not silent specification violations introduced by translation.</p>
+<p>Machine-checked formal soundness proofs (in Coq, Lean, Isabelle) establish that the protocol is sound by construction. A formal proof eliminates entire classes of bugs.</p>
+<p>Static analysis tools detect common vulnerability patterns in circuit code: unconstrained variables, degree violations, missing range checks. These catch bugs before deployment rather than after exploitation.</p>
+<h3 id="open-problems-2"><a class="header" href="#open-problems-2">Open Problems</a></h3>
+<p>The verification challenge is the gaps between verified components. You might verify the compiler but not the runtime, the protocol but not the implementation, the circuit but not the witness generator. Bugs hide at the boundaries. End-to-end verification, covering the entire stack from source code to final proof, remains an open problem.</p>
+<p>Automated bug finding offers a complementary approach. Can we build fuzzers or symbolic executors specifically designed for ZK circuits? The search space is enormous, but constraint systems have structure that might enable efficient exploration.</p>
+<p>Perhaps the hardest challenge: verification of optimized implementations. The fastest code uses hand-tuned assembly, GPU kernels, FPGA bitstreams. These are inherently hard to verify. How do we maintain security guarantees when performance demands low-level optimization?</p>
+<p>Formal verification addresses correctness; the next frontier is raw performance.</p>
+<h2 id="hardware-acceleration"><a class="header" href="#hardware-acceleration">Hardware Acceleration</a></h2>
+<h3 id="the-computational-bottleneck"><a class="header" href="#the-computational-bottleneck">The Computational Bottleneck</a></h3>
+<p>Prover computation is dominated by a few operations: multi-scalar multiplication (computing $\sum_i s_i \cdot G_i$ for scalar and point vectors), number-theoretic transforms (converting between coefficient and evaluation representations), and hash evaluations (for FRI, Merkle trees, Fiat-Shamir).</p>
+<p>These workloads share a common structure: massive parallelism with minimal branching. CPUs are optimized for the opposite: branch prediction, cache locality, and general-purpose control flow. This mismatch creates opportunity.</p>
+<h3 id="current-approaches"><a class="header" href="#current-approaches">Current Approaches</a></h3>
+<p>GPUs provide 10-100× speedup for MSM and NTT, which are massively parallel by nature. Libraries like cuSNARK and ICICLE offer CUDA implementations. FPGAs offer energy efficiency and latency advantages, with the ability to implement custom arithmetic units for specific field sizes. ASICs represent the ultimate optimization: custom chips designed specifically for ZK proving. Several companies are developing these, betting that proof generation will become a significant computational market.</p>
+<h3 id="open-problems-3"><a class="header" href="#open-problems-3">Open Problems</a></h3>
+<p>Memory bandwidth increasingly dominates. Large circuits require gigabytes of data; memory transfer between CPU and GPU often exceeds computation time. Minimizing data movement requires new algorithms designed with memory hierarchy in mind.</p>
+<p>This suggests a deeper opportunity: algorithm-hardware co-design. Current proof systems were designed for CPUs. What if we designed protocols that explicitly exploit GPU or ASIC parallelism? The FFT is elegant but assumes certain memory access patterns. A proof system designed around GPU memory hierarchy might look very different.</p>
+<p>Decentralized proving poses its own challenges. How do we distribute proving across many machines without trusted coordination? Recursive composition provides one answer (each machine proves a piece, proofs aggregate), but the coordination overhead is substantial.</p>
+<p>Hardware acceleration speeds up individual provers. But often the bottleneck isn't proving one thing fast enough; it's proving <em>many</em> things at all.</p>
+<h2 id="aggregation-and-batching"><a class="header" href="#aggregation-and-batching">Aggregation and Batching</a></h2>
+<h3 id="the-verification-problem"><a class="header" href="#the-verification-problem">The Verification Problem</a></h3>
+<p>Blockchain applications face a scaling challenge on the verification side. A rollup might process millions of transactions. A privacy system might have millions of users. Each transaction, each credential, each computation generates a proof. Verifying them individually costs $O(n)$ time. For large $n$, verification becomes the bottleneck even if each individual proof is fast.</p>
+<h3 id="current-techniques"><a class="header" href="#current-techniques">Current Techniques</a></h3>
+<p>Three main approaches have emerged. Recursive aggregation proves that you verified $n$ proofs; the aggregation proof attests to all underlying proofs, making verification cost constant regardless of $n$. Batch verification uses clever randomization to check $n$ proofs with work sublinear in $n$; pairing-based proofs can sometimes batch to roughly 2× the cost of a single verification. Proof compression wraps a large proof (STARK) in a small proof (Groth16); the inner proof is never revealed, and the outer proof serves as a constant-size attestation.</p>
+<h3 id="open-problems-4"><a class="header" href="#open-problems-4">Open Problems</a></h3>
+<p>Recursion adds significant prover overhead since proving verification is expensive. Can we aggregate proofs without proving verification? Some approaches use algebraic structure (e.g., aggregating KZG openings), but general solutions remain elusive.</p>
+<p>Incremental aggregation poses another challenge. Given an aggregate of $n$ proofs, how do we add proof $n+1$ without recomputing from scratch? Naive recursion requires touching all previous proofs.</p>
+<p>Cross-system aggregation may be the most ambitious goal: can we aggregate proofs from <em>different</em> proof systems into a single attestation? A Groth16 proof and a STARK proof combined without exposing either?</p>
+<p>Aggregation addresses the question of how to combine proofs after they exist. But there's an earlier bottleneck, one that often dominates total proving time.</p>
+<h2 id="witness-generation"><a class="header" href="#witness-generation">Witness Generation</a></h2>
+<h3 id="the-hidden-cost"><a class="header" href="#the-hidden-cost">The Hidden Cost</a></h3>
+<p>Discussions of prover efficiency focus on the cryptographic work: computing commitments, running sum-check, evaluating polynomials. But there's a step before that. The witness includes not just the prover's secret input but all intermediate values in the computation. For a circuit with $n$ gates, the witness has $O(n)$ elements. Computing these elements (executing the circuit) can take longer than the proving step itself.</p>
+<p>This hidden cost explains why benchmarks sometimes mislead. A proof system might advertise &quot;10 million constraints per second,&quot; but if witness generation runs at 1 million constraints per second, the advertised speed is unreachable.</p>
+<h3 id="current-approaches-1"><a class="header" href="#current-approaches-1">Current Approaches</a></h3>
+<p>Several techniques help. Parallel witness generation computes independent portions simultaneously. Witness streaming generates values on-demand rather than materializing everything upfront, reducing peak memory. Witness compression stores only a subset of values and recomputes others when needed, trading computation for space.</p>
+<h3 id="open-problems-5"><a class="header" href="#open-problems-5">Open Problems</a></h3>
+<p>For zkVMs, witness generation from traces is a key bottleneck. The execution trace (the sequence of states the CPU passed through) already exists. Translating it into the format the prover needs is expensive. This translation often dominates end-to-end proving time.</p>
+<p>Incremental witness update matters for interactive applications. When the input changes slightly, can we update the witness without recomputing entirely? For applications where inputs evolve over time (games, simulations, collaborative editing), this could unlock new use cases.</p>
+<p>Witness generation is a systems problem: engineering, not cryptography. But it increasingly determines real-world performance. The most elegant protocol means nothing if witness generation is the bottleneck.</p>
+<p>All the techniques we've discussed (field choice, post-quantum assumptions, zkVMs, verification, hardware, aggregation, witness generation) serve as building blocks for applications. The most demanding application on the horizon may be machine learning.</p>
+<h2 id="privacy-preserving-machine-learning"><a class="header" href="#privacy-preserving-machine-learning">Privacy-Preserving Machine Learning</a></h2>
+<h3 id="the-intersection"><a class="header" href="#the-intersection">The Intersection</a></h3>
+<p>Zero-knowledge proofs enable tantalizing possibilities for machine learning: prove that a model was trained correctly on a claimed dataset without revealing the training data; prove that an inference was computed correctly without revealing the model or the input; prove that a model satisfies certain properties (fairness, robustness) without revealing the model itself.</p>
+<p>Privacy-preserving ML could transform healthcare (prove diagnosis without revealing patient data), finance (prove creditworthiness without revealing financial history), and countless other domains.</p>
+<h3 id="the-current-state"><a class="header" href="#the-current-state">The Current State</a></h3>
+<p>Proof of training remains prohibitively expensive. A GPT-scale model has billions of parameters; training involves trillions of operations. Current SNARKs cannot handle computations of this scale, not remotely close.</p>
+<p>Proof of inference is more tractable. Small neural networks (thousands to tens of thousands of parameters) have been proven. But even here, the overhead is substantial: 100× or more compared to native inference.</p>
+<h3 id="open-problems-6"><a class="header" href="#open-problems-6">Open Problems</a></h3>
+<p>Scaling to large models is the central challenge. Can we prove inference for models with millions of parameters? The constraint count is daunting, but perhaps structure (repeated layers, sparse activations) can be exploited.</p>
+<p>Non-linearities create a specific bottleneck. ReLU, softmax, and other activation functions are expensive in arithmetic circuits. Approximating them efficiently, or designing &quot;ZK-friendly&quot; architectures that use amenable non-linearities, could unlock significant improvements.</p>
+<p>Current approaches often require hand-optimized circuits for specific model architectures. Model-agnostic techniques that work for <em>any</em> architecture without manual optimization remain elusive.</p>
+<p>ZK is not the only path to privacy-preserving ML. Fully homomorphic encryption (FHE) enables encrypted inference: the model owner computes on encrypted data without seeing the inputs. The trust model differs: FHE hides inputs from the server, while ZK proves correctness to the client. Hybrid approaches combining ZK and FHE are under active research. See Chapter 26 for a broader discussion of how ZK relates to FHE and other programmable cryptography primitives.</p>
+<p>Privacy-preserving ML is perhaps the most ambitious application of ZK proofs. Success would require advances across nearly every frontier we've discussed: better proof systems, faster hardware, efficient witness generation, formal verification. It's a stress test for the entire field.</p>
+<p>We've surveyed the practical frontiers. But the practical advances rest on theoretical foundations, and those foundations have their own open questions.</p>
+<h2 id="theoretical-foundations"><a class="header" href="#theoretical-foundations">Theoretical Foundations</a></h2>
+<h3 id="fundamental-questions"><a class="header" href="#fundamental-questions">Fundamental Questions</a></h3>
+<p>Beyond the engineering challenges, deep theoretical questions remain open.</p>
+<p>What is the optimal soundness error for a given proof size? We have constructions, but we lack matching lower bounds. Perhaps dramatically better systems are possible; perhaps we're already close to optimal. Tight bounds would tell us whether to keep searching or to focus elsewhere.</p>
+<p>Does deep recursion preserve knowledge soundness? Current theory suggests the security reduction degrades with recursion depth. Is this inherent, or an artifact of our proof techniques? The answer matters for the recursive composition that underpins modern zkVMs.</p>
+<p>Can we build succinct proofs without <em>any</em> computational assumption, purely from interaction and randomness? The theoretical complexity of IP (interactive proofs) suggests limits, but the exact boundaries remain unclear.</p>
+<p>What if multiple provers, each with partial information, jointly convince a verifier? Multi-prover SNARKs might enable new efficiency tradeoffs or trust models.</p>
+<h3 id="connections-to-broader-theory"><a class="header" href="#connections-to-broader-theory">Connections to Broader Theory</a></h3>
+<p>ZK proofs touch fundamental questions in theoretical computer science.</p>
+<p>SNARK techniques have implications for complexity theory: questions about circuit lower bounds, algebraic computation, and the structure of NP. Progress on SNARKs sometimes yields progress on these foundational questions, and vice versa.</p>
+<p>The assumptions underlying SNARKs (knowledge assumptions, generic group model) are stronger than standard cryptographic assumptions. Are they actually true? Their validity is a matter of ongoing debate.</p>
+<p>Information theory asks: what are the fundamental limits of proof compression? How much can you prove with how few bits? These questions connect to the deepest problems in theoretical computer science.</p>
+<p>These questions matter beyond intellectual curiosity. Tight lower bounds would tell us whether current systems are close to optimal or whether dramatically better constructions await discovery. The answers will shape the field's long-term trajectory.</p>
+<h2 id="closing-perspective"><a class="header" href="#closing-perspective">Closing Perspective</a></h2>
+<p>The frontiers we've surveyed span a remarkable range: from the algebraic structure of binary fields to the engineering of GPU kernels, from quantum threat models to the economics of decentralized proving markets. What unites them is a common goal: making proofs smaller, faster, and more trustworthy.</p>
+<p>The field is young. Systems that seemed optimal five years ago have been superseded. Techniques dismissed as impractical have become standard. The gap between theory and practice has narrowed faster than anyone predicted.</p>
+<p>Some patterns emerge from the chaos. Post-quantum concerns are driving a shift toward hash-based systems. zkVMs are becoming the default abstraction for provable computation. Multilinear polynomials are displacing univariate encodings. Hardware acceleration is transitioning from optional to essential. Formal verification is gaining recognition as necessary, not nice-to-have.</p>
+<p>But predictions are dangerous in a field moving this fast. The most important development of the next five years may not appear on any current research agenda. It may come from an unexpected connection between existing techniques, or from a problem domain no one is currently targeting.</p>
+<p>What we can say with confidence: the fundamental primitives work. Sum-check, polynomial commitments, and recursive composition have proven themselves. The remaining questions are about optimization, about engineering, about scaling to real-world demands. Those are the kinds of questions that, historically, get solved.</p>
+<p>But ZK proofs are not the only approach to computing on secrets. They're the first to reach satisfying practicality, but they're part of a larger landscape: fully homomorphic encryption, program obfuscation, and the convergence of techniques from multiple branches of programmable cryptography. The next chapter steps back to see where ZK fits in that broader picture, and where the paths are beginning to merge.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="24-mpc-and-zk-parallel-paths.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="26-zk-in-the-cryptographic-landscape.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="24-mpc-and-zk-parallel-paths.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="26-zk-in-the-cryptographic-landscape.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </body>
+</html>
