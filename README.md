@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/cover/zkBookCover.png" alt="zkBook Cover" width="400">
+  <img src="images/others/frontLandscape.png" alt="zkBook Cover">
 </p>
 
 <h1 align="center">Minimizing Trust, Maximizing Truth</h1>
@@ -51,4 +51,9 @@ zkBook/
 ├── web/              # mdBook web version
 └── zkBook.pdf        # Pre-built PDF
 ```
- 
+
+---
+
+<p align="center">
+  <img src="images/others/backLandscape.png" alt="zkBook Back Cover">
+</p>
