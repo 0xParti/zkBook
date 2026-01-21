@@ -2,6 +2,8 @@
 
 In 1981, Manuel Blum posed a simple question: can two people play a fair game of coin-flipping over the telephone?
 
+Blum was working on what cryptographers called **Mental Poker**: how can two people play a card game over the phone without a trusted dealer? How do I know you didn't shuffle the Aces to the top of the deck? The coin flip was the atomic unit of this problem. Get that right, and you could build up to full card games.
+
 The problem seems impossible. Alice flips a coin and announces "heads." Bob has no way to verify she actually flipped anything. She might have waited to hear his guess first. Or she might change her answer after hearing his response. Without shared physical reality, without a coin both parties can see, how can either trust the outcome?
 
 Blum's solution introduced one of the most fundamental primitives in cryptography. Alice doesn't announce her flip directly. Instead, she first sends a *commitment*: a cryptographic object that locks in her choice without revealing it. Only after Bob makes his guess does Alice *open* the commitment, proving what she had chosen all along. The commitment is binding (Alice cannot change her answer after sending it) and hiding (Bob learns nothing until the reveal).
@@ -11,7 +13,6 @@ This two-phase structure, commit then reveal, turns out to be exactly what our p
 This is the **binding problem**. The verifier's randomness is meant to catch a cheating prover off-guard. But if the prover can adapt their answers after seeing the challenge, they can tailor responses to pass. The polynomial identity testing that underlies our protocols becomes meaningless.
 
 We need a mechanism that forces the prover to fix their polynomial before verification begins.
-
 
 
 
@@ -86,6 +87,8 @@ For any message $m$, the commitment $C = g^m \cdot h^r$ is a uniformly random gr
 
 The two distributions are identical: not just computationally indistinguishable, but *statistically* identical. Even an unbounded adversary cannot determine the committed value from the commitment alone.
 
+**The Paint Analogy.** Think of $g^m$ as a specific color of paint (say, blue for $m = 10$). Think of $h^r$ as a random bucket of paint mixed in. Because $h^r$ can be *any* color depending on $r$, adding it to blue produces a mixture that looks essentially random. If you see purple, it could be blue + red, or yellow + violet. Without knowing the exact shade of the random mixer ($r$), the original color ($m$) is completely masked.
+
 ### The Independence Requirement
 
 There's a critical subtlety: the generators $g$ and $h$ must be *independently chosen* such that nobody knows $\log_g h$.
@@ -96,7 +99,7 @@ $$C = g^m h^r = g^m (g^x)^r = g^{m + xr}$$
 She can open this as $(m', r')$ for any $m'$ by computing $r' = r + (m - m')/x$. The verification passes because:
 $$g^{m'} h^{r'} = g^{m'} g^{x(r + (m - m')/x)} = g^{m' + xr + m - m'} = g^{m + xr} = C$$
 
-In practice, $g$ and $h$ are generated using "nothing-up-my-sleeve" constructions, for instance hashing different strings to curve points, ensuring nobody could have engineered a known relationship between them.
+If Alice knows this relationship $h = g^x$, she holds a **trapdoor**. It allows her to open the commitment to *any* value she wants. This is why trusted setups in SNARKs are so sensitive: if the creator knows the "toxic waste" (the secret exponents used to generate the parameters), they can forge proofs. We prevent this by generating $g$ and $h$ from "nothing-up-my-sleeve" numbers like the digits of $\pi$ or by hashing different strings to curve points, ensuring nobody knows the discrete log relationship.
 
 
 
@@ -324,11 +327,11 @@ These requirements conflict. If commitments are independent of values (hiding), 
 
 **The resolution**: Relax one property to *computational* rather than *information-theoretic*:
 
-- **Computationally binding, perfectly hiding**: Hash-based commitments. Finding two values with the same hash is computationally hard, but any commitment could theoretically open to multiple values.
+- **Perfectly hiding, computationally binding**: Pedersen commitments. As we proved earlier, for any message $m$ there exists an $r$ that produces any given commitment, so an unbounded adversary cannot determine which value is inside. But finding two openings requires solving discrete log, so binding holds against efficient adversaries. Even an all-powerful being cannot tell which value is committed (perfect hiding), but a quantum computer could eventually break the lock (computational binding).
 
-- **Perfectly binding, computationally hiding**: Pedersen commitments with known discrete log relation. Each commitment has exactly one opening, but determining the value requires solving discrete log.
+- **Perfectly binding, computationally hiding**: Hash-based commitments $C = H(m \| r)$. A hash function is deterministic: each $(m, r)$ pair maps to exactly one commitment, and collision resistance means you cannot find two pairs that collide. The value is locked in tight (perfect binding). But an unbounded adversary could brute-force all possible inputs to find $(m, r)$ (computational hiding).
 
-This tradeoff shapes the design space. For ZK proofs, we typically want hiding (don't reveal the witness) and accept computational binding (secure against poly-time adversaries). The choice affects which hardness assumptions the scheme rests on.
+This tradeoff shapes the design space. For ZK proofs, we typically want hiding (don't reveal the witness) and accept computational binding (secure against poly-time adversaries). Pedersen commitments are the natural choice: the witness stays perfectly hidden, and binding holds as long as discrete log is hard.
 
 
 

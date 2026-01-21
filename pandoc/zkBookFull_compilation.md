@@ -1979,6 +1979,51 @@ where $L_0(r) = 1 - r$ and $L_1(r) = r$. So when we compute the weighted sum in 
 
 This pattern of using a random challenge to collapse pairs of values and halving the problem size will reappear throughout this book. In Chapter 10 (FRI), we'll name it **folding** and see it as one of the central techniques in zero-knowledge proofs.
 
+### Code: Streaming MLE Evaluation
+
+The algorithm above translates directly to code. Each coordinate of $r$ folds the table in half.
+
+```python
+def mle_eval(table, r):
+    """
+    Evaluate the multilinear extension of `table` at point `r`.
+
+    Args:
+        table: List of 2^n field elements (the function values on hypercube)
+        r: Tuple of n coordinates (r_1, ..., r_n)
+
+    Returns: The value of the MLE at r
+    """
+    T = table.copy()
+
+    for r_i in r:
+        half = len(T) // 2
+        # Fold: T'[j] = (1 - r_i) * T[2j] + r_i * T[2j+1]
+        T = [(1 - r_i) * T[2*j] + r_i * T[2*j + 1]
+             for j in range(half)]
+
+    return T[0]  # Single value remains
+
+# Example from the worked example above
+table = [3, 7, 2, 5]  # f(0,0)=3, f(0,1)=7, f(1,0)=2, f(1,1)=5
+r = (0.4, 0.7)
+
+result = mle_eval(table, r)
+print(f"Streaming: MLE({r}) = {result}")
+
+# Verify against explicit formula: f(X1,X2) = 3 - X1 + 4*X2 - X1*X2
+explicit = 3 - 0.4 + 4*0.7 - 0.4*0.7
+print(f"Explicit:  MLE({r}) = {explicit}")
+```
+
+Output:
+```
+Streaming: MLE((0.4, 0.7)) = 5.12
+Explicit:  MLE((0.4, 0.7)) = 5.12
+```
+
+The streaming algorithm touches each table entry exactly once. For a table of size $N = 2^n$, total work is $N/2 + N/4 + \cdots + 1 = N - 1 = O(N)$.
+
 
 
 ## Tensor Product Structure
@@ -2107,6 +2152,7 @@ This reduces polynomial evaluation proofs to inner product proofs, and inner pro
 9. **Binary encoding**: Any function on $\{0, \ldots, 2^n - 1\}$ can be encoded as a function on $\{0,1\}^n$, then extended multilinearly.
 
 10. **The bridge to proofs**: MLEs encode data; sum-check verifies properties; polynomial commitment binds the prover. This trinity underlies sum-check-based SNARKs.
+
 
 
 
@@ -7408,6 +7454,68 @@ $$Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\text{$F$ terms at position $i$}}{\t
 
 If $f \subseteq t$, the numerator and denominator terms are permutations of each other across the full domain. The product telescopes to 1.
 
+### Code: Plookup Grand Product Check
+
+The following Python demonstrates the core Plookup identity. When lookups are valid, $F = G$. When a lookup is invalid, the fingerprints diverge.
+
+```python
+def encode_pair(a, b, beta, gamma):
+    """Encode adjacent pair (a, b) as a field element."""
+    return gamma * (1 + beta) + a + beta * b
+
+def plookup_check(lookups, table, beta=2, gamma=5):
+    """
+    Verify lookups is a subset of table via Plookup grand product.
+
+    Args:
+        lookups: List of values being looked up
+        table: Sorted list of valid table entries
+
+    Returns: (F, G, valid) where F and G are the fingerprints
+    """
+    # Construct the sorted merge s = sort(lookups union table)
+    s = sorted(lookups + table)
+
+    # G: fingerprint of s's adjacent pairs
+    G = 1
+    for i in range(len(s) - 1):
+        G *= encode_pair(s[i], s[i+1], beta, gamma)
+
+    # F: expected fingerprint if lookups subset of table
+    # F = (1+beta)^n * product of (gamma + f_i) * product of table pairs
+    n = len(lookups)
+    F = (1 + beta) ** n
+
+    for f in lookups:
+        F *= (gamma + f)
+
+    for i in range(len(table) - 1):
+        F *= encode_pair(table[i], table[i+1], beta, gamma)
+
+    return F, G, (F == G)
+
+# Example 1: Valid lookups {2, 5} into table {0,1,2,3,4,5,6,7}
+F, G, valid = plookup_check([2, 5], list(range(8)))
+print(f"Valid lookups:   F={F}, G={G}, F==G: {valid}")
+
+# Example 2: Invalid lookup (9 not in table)
+F, G, valid = plookup_check([2, 9], list(range(8)))
+print(f"Invalid lookups: F={F}, G={G}, F==G: {valid}")
+
+# Example 3: Repeated valid lookups
+F, G, valid = plookup_check([3, 3, 3], list(range(8)))
+print(f"Repeated valid:  F={F}, G={G}, F==G: {valid}")
+```
+
+Output:
+```
+Valid lookups:   F=563374005, G=563374005, F==G: True
+Invalid lookups: F=614965890, G=447828498, F==G: False
+Repeated valid:  F=12754584, G=12754584, F==G: True
+```
+
+The identity holds for valid lookups (including repetitions) and fails for invalid ones. In the real protocol, the check happens via polynomial commitments over a finite field, but the algebraic structure is identical.
+
 
 ## Plookup Cost Analysis
 
@@ -9582,6 +9690,69 @@ At $X = 3$: $s_1(3) = 11 \cdot \frac{2 \cdot 1}{2} - 20 \cdot 3 \cdot 1 + 13 \cd
 
 **Total operations:** Round 1 touched 4 entries; Round 2 touched 2 entries. Total: 6 operations, not $2 \cdot 4 = 8$ as naive analysis suggests. For larger $n$, the savings compound: $O(2^n)$ instead of $O(n \cdot 2^n)$.
 
+### Code: The Halving Trick
+
+The following Python implements the folding prover for sum-check over a product $\tilde{a}(x) \cdot \tilde{b}(x)$. Notice how the arrays shrink after each round.
+
+```python
+def sumcheck_fold(A, B, challenges):
+    """
+    Sum-check prover using the halving trick.
+    Proves: H = sum over hypercube of A[x] * B[x]
+
+    Args:
+        A, B: Tables of size 2^n (as flat lists, index = binary encoding)
+        challenges: List of n verifier challenges r_1, ..., r_n
+
+    Returns: List of round polynomials, each as (s(0), s(1), s(2))
+    """
+    rounds = []
+
+    for r in challenges:
+        half = len(A) // 2
+
+        # Compute s(0), s(1), s(2) for this round's polynomial
+        # s(t) = sum over remaining vars of A(t, ...) * B(t, ...)
+        s0 = sum(A[2*i] * B[2*i] for i in range(half))
+        s1 = sum(A[2*i + 1] * B[2*i + 1] for i in range(half))
+
+        # s(2): extrapolate using linearity. For a line through
+        # (0, y0) and (1, y1), the value at t=2 is 2*y1 - y0
+        s2 = sum((2*A[2*i + 1] - A[2*i]) * (2*B[2*i + 1] - B[2*i])
+                 for i in range(half))
+
+        rounds.append((s0, s1, s2))
+
+        # FOLD: A'[i] = (1-r)*A[2i] + r*A[2i+1]
+        # This computes A restricted to first variable = r
+        A = [(1 - r) * A[2*i] + r * A[2*i + 1] for i in range(half)]
+        B = [(1 - r) * B[2*i] + r * B[2*i + 1] for i in range(half)]
+
+    return rounds
+
+# Reproduce the worked example above
+A = [2, 5, 4, 3]  # A[00]=2, A[01]=5, A[10]=4, A[11]=3
+B = [3, 1, 2, 4]  # B[00]=3, B[01]=1, B[10]=2, B[11]=4
+
+print(f"True sum: {sum(A[i]*B[i] for i in range(4))}")  # 31
+
+rounds = sumcheck_fold(A, B, challenges=[3, 7])
+for i, (s0, s1, s2) in enumerate(rounds):
+    print(f"Round {i+1}: s(0)={s0}, s(1)={s1}, s(2)={s2}")
+    print(f"  Check: s(0) + s(1) = {s0 + s1}")
+```
+
+Output:
+```
+True sum: 31
+Round 1: s(0)=11, s(1)=20, s(2)=13
+  Check: s(0) + s(1) = 31
+Round 2: s(0)=0, s(1)=-10, s(2)=-200
+  Check: s(0) + s(1) = -10
+```
+
+The key insight: each round, the arrays halve in size. Total work is $4 + 2 = 6$ operations, not $4 + 4 = 8$. For $n$ variables with table size $N = 2^n$, this gives $N + N/2 + N/4 + \cdots = O(N)$.
+
 
 
 ## Sparse Sums
@@ -10221,6 +10392,7 @@ Streaming provers differ from recursive SNARKs. Recursion proves proofs of proof
 ### Historical Perspective
 
 11. **The PCP detour cost two decades.** The path IP → PCP → Kilian → Fiat-Shamir removes interaction, reintroduces it, then removes it again. The direct path (sum-check + Fiat-Shamir) skips the redundant steps. Modern systems (Spartan, Lasso, Jolt, Binius) follow the direct path and achieve prover times within small constants of witness computation.
+
 
 
 

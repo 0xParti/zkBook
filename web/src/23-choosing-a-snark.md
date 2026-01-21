@@ -1,6 +1,6 @@
 # Chapter 23: Choosing a SNARK
 
-In 2016, Zcash launched with Groth16. The choice seemed obvious: smallest proofs, fastest verification, mature implementation. But Groth16 required a trusted setup ceremony. Six participants generated randomness, then destroyed their computers. If even one had been compromised, the entire currency would be unsound, and no one would ever know.
+In 2016, Zcash launched with Groth16. The choice seemed obvious: smallest proofs, fastest verification, mature implementation. But Groth16 required a trusted setup ceremony. Six participants generated randomness, then destroyed their computers. The protocol was secure only if at least one participant was honest. If all six had colluded or been compromised, they could reconstruct the secret, mint unlimited currency, and no one would ever know.
 
 Three years later, the Zcash team switched to Halo 2. No trusted setup. The proofs were larger. The proving was slower. But the existential risk evaporated.
 
@@ -57,6 +57,8 @@ The hierarchy:
 - **Superlinear**: Some theoretical constructions (impractical at scale)
 
 The $\log n$ factor seems innocuous. It determines whether a proof finishes during a coffee break or overnight.
+
+But asymptotic complexity tells only half the story. FFT-based provers (Groth16, PLONK) jump randomly through memory, thrashing caches and stalling on RAM latency. Sum-check provers scan linearly, keeping data streaming through the cache hierarchy. At billion-constraint scale, the memory access pattern can matter as much as the operation count.
 
 ### Trust Assumptions
 
@@ -189,7 +191,9 @@ STARKs require more care. The execution trace is exposed during proving, then ma
 
 Tornado Cash used Groth16. Zcash used Groth16, then Halo 2. Aztec uses UltraPlonk and Honk (PLONK variants co-developed by the Aztec team). The pattern: mature implementations with extensive auditing, because privacy failures are catastrophic and silent.
 
-Aztec's architecture is instructive. Private functions execute client-side, inside a local proving environment. The user's device generates the proof; sensitive data never leaves the machine. Only the proof and minimal public inputs reach the network. This client-side proving model means the proof system must be efficient enough to run on consumer hardware, ruling out anything that requires server-grade resources for reasonable latency.
+The architecture splits into two camps. **Server-side proving** (zkRollups, zkVMs) runs provers on powerful infrastructure. The witness data reaches the server, which generates proofs and posts them on-chain. Privacy comes from the proof hiding witness details from the chain, not from the prover. **Client-side proving** (Aztec, Zcash) runs provers on user devices. Sensitive data never leaves the machine. Only the proof and minimal public inputs reach the network.
+
+Client-side proving constrains system choice dramatically. A browser or mobile device can't match datacenter hardware. Aztec's architecture is instructive: private functions execute locally, requiring proof systems efficient enough for consumer hardware. This rules out anything demanding server-grade resources for reasonable latency.
 
 ### Post-Quantum Applications
 
@@ -210,6 +214,8 @@ Transparency is the only option. STARKs for large computations, Bulletproofs for
 The larger proofs are not a bug. They are the manifestation of a theorem: you cannot simultaneously minimize proof size, eliminate trust, and achieve post-quantum security. Something must give. In low-trust environments, you know what to sacrifice.
 
 ## The Trade-Off Triangle
+
+Project managers know the Iron Triangle: Fast, Good, Cheap. Pick two. SNARKs have their own version: **Succinct, Transparent, Fast Proving**. The physics of cryptography enforces the same brutal constraint.
 
 Three properties stand in fundamental tension: **proof size, prover time, and trust assumptions**.
 

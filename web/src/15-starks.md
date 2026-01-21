@@ -82,7 +82,9 @@ But FRI alone proves only that *some* polynomial is committed. We need to prove 
 
 The proof systems of previous chapters represent computation as circuits: directed acyclic graphs where wires carry values and gates impose constraints. This is a natural model for expressing single computations, but it handles iteration awkwardly. A loop executing $n$ times becomes $n$ copies of the loop body, each a separate subcircuit. The structure that made the loop simple to write (the repetition of identical operations) is obscured in the flattened graph.
 
-STARKs adopt a different model: the **state machine**. A computation is a sequence of states $S_0, S_1, \ldots, S_{T-1}$ evolving over discrete time. Each state is a tuple of register values. A transition function $f$ maps $S_i$ to $S_{i+1}$. The function $f$ is fixed, the same at every timestep. Only the register values change.
+STARKs adopt a different model: the **state machine**.
+
+Think of a computation as a **flip book animation**. In the circuit model, you tear out every page, lay them flat on the floor, and wire them together with string showing which drawings connect to which. The result is a sprawling diagram where the sequential flow is lost in a web of connections. In the state machine model, you keep the book bound. Each page is a complete snapshot (the state at one moment), and you write down one rule of physics that governs how any page transforms into the next. The rule is the same for every page flip. To verify the animation, you don't need to trace all the strings; you just check that each pair of adjacent pages obeys the physics. A computation is a sequence of states $S_0, S_1, \ldots, S_{T-1}$ evolving over discrete time. Each state is a tuple of register values. A transition function $f$ maps $S_i$ to $S_{i+1}$. The function $f$ is fixed, the same at every timestep. Only the register values change.
 
 This model fits iterative computation like a glove. A hash function running for $n$ rounds is $n$ applications of the same round function. A CPU executing $n$ instructions is $n$ applications of the same instruction-processing logic (with the instruction itself read from a register). The uniformity across timesteps isn't merely notational convenience. It's the key to efficient proofs.
 
@@ -138,6 +140,11 @@ If the trace is valid, $C(X)$ vanishes on $H' = \{1, \omega, \ldots, \omega^{T-2
 $$Q(X) = \frac{C(X)}{Z_{H'}(X)}$$
 
 is a polynomial of known degree. If $C(X)$ doesn't vanish on $H'$ (if the trace violates the transition constraint somewhere) then $Q(X)$ isn't a polynomial. It's a rational function with poles at the violation points.
+
+> [!note] Why Constraint Degree Matters
+> The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.
+>
+> This creates a fundamental trade-off. Higher-degree constraints let you express more complex transitions in a single step, but they blow up the prover's work. A degree-8 constraint over a million-step trace produces a composition polynomial of degree ~8 million, requiring proportionally more commitment and FRI work. Most practical AIR systems keep constraint degree between 2 and 4, accepting more trace columns (more registers) to avoid high-degree terms. The art of AIR design is balancing expressiveness against this degree bottleneck.
 
 **Boundary constraints** pin down the inputs and outputs. Transition constraints say "each step follows the rules"; boundary constraints say "we started here and ended there." In our $3^8$ example:
 
@@ -245,6 +252,9 @@ The verifier *locally recomputes* what $C(x)$ should be: plug the trace values i
 Why does this work? The prover committed to the trace *before* learning the query points (Fiat-Shamir). If the trace violates any constraint, the composition "polynomial" isn't actually low-degree; it has poles. FRI catches this. If the trace is valid but the prover committed to a *different* composition, the two disagree at most points (Schwartz-Zippel). The random queries catch this.
 
 The AIR-FRI link is where the abstract (FRI proves low-degree) meets the concrete (this specific polynomial encodes this specific computation).
+
+> [!note] DEEP-FRI vs. Standard FRI
+> The protocol described here uses the **DEEP method** (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree *on $D$* but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ *outside* $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The "domain extension" refers to this expansion beyond $D$; "eliminating pretenders" refers to catching cheaters whose polynomials only *pretend* to be correct within the original domain.
 
 
 

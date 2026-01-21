@@ -1,14 +1,22 @@
 # Chapter 1: The Trust Problem
 
-> *"A proof that requires trust in the prover is not yet a proof, it is a promise."*
+In the summer of 1821, two mathematicians sat in a room in London, exhausted and frustrated. Charles Babbage and John Herschel had been tasked with checking the Nautical Almanac, a book of astronomical tables that sailors used to navigate the globe.
 
-You send your computation to the cloud. The cloud sends back an answer.
+At the time, a "computer" was not a machine. It was a job title. Clerks calculated these tables by hand, other clerks checked their work, and printers typeset the results. Every step was a point of failure. As Babbage and Herschel compared the calculations against the printed proofs, they found error after error. A wrong digit in a logarithm didn't just mean a failed exam; it meant a ship running aground on a reef in the West Indies.
+
+Exasperated, Babbage slammed the table and declared: "I wish to God these calculations had been executed by steam!"
+
+That outburst launched the age of mechanical computation. Babbage spent the rest of his life designing engines to generate mathematical tables automatically, removing the human element from execution. If the machine was built correctly, its outputs could be trusted.
+
+Two centuries later, we have fulfilled Babbage's wish. We have steam—now silicon—executing calculations at speeds he couldn't have imagined. But in solving the speed problem, we reintroduced the trust problem in a new form.
+
+You send your calculation to the cloud. The cloud sends back an answer.
 
 Why should you believe it?
 
-This question sounds almost paranoid until you think carefully about what's at stake. The server might be compromised. The operator might be malicious. The hardware might be faulty. The software might contain bugs. Even if everything works correctly, how would you *know*? The only evidence you have is the answer itself, and the answer, by itself, proves nothing.
+The server might be compromised. The operator might be malicious. The hardware might be faulty. The software might contain bugs. Even if everything works correctly, how would you *know*? The only evidence you have is the answer itself, and the answer, by itself, proves nothing.
 
-Here's the fundamental asymmetry: executing a computation takes resources (time, memory, energy). But *checking* whether the computation was done correctly... also takes resources. In many cases, the same resources. If you could check the answer cheaply, you wouldn't have outsourced the computation in the first place.
+Here's the fundamental asymmetry: executing a computation takes resources (time, memory, energy). But *checking* whether the computation was done correctly also takes resources. In many cases, the same resources. If you could check the answer cheaply, you wouldn't have outsourced the computation in the first place.
 
 This is the **trust problem in computation**: how do you verify without redoing all the work?
 
@@ -51,7 +59,21 @@ For a moment, consider what "cheap verification" would even mean. The computatio
 
 But this seems impossible. How can you verify a computation without understanding what it computed? How can you understand what it computed without retracing its steps? The answer is computed from the input through a long chain of operations; surely checking requires following that chain?
 
-The remarkable discovery of the 1980s and 1990s was that this intuition is wrong.
+### The Cost of Blind Trust
+
+On February 25, 1991, during the Gulf War, a Patriot missile battery in Dhahran, Saudi Arabia, failed to intercept an incoming Iraqi Scud. The missile struck an American barracks, killing 28 soldiers.
+
+The cause was a software bug. The Patriot's tracking system measured time in tenths of a second using a 24-bit register, then multiplied by 0.1 to convert to seconds. But 0.1 has no exact binary representation — it's a repeating fraction, like 1/3 in decimal. The system truncated it, introducing a tiny error of about 0.000000095 seconds per tenth.
+
+Tiny, but cumulative. The battery had been running for 100 hours. Over that time, the error accumulated to 0.34 seconds. For a Scud traveling at Mach 5, that's a tracking error of over 600 meters. The missile defense system calculated that the incoming Scud was outside its range gate and didn't fire.
+
+The bug had been discovered two weeks earlier. Israeli defense forces, who had noticed the drift, warned the U.S. Army and recommended rebooting the system regularly to reset the clock. A software patch was developed. It arrived in Dhahran on February 26 — one day after the attack.
+
+Twenty-eight soldiers died because a computation was trusted without verification. The system worked exactly as programmed; the program was wrong. No one checked.
+
+Whether the error comes from a hacker in the server room or a rounding bug in the floating-point unit, the result is the same: a wrong answer accepted as truth. Validity proofs don't care about intent; they care about correctness. They catch malice and accident alike.
+
+The remarkable discovery of the 1980s and 1990s was that cheap verification *is* possible.
 
 
 
@@ -133,6 +155,8 @@ The class **IP** contains all languages with such protocols where the verifier r
 
 ### Multi-Prover Interactive Proofs (MIP)
 
+IP was powerful—it captured all of PSPACE—but verification still required multiple rounds of back-and-forth, and proofs weren't succinct. What if we could constrain the prover more tightly to gain more verification power?
+
 What if the verifier could interrogate *multiple* provers who cannot communicate with each other?
 
 Imagine two suspects in separate rooms: the classic police interrogation. The detective asks each suspect questions, comparing answers for consistency. If the suspects are telling the truth, their stories align effortlessly. If they're lying, they can't coordinate their lies without communicating, and they can't communicate. The detective doesn't need to know the truth themselves; they only need to catch inconsistencies between the two stories.
@@ -150,6 +174,8 @@ The gap from PSPACE to NEXP is vast. The non-communication constraint is what ma
 This idea of forcing commitment before challenge reappears throughout SNARK design. When we study polynomial commitment schemes, we'll see the same principle: the prover commits to a polynomial, then the verifier challenges. The commitment plays the role of the second prover: it locks in answers before the questions are known.
 
 ### Probabilistically Checkable Proofs (PCP)
+
+MIP was even more powerful—it captured NEXP—but it required *two separate provers*. In practice, we usually have just one prover. Could we get similar power without needing to literally interrogate two parties in separate rooms?
 
 Here the model shifts from interaction to *query access*. The prover writes down a static proof string $\pi$ (potentially very long), which is just a sequence of symbols like $\pi = (\pi_1, \pi_2, \pi_3, \ldots, \pi_m)$. The verifier doesn't read the whole string. Instead, they pick a few positions at random and look only at those symbols. For example, the verifier might flip some coins, decide to look at positions 17, 42, and 803, read $\pi_{17}$, $\pi_{42}$, and $\pi_{803}$, and make a decision based only on those three values.
 
@@ -187,7 +213,9 @@ This connection was key to proving MIP = NEXP and to subsequent PCP construction
 
 ### Interactive Oracle Proofs (IOP)
 
-The models above involve a choice: interaction (IP) or query access (PCP). **Interactive Oracle Proofs** combine both.
+The PCP theorem was a landmark—it showed any NP statement has a proof checkable with constant queries. But PCPs require enormous proof strings, and they're non-interactive (the prover must anticipate all possible verifier randomness). IP had efficient interaction but no query access. Could we combine the best of both?
+
+**Interactive Oracle Proofs** do exactly that.
 
 In an IOP, the protocol has multiple rounds. In each round, the prover sends a *proof string* (or, more abstractly, an *oracle*). The verifier can query this oracle at chosen positions, then sends a challenge. The prover responds with another oracle, and so on.
 
@@ -209,11 +237,11 @@ The IOP abstraction separates the *protocol logic* from the *implementation of o
 
 ### Linear PCPs
 
-A further refinement, important for understanding Groth16 and pairing-based SNARKs.
+IOPs gave us a clean abstraction, but implementing them required a way to make oracles concrete and binding. A key insight: if we restrict what *kind* of queries the verifier can make, we can use cryptography to enforce that restriction. This leads to Linear PCPs.
 
 In a standard PCP (as described above), the proof is a string of symbols and the verifier reads a few specific positions: "give me $\pi_{17}$, $\pi_{42}$, and $\pi_{803}$." In a **Linear PCP**, the proof is still a vector of values $\vec{\pi} = (\pi_1, \pi_2, \ldots, \pi_k)$, but the verifier can only ask for linear combinations: "give me $\sum_i q_i \cdot \pi_i$ for my chosen weights $q$."
 
-Think of it as a library where you can't check out books, but you can ask the librarian to compute weighted sums of page counts. "Give me 2 times the pages in book 1, plus 3 times the pages in book 3, plus 1 times the pages in book 7." The librarian answers with a single number. You ask several such questions. From the answers (weighted sums of the underlying data), you try to verify some property of the books themselves.
+Think of it as a library where you can't open the books—that would reveal the witness. You can only ask the librarian to weigh books in specific combinations. "Put 2 copies of book 1 on the scale, plus 3 copies of book 3, plus 1 copy of book 7, and tell me the total weight." The librarian answers with a single number. You ask several such questions. From these weighted sums, you try to verify some property of the books without ever seeing their contents.
 
 The linearity constraint is extraordinarily powerful. If the verifier is restricted to weighted-sum queries, we can use cryptography to *enforce* this restriction. Here's the key insight: **certain cryptographic structures only allow weighted-sum operations, nothing else**.
 

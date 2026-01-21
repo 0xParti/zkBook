@@ -8,11 +8,13 @@ Understanding when to use which is not academic curiosity; it's essential for SN
 
 ## The Divide
 
-The two paradigms differ in their fundamental approach to constraint verification:
+The two paradigms differ in their fundamental approach to constraint verification. At the deepest level, the split is *geometric*: where does your data live?
 
-**Quotienting-based PIOPs.** Encode constraints using univariate polynomials over a multiplicative domain (typically roots of unity). Prove constraint satisfaction by demonstrating that the vanishing polynomial divides the error polynomial. The machinery is algebraic: division, remainder, quotient.
+**Quotienting-based PIOPs** (Groth16, PLONK, STARKs) place data on a **circle**. Evaluation points are roots of unity, cycling around the unit circle in the complex plane. Constraints become questions about divisibility: does the error polynomial vanish on this circular domain? The machinery is algebraic (division, remainder, quotient) and the key algorithm is the FFT, which converts between point-values on the circle and polynomial coefficients.
 
-**Sum-check-based PIOPs.** Encode constraints using multilinear polynomials over the Boolean hypercube. Prove constraint satisfaction by taking a random linear combination and reducing to sum-check. The machinery is probabilistic: randomization collapses exponentially many constraints into one.
+**Sum-check-based PIOPs** (Spartan, HyperPlonk, Jolt) place data on a **hypercube**. Evaluation points are vertices of the $n$-dimensional Boolean cube $\{0,1\}^n$. Constraints become questions about sums: does the weighted average over all vertices equal zero? The machinery is probabilistic (randomization collapses exponentially many constraints into one) and the key algorithm is the halving trick, which scans data linearly.
+
+For a decade, the circle dominated because its mathematical tools (pairings, FFTs) matured first. But the hypercube has risen recently because it fits better with how computers actually work: bits, arrays, and linear memory scans.
 
 Both achieve the same goal: succinct verification of arbitrary computations. Both ultimately reduce to polynomial evaluation queries. But they arrive there by different paths, and those paths have consequences.
 
@@ -112,6 +114,8 @@ The quotient polynomial has degree at most $2N - 2 - N = N - 2$. Computing it re
 
 The prover's dominant costs: FFT for quotient computation, MSM for commitment.
 
+The hidden cost in univariate systems is not just the $O(N \log N)$ time complexity but the *memory access pattern*. FFTs require "butterfly" operations that shuffle data across the entire memory space: element $i$ interacts with element $i + N/2$, then $i + N/4$, and so on. These non-local accesses cause massive cache misses on modern CPUs. In contrast, sum-check's halving trick scans data linearly (adjacent pairs combine), which is cache-friendly and easy to parallelize across cores. For large $N$, the memory bottleneck often dominates the arithmetic.
+
 
 
 ## The Sum-Check Path
@@ -176,6 +180,15 @@ The prover's dominant costs: sum-check field operations, PCS opening proofs.
 | **Interaction** | 1 round (after commitment) | $n$ rounds (sum-check) |
 | **Sparsity handling** | Quotient typically dense | Natural via prefix-suffix |
 
+> [!note] Signal Processing vs. Statistics
+> The two paradigms embody different engineering mindsets.
+>
+> **Quotienting is signal processing.** It treats data like a sound wave. To check constraints, it runs a Fourier Transform (FFT) to convert the signal into a frequency domain where errors stick out like a sour note. Divisibility by $Z_H$ is the test: a clean signal has no energy at the forbidden frequencies.
+>
+> **Sum-check is statistics.** It treats data like a population. To check constraints, it takes a random weighted average (expected value) over the whole population. If the average is zero, the population is healthy. No frequency analysis required, just a linear scan.
+>
+> This explains the performance gap. FFTs require "shuffling" data across the entire memory space (butterfly operations), which causes cache misses on modern CPUs. Sum-check scans data linearly, which is cache-friendly and trivially parallelizable.
+
 The quotient polynomial is the key difference. Quotienting requires it; sum-check doesn't. For dense constraints, this may not matter much: the quotient is proportional to the constraint size. But for sparse constraints, the quotient can be far larger than the non-zero terms, wasting commitment effort.
 
 
@@ -225,6 +238,8 @@ The access indicator matrix $ra$ is sparse (each read touches exactly one cell) 
 | **Extra commitment** | Accumulator polynomial $Z$ | Access matrices (tensor-decomposed) |
 | **Structured access** | No special benefit | Exploits sparsity naturally |
 | **Read-write memory** | Requires separate handling | Unified with wiring |
+
+Notice the algebraic shift: permutation arguments use **products** (accumulators that multiply ratios), while memory checking uses **sums** (access counts weighted by values). In finite fields, sums are generally cheaper than products. Sums linearize naturally (the sum of two access patterns is the combined access pattern), while products require careful accumulator bookkeeping. This is why memory checking integrates more cleanly with sum-check's additive structure.
 
 For circuits with random wiring, both approaches have similar cost. The permutation argument requires an accumulator commitment; memory checking requires access matrices. The difference emerges with structure: repeated reads from the same cell, locality in access patterns, or mixing read-only and read-write data all favor the memory checking view.
 

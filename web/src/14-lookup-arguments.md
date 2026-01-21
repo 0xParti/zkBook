@@ -1,8 +1,10 @@
 # Chapter 14: Lookup Arguments
 
-By 2019, PLONK had solved the trusted setup problem: one ceremony for all circuits. Yet circuit designers faced a different bottleneck. A 64-bit range check required 65 constraints. An 8-bit XOR required 25. Every non-algebraic operation exploded into bit decomposition, dominating the constraint count of real-world circuits. zkVMs executing millions of instructions faced circuit sizes driven not by computational complexity, but by *encoding overhead*.
+In 2019, ZK engineers hit a wall.
 
-The following year, Ariel Gabizon and Zachary Williamson, the same researchers who had created PLONK, published a deceptively simple observation. The problem wasn't that range checks or bitwise operations were inherently expensive. The problem was that constraint systems asked the wrong question. Proving *how* you computed something required algebraic encoding. Proving *that* your result appeared in a precomputed table required only set membership. They called the technique **Plookup**.
+They wanted to verify standard computer programs, things like SHA-256 or ECDSA signatures, but the circuits were exploding in size. The culprit was the *bitwise operation*. In a silicon CPU, checking `a XOR b` takes one cycle. In R1CS arithmetic, it took roughly 30 constraints to decompose the numbers into bits, check the bits, and reassemble them. Trying to verify a 64-bit CPU instruction set was like trying to simulate a Ferrari using only gears made of wood.
+
+Ariel Gabizon and Zachary Williamson realized they didn't need to simulate the gears. They just needed to check the answer key. This realization, that you can replace *computation* with *table lookups*, broke the 64-bit wall. It allowed circuits to stop "thinking" about XORs and start "remembering" them.
 
 The insight built on earlier work (Bootle et al.'s 2018 "Arya" paper had explored lookup-style arguments), but Plookup made it practical by repurposing PLONK's permutation machinery. The 65,536 valid 16-bit integers become a table. The $2^{16}$ XOR triples become a table. Membership in these tables costs three constraints, regardless of what the table encodes. The architecture shifted, and complexity moved from constraint logic to precomputed data.
 
@@ -21,6 +23,8 @@ The formal problem:
 Given a multiset $f = \{f_1, \ldots, f_n\}$ of witness values (the "lookups") and a public multiset $t = \{t_1, \ldots, t_d\}$ (the "table"), prove $f \subseteq t$.
 
 **Why "lookup"?** Imagine you're proving a circuit that computes XOR. The table $t$ contains all valid XOR triples: $(0,0,0), (0,1,1), (1,0,1), (1,1,0)$. Your circuit claims $a \oplus b = c$ for some witness values. Rather than encoding XOR algebraically, you "look up" the triple $(a,b,c)$ in the table. If it's there, the XOR is correct. The multiset $f$ collects all the triples your circuit needs to verify; the subset claim $f \subseteq t$ says every lookup found a valid entry.
+
+**The Dictionary Analogy.** Imagine you want to prove you spelled "Cryptography" correctly. The *arithmetic approach* would be to write down the rules of English grammar and phonetics, then derive the spelling from first principles. Slow, complex, error-prone. The *lookup approach* would be to open the Oxford English Dictionary to page 412, point to the word "Cryptography," and say "there." The lookup argument is simply proving that your tuple (the word you claim) exists in the set (all valid English words). You don't need to understand *why* it's valid; you just need to show it's in the book.
 
 A naive approach might compare products: if $\prod (f_i + \gamma) = \prod (t_j + \gamma)$, the multisets are equal. But subset is weaker than equality, since $f$ may use only some table entries, possibly with repetition.
 
@@ -161,6 +165,16 @@ where $m$ depends on how many lookups occur per gate (typically 1 or 2).
 
 **Sorting check**: Adjacent elements of $s$ satisfy $s_{i+1} \geq s_i$, typically enforced via a small range check on differences.
 
+**Wait, why isn't sorting enough?** If $s$ is sorted, doesn't that prove $f \subseteq t$? Not quite. We also need to prove that $s$ contains *exactly* the elements of $f$ and $t$, no more, no less. This is the role of the permutation argument.
+
+The complete logic is:
+
+1. $s$ is a permutation of $(f \cup t)$. (So no new numbers appeared out of thin air.)
+2. $s$ is sorted. (So duplicates are adjacent.)
+3. Every adjacent pair in $s$ is valid (either a repeat, or a step that exists in the table).
+
+If all three hold, then every element in $f$ must have found a matching buddy in $t$. A cheating prover cannot slip in a value that's not in the table, because it would create an invalid adjacent pair that neither repeats nor exists as a table step.
+
 ### Verification
 
 The verifier checks the batched PLONK constraints. No table-size-dependent work: verification cost is independent of $d$.
@@ -233,6 +247,68 @@ At each step:
 $$Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\text{$F$ terms at position $i$}}{\text{$G$ terms at position $i$}}$$
 
 If $f \subseteq t$, the numerator and denominator terms are permutations of each other across the full domain. The product telescopes to 1.
+
+### Code: Plookup Grand Product Check
+
+The following Python demonstrates the core Plookup identity. When lookups are valid, $F = G$. When a lookup is invalid, the fingerprints diverge.
+
+```python
+def encode_pair(a, b, beta, gamma):
+    """Encode adjacent pair (a, b) as a field element."""
+    return gamma * (1 + beta) + a + beta * b
+
+def plookup_check(lookups, table, beta=2, gamma=5):
+    """
+    Verify lookups is a subset of table via Plookup grand product.
+
+    Args:
+        lookups: List of values being looked up
+        table: Sorted list of valid table entries
+
+    Returns: (F, G, valid) where F and G are the fingerprints
+    """
+    # Construct the sorted merge s = sort(lookups union table)
+    s = sorted(lookups + table)
+
+    # G: fingerprint of s's adjacent pairs
+    G = 1
+    for i in range(len(s) - 1):
+        G *= encode_pair(s[i], s[i+1], beta, gamma)
+
+    # F: expected fingerprint if lookups subset of table
+    # F = (1+beta)^n * product of (gamma + f_i) * product of table pairs
+    n = len(lookups)
+    F = (1 + beta) ** n
+
+    for f in lookups:
+        F *= (gamma + f)
+
+    for i in range(len(table) - 1):
+        F *= encode_pair(table[i], table[i+1], beta, gamma)
+
+    return F, G, (F == G)
+
+# Example 1: Valid lookups {2, 5} into table {0,1,2,3,4,5,6,7}
+F, G, valid = plookup_check([2, 5], list(range(8)))
+print(f"Valid lookups:   F={F}, G={G}, F==G: {valid}")
+
+# Example 2: Invalid lookup (9 not in table)
+F, G, valid = plookup_check([2, 9], list(range(8)))
+print(f"Invalid lookups: F={F}, G={G}, F==G: {valid}")
+
+# Example 3: Repeated valid lookups
+F, G, valid = plookup_check([3, 3, 3], list(range(8)))
+print(f"Repeated valid:  F={F}, G={G}, F==G: {valid}")
+```
+
+Output:
+```
+Valid lookups:   F=563374005, G=563374005, F==G: True
+Invalid lookups: F=614965890, G=447828498, F==G: False
+Repeated valid:  F=12754584, G=12754584, F==G: True
+```
+
+The identity holds for valid lookups (including repetitions) and fails for invalid ones. In the real protocol, the check happens via polynomial commitments over a finite field, but the algebraic structure is identical.
 
 
 ## Plookup Cost Analysis
@@ -409,11 +485,29 @@ Halo2, developed by the Electric Coin Company (Zcash), integrates lookups native
 
 **Ecosystem**: Scroll, Taiko, and other L2s built on Halo2 rely on its lookup system for zkEVM implementation.
 
+### The Memory Bottleneck
+
+All the protocols above share a fundamental limitation: **the prover must commit to polynomials whose degree scales with table size**.
+
+For Plookup, the sorted vector $s$ has length $n + d$ (lookups plus table). For LogUp, the multiplicity polynomial has degree $d$. For Caulk, the table polynomial $t(X)$ must be committed during setup. In every case, a table of size $2^{20}$ means million-coefficient polynomials. A table of size $2^{64}$ means polynomials with more coefficients than atoms in a grain of sand.
+
+This is the memory bottleneck. It's not just "expensive"; it's a hard wall. The evaluation table of a 64-bit ADD instruction has $2^{128}$ entries. No computer can store that polynomial, let alone commit to it.
+
+Early zkVMs worked around this by using small tables (8-bit or 16-bit operations) and paying the cost in constraint complexity for larger operations. A 64-bit addition became a cascade of 8-bit additions with carry propagation. It worked, but it was slow.
+
+Lasso breaks through this wall entirely.
+
 ### Lasso and Jolt
 
-Lasso (2023, Setty-Thaler-Wahby) represents a paradigm shift: what if prover costs scaled with *lookups performed* rather than *table size*?
+Lasso (2023, Setty-Thaler-Wahby) represents the solution to the memory bottleneck: prover costs that scale with *lookups performed* rather than *table size*.
 
-**The problem with prior approaches**: Whether Plookup or LogUp, the prover must commit to polynomials whose degree scales with the table. For a table of size $2^{20}$, that's a million-coefficient polynomial. For the evaluation table of a 64-bit ADD instruction (size $2^{128}$), it's impossible.
+**Read-Only vs. Read-Write.** Before diving into the mechanism, distinguish two types of lookups:
+
+*Static tables (read-only)*: Fixed functions like XOR, range checks, or AES S-boxes. The table never changes during execution. Plookup, LogUp, and Lasso excel here.
+
+*Dynamic tables (read-write)*: Simulating RAM (random access memory). The table starts empty and fills up as the program runs. This requires different techniques (like memory-checking arguments or timestamp-based permutation checks) because the table itself is witness-dependent. Jolt uses specialized protocols called Twist and Shout for this.
+
+Lasso focuses on static tables, but its decomposition insight is what makes truly large tables tractable.
 
 **Lasso's insight**: *Decomposable tables*. Many tables have structure: their MLE (multilinear extension) can be written as a weighted sum of smaller subtables:
 

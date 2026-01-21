@@ -1,10 +1,12 @@
 # Chapter 22: Composition and Recursion
 
-No single SNARK dominates all others.
+Could you build a proof system that runs forever? A proof that updates itself every second, attesting to the entire history of a computation, but never growing in size?
 
-This is the fundamental tension of proof system design. Fast provers tend to produce large proofs. Small proofs come from slower provers. Transparent systems avoid trusted setup but sacrifice verification speed. Post-quantum security demands hash-based constructions that bloat proof size.
+The idea sounds impossible. It requires a proof system to verify its own verification logic, to "eat itself." For years, this remained a theoretical curiosity, filed under "proof-carrying data" and assumed impractical.
 
-Every deployed system occupies a point in this multi-dimensional trade-off space. Groth16 sits at one extreme: tiny proofs, blazing verification, but trusted setup and slow proving. STARKs occupy another: transparent and plausibly post-quantum, but megabyte proofs and expensive verification. Bulletproofs, PLONK, and their variants scatter across the landscape.
+This chapter traces how the impossible became routine. We start with **composition**: wrapping one proof inside another to combine their strengths. We then reach **recursion**: proofs that verify themselves, enabling unbounded computation with constant-sized attestations. Finally, we arrive at **folding**: a recent revolution that makes recursion cheap by deferring verification entirely. The destination is IVC (incrementally verifiable computation), where proofs grow with time but stay constant-sized. Today's zkEVMs and app-chains are built on this foundation.
+
+No single SNARK dominates all others. Fast provers tend to produce large proofs. Small proofs come from slower provers. Transparent systems avoid trusted setup but sacrifice verification speed. Post-quantum security demands hash-based constructions that bloat proof size. Every deployed system occupies a point in this multi-dimensional trade-off space.
 
 But here's a thought: what if we could *combine* systems? Use a fast prover for the heavy computational lifting, then wrap its output in a small-proof system for efficient delivery to verifiers. Or chain proofs together, where each proof attests to the validity of the previous, enabling unlimited computation with constant verification.
 
@@ -273,6 +275,8 @@ But the *scalars* $k$ live in a different field. The curve's points form a group
 
 To do $\mathbb{F}_q$ arithmetic inside an $\mathbb{F}_p$ circuit, you must *emulate* it: represent each $\mathbb{F}_q$ element as multiple $\mathbb{F}_p$ elements and implement multiplication/addition using many $\mathbb{F}_p$ operations. A single $\mathbb{F}_q$ multiplication might expand to hundreds of $\mathbb{F}_p$ constraints. The verifier circuit explodes from a few thousand operations to hundreds of thousands.
 
+**Terminology: "native" vs. "emulated" arithmetic.** When we say arithmetic is *native*, we mean it's cheap inside the circuit: one field operation becomes one constraint. A circuit over $\mathbb{F}_p$ can do $\mathbb{F}_p$ arithmetic natively. It must *emulate* $\mathbb{F}_q$ arithmetic, paying 100+ constraints per operation. The curve cycle trick ensures we're always doing native arithmetic by switching fields at every recursive step.
+
 ### Cycles of Curves
 
 **For single composition**, the fix is straightforward: choose an outer curve whose scalar field matches the inner curve's base field. If the inner verifier does $\mathbb{F}_q$ arithmetic, use an outer system over $\mathbb{F}_q$. One wrap, native arithmetic, done.
@@ -373,7 +377,14 @@ If $|V| = 10,000$ gates and $|F| = 1,000$ gates, verification dominates. The pro
 
 Instead of *fully verifying* $\pi_{i-1}$ at step $i$, we **fold** the claim about step $i-1$ with the claim about step $i$. Folding combines two claims into one claim of the same structure, without verifying either.
 
-Think of it this way: instead of settling each step's debt immediately (full verification), we accumulate an IOU (folded claim). After $T$ steps, we have one large IOU. Only this final accumulated claim needs full SNARK verification.
+> [!note] The Debt Analogy
+> Imagine you owe the bank money every day (you must verify a proof).
+>
+> **Traditional recursion:** You pay off the debt in full every single day. Expensive and slow.
+>
+> **Folding:** You go to the bank and say, "Can I combine yesterday's debt with today's debt into one IOU?" The bank agrees, using a random challenge to prevent fraud. You do this for a million days. You never pay a cent. On the very last day, you pay off the single accumulated IOU.
+>
+> Because "combining debts" is far cheaper than "paying them off," you save enormous work. The cost of combining is a few group operations; the cost of paying is a full SNARK proof.
 
 The cost of folding is drastically cheaper than the cost of verification, typically just a handful of group operations.
 
@@ -390,6 +401,8 @@ $$(A \cdot z) \circ (B \cdot z) = u \cdot (C \cdot z) + E$$
 where $u$ is a scalar and $E$ is an "error vector." A standard R1CS instance has $u = 1$ and $E = 0$. Relaxed instances can have $u \neq 1$ and $E \neq 0$, but satisfying a relaxed instance still proves something about the underlying computation.
 
 ### Why Relaxation Enables Folding
+
+Think of the error vector $E$ as a "trash can" for the cross-terms. When we fold two instances, the algebra gets messy: products of sums produce interaction terms that don't belong to either original constraint. Standard R1CS has nowhere to put this mess, so folding breaks the equation. Relaxed R1CS adds a variable ($E$) specifically to hold that mess, keeping the equation valid despite the extra terms.
 
 The key insight is that relaxed R1CS instances can be *linearly combined*. Suppose we want to fold two instances by taking a random linear combination with challenge $r$:
 

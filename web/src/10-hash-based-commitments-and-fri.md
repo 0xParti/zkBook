@@ -1,12 +1,12 @@
 # Chapter 10: Hash-Based Commitments and FRI: The Transparent Alternative
 
-By the mid-2010s, pairing-based SNARKs had proven that succinct proofs were practical. Pinocchio (2013) and Groth16 (2016) showed the way. But Eli Ben-Sasson and his collaborators were growing uncomfortable with a fundamental assumption underlying these systems.
+In 2016, the National Institute of Standards and Technology issued a warning that sent cryptographers scrambling. Quantum computers were coming, and they would break everything built on elliptic curves: RSA, Diffie-Hellman, ECDSA. This included every SNARK that existed. Groth16, the darling of the blockchain world, would become worthless the day a sufficiently powerful quantum computer came online.
 
-Every efficient proof system relied on trusted setup: a ceremony where someone generated secret parameters and, supposedly, destroyed them. "Supposedly" was the problem. How do you prove the secret was actually deleted? How do you audit the ceremony decades later? For systems meant to underpin public infrastructure, this seemed like building on sand.
+The "toxic waste" problem of trusted setups was bad. The "quantum apocalypse" was existential.
 
-They posed a question that shaped the next decade of research: *Can we prove computations using nothing but collision-resistant hash functions?*
+This urgency drove the creation of a new kind of proof system. The goal was not just to remove the trusted setup; it was to build on the only cryptographic foundation that quantum computers cannot break: hash functions. When you use FRI, you are not just verifying a computation. You are future-proofing it against physics itself.
 
-The answer would become FRI (2017) and STARKs (2018): proof systems where "transparency" isn't marketing, but a technical property. No secrets. No ceremonies. No trapdoors that could compromise the system if they leaked, because no trapdoors exist at all.
+The answer came from Eli Ben-Sasson and collaborators: FRI (2017) and STARKs (2018). These are proof systems where "transparency" is not marketing but a technical property. No secrets. No ceremonies. No trapdoors that could compromise the system if they leaked, because no trapdoors exist at all.
 
 ---
 
@@ -41,6 +41,8 @@ For polynomial commitments, we commit to the polynomial's evaluations over a dom
 
 Suppose the prover commits to a function $f: D \to \mathbb{F}$ by Merkle-committing its evaluations on a domain $D$ of size $n$. The prover claims $f$ is a low-degree polynomial (say degree less than $d$).
 
+**The key mental model: a polynomial evaluation vector IS a Reed-Solomon codeword.** If you have a polynomial $f(X)$ of degree $d-1$ and you evaluate it at $n$ points (where $n > d$), the resulting vector $(f(x_1), f(x_2), \ldots, f(x_n))$ is a codeword of the Reed-Solomon code with parameters $[n, d]$. The polynomial's coefficients are the "message"; its evaluations are the "codeword." The extra evaluations beyond the $d$ needed to specify the polynomial are the "redundancy" that lets us detect errors. FRI is fundamentally a test that asks: does this committed vector look like a valid codeword, or has it been corrupted?
+
 **Concrete example**: Say $f(X) = 3 + 2X + 5X^2$ over $\mathbb{F}_{17}$, and we choose domain $D = \{1, 2, 4, 8\}$ (powers of 2 mod 17). The prover evaluates $f$ at each point:
 
 | $x$   | 1  | 2  | 4   | 8   |
@@ -58,6 +60,10 @@ How can the verifier check this without reading all $n$ values?
 **The Reed-Solomon perspective**: View a degree-$d$ polynomial evaluated on $n \gg d$ points as a codeword. Low-degree polynomials form a sparse subset of all possible functions; they're error-correcting codes with high minimum distance.
 
 A function that's *not* a low-degree polynomial must differ from every codeword in many positions. FRI exploits this structure to catch deviations with high probability.
+
+**Proximity, not exactness.** Strictly speaking, FRI does not prove that $f$ *is* a low-degree polynomial. It proves that $f$ is *close* to a low-degree polynomial, meaning it differs from some valid codeword in at most a small fraction of positions (say, 10%). This distinction matters because a cheater could take a valid polynomial and change just one evaluation point. FRI might miss that single corrupted point on any given query.
+
+This is why we rely on the *soundness error*. We tune the parameters (rate, number of queries) so that being "close" is good enough for our application, or so that the probability of missing the difference is cryptographically negligible (e.g., $2^{-128}$). In practice, the gap between "is low-degree" and "is close to low-degree" vanishes into the security parameter.
 
 
 
@@ -256,6 +262,8 @@ The verifier must check that the prover didn't cheat during folding. The key ins
    - Each point $y$ in $D_{i+1}$ has two "preimages" in $D_i$: the values $x$ and $-x$ such that $x^2 = y$
    - The verifier traces back through all rounds
 
+   **Why pairs?** In the domain $D_0$, the points come in pairs $\{x, -x\}$ that both square to the same value $x^2$. This is a property of multiplicative subgroups: if $\omega$ generates $D_0$, then $-1 = \omega^{n/2}$, so $-x$ is also in the group whenever $x$ is. This means the folding structure is perfectly aligned: we always fold $f(x)$ and $f(-x)$ together to get the value at $x^2$ in the next domain. The pairing is not a coincidence; it is why FRI works over multiplicative subgroups.
+
 3. **Query the prover**: Request evaluations at these positions from each committed codeword, with Merkle proofs
 
 4. **Verify consistency**: Check that the folding relationship holds at each round:
@@ -351,6 +359,10 @@ The verifier repeats this process at multiple random query points. Each independ
 
 
 ## Why FRI Works: Security Intuition
+
+**The Tuning Fork Analogy.** Imagine you have a metal bar. You want to know if it is pure gold (a valid low-degree polynomial) or gold-plated lead (an invalid function pretending to be low-degree). You cannot drill into it to read all its coefficients directly. But you can *strike* it with a tuning fork (fold it with a random challenge).
+
+A pure gold bar will ring with a pure tone (stay low-degree) no matter where you strike it. A plated bar might sound okay at first, but as you keep striking it in random places (random $\alpha$ values), the hidden flaws (high-degree terms) will cause the tone to distort. FRI is essentially striking the polynomial repeatedly. If it keeps "ringing true" after $\log d$ random strikes, it must be pure.
 
 **Honest prover**: Starts with a genuine low-degree polynomial. Every folded polynomial remains low-degree. All consistency checks pass perfectly.
 

@@ -290,6 +290,11 @@ Standard modular multiplication: compute $a \cdot b$, then divide by $p$ and tak
 
 Montgomery product: $\bar{c} = \bar{a} \cdot \bar{b} \cdot R^{-1} \mod p$
 
+> [!note] The Shift Analogy
+> Think of Montgomery form as shifting the decimal point. We multiply numbers in a "shifted space" where division by $R$ is just "deleting the last $k$ digits" (a bit shift), which is essentially free in hardware. We only shift back at the end.
+>
+> It's like computing $1.5 \times 2.5$ by working with $15 \times 25 = 375$, then remembering to put two decimal places back: $3.75$. The multiplication happens in the "scaled up" space where the arithmetic is simpler.
+
 Avoids expensive division by using bit shifts and addition. Conversion overhead amortized over many operations.
 
 ### SIMD and Parallelism
@@ -388,6 +393,9 @@ A **curve cycle** pairs two curves where each curve's base field equals the othe
 
 Prove over Pallas, verify in a Vesta circuit; prove over Vesta, verify in a Pallas circuit. The cycle enables indefinite recursion.
 
+> [!note] The BN254/Grumpkin Cycle
+> While Pallas/Vesta is the most famous cycle (used in Halo 2), the BN254/Grumpkin cycle is crucial for Ethereum developers. Since BN254 is precompiled on Ethereum, systems like Aztec use this cycle to verify recursive proofs on-chain cheaply. Grumpkin is a curve whose base field matches BN254's scalar field, enabling the same recursive trick while staying compatible with Ethereum's existing infrastructure.
+
 ## Group Operations
 
 Elliptic curve SNARKs rely on fast group operations.
@@ -407,6 +415,11 @@ Affine coordinates require field inversion (expensive).
 Represent $(x, y)$ as $(X : Y : Z)$ where $x = X/Z$, $y = Y/Z$.
 
 Point addition and doubling use only multiplication, avoiding inversion until final conversion.
+
+> [!note] The No-Division Rule
+> In computer hardware, division is expensive (like doing long division by hand). Multiplication is cheap.
+>
+> Projective coordinates let us represent points as ratios $(X:Y:Z)$ so we can do all our math using only multiplication. We only perform the expensive division once at the very end to convert back. It's like working with fractions: to compute $\frac{1}{3} + \frac{1}{4}$, you do $\frac{4+3}{12}$ and delay the actual division as long as possible.
 
 **Jacobian coordinates**: $(X : Y : Z)$ with $x = X/Z^2$, $y = Y/Z^3$. Optimized for repeated doubling.
 

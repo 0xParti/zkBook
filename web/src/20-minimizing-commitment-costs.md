@@ -39,6 +39,8 @@ Multiplication and comparison are simpler than division. The extra commitments e
 
 This is "untrusted advice," where the prover volunteers additional information that (if verified correct) accelerates the overall proof. The verifier doesn't trust this advice blindly; the constraints ensure it's valid.
 
+The trade-off is specific: we pay for Commitments (cryptography) to save on Degree (arithmetic). Extra committed values mean extra MSM cost, but the constraints that check them can be lower-degree. Since high-degree constraints are expensive to prove via sum-check, the exchange often favors more commitments and simpler constraints.
+
 The pattern generalizes. Any computation with an efficient verification shortcut benefits:
 
 **Square roots.** To prove $y = \sqrt{x}$, the prover commits to $y$ and proves $y^2 = x$ and $y \geq 0$. One multiplication plus a range check, rather than implementing the square root algorithm in constraints.
@@ -422,7 +424,7 @@ Read this as follows: for each dense index $i$, include $q(i)$ if index $i$ corr
 
 This is a sum over $M$ terms and exactly the sum-check form we've used throughout the chapter. The prover runs sum-check; at the end, the verifier needs $\tilde{q}(r)$ at a random point (handled by the underlying PCS) and the selector function evaluated at that point.
 
-The selector function (despite involving $\text{row}(i)$ and $\text{col}(i)$) is efficiently computable, since it's a simple comparison of $i$ against the cumulative heights, which can be done by a small read-once branching program. This means its multilinear extension evaluates in $O(m \cdot 2^k)$ field operations.
+The selector function (despite involving $\text{row}(i)$ and $\text{col}(i)$) is efficiently computable, since it's a simple comparison of $i$ against the cumulative heights. This comparison can be done by a small read-once branching program (essentially a specialized circuit that checks if an index falls within a specific range using very few operations). This means its multilinear extension evaluates in $O(m \cdot 2^k)$ field operations.
 
 ### The Payoff
 

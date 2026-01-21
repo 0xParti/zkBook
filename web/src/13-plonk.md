@@ -1,10 +1,10 @@
 # Chapter 13: PLONK: Universal SNARKs and the Permutation Argument
 
-By 2018, SNARKs had a deployment problem.
+By 2018, Zcash had proven SNARKs worked, but at a terrible logistical cost.
 
-Groth16 gave you the smallest possible proofs (128 bytes, verified in milliseconds). But every circuit required its own trusted setup ceremony. For Zcash, this meant coordinating dozens of participants, generating gigabytes of parameters, and carefully destroying secrets. Change one constraint and the entire process repeated. For production systems deploying many circuits, or circuits that evolve, this constraint became untenable.
+Every time they wanted to upgrade the protocol, they had to run a new Trusted Setup Ceremony. This meant renting secure facilities, coordinating participants across continents, and asking each one to generate randomness, contribute to a multi-party computation, then physically destroy their hardware. The "Powers of Tau" ceremony for the Sapling upgrade involved 87 participants over 10 months. One participant literally put his laptop in a blender. The process worked, but it didn't scale. The cryptographic world needed a setup you could perform once and use forever.
 
-Ariel Gabizon, Zachary Williamson, and Oana Ciobotaru found a different path. Their insight was *permutations*: instead of encoding circuit structure directly into the setup, separate two concerns: what each gate computes (local) and how gates connect (global). The wiring could be encoded as a permutation, checked with a polynomial argument that worked identically for any circuit.
+Ariel Gabizon, Zachary Williamson, and Oana Ciobotaru found the path. Their insight was *permutations*: instead of encoding circuit structure directly into the setup, separate two concerns: what each gate computes (local) and how gates connect (global). The wiring could be encoded as a permutation, checked with a polynomial argument that worked identically for any circuit.
 
 The result was PLONK (2019): **P**ermutations over **L**agrange-bases for **O**ecumenical **N**oninteractive arguments of **K**nowledge. "Oecumenical" signals universality: one ceremony suffices for all circuits up to a maximum size. The setup is also **updatable**: new participants can strengthen its security at any time, without coordination with previous contributors.
 
@@ -130,11 +130,21 @@ Because PLONK's witness consists of three separate vectors $(a, b, c)$, nothing 
 
 **Copy constraints** are the explicit assertions: wire $i$ equals wire $j$. The challenge is proving all copy constraints efficiently (potentially thousands of equality assertions) without enumerating them individually.
 
-
+**A note on terminology**: The name "copy constraint" is slightly misleading. We aren't copying data from one location to another. We are enforcing *equality*: two wire slots that happen to hold the same logical variable must contain identical values. Think of it as a wormhole connecting two distant parts of the circuit instantaneously. The value at $c_1$ doesn't "flow" to $a_2$; rather, they are the same point in the circuit's logical topology, temporarily given different addresses for bookkeeping. The permutation argument detects whether these "same points" actually hold the same value.
 
 ## The Permutation Argument
 
 PLONK's central innovation is reducing all copy constraints to a single polynomial identity via a **permutation argument**, building on techniques from Bayer and Groth (Eurocrypt 2012).
+
+### From Gates to Cycles: The Conceptual Shift
+
+Before diving into the mechanism, understand the key mental shift. So far, we've thought of circuits as *gates*: local computational units that take inputs and produce outputs. Copy constraints seem like *connections between gates*: wire $c_1$ connects to wire $a_2$.
+
+The permutation argument reframes this. Instead of "connections," think of *equivalence classes*. All wires that should hold the same value belong to the same class. Within each class, the wires form a *cycle* under a permutation: $c_1 \to a_2 \to c_1$ (a 2-cycle), or longer chains like $a_1 \to b_3 \to c_5 \to a_1$ (a 3-cycle). Wires with no copy constraints form trivial 1-cycles (fixed points).
+
+The grand product argument then asks: if we traverse each cycle, do all the values match? If wire $c_1$ maps to wire $a_2$ and they share the same value, their contributions to the product cancel. If every cycle closes properly (all values match within the equivalence class), the entire product equals 1.
+
+This shift from "gates and wires" to "values and cycles" is why the permutation argument works. We're not checking connections one by one; we're verifying that the entire wiring topology is consistent in one algebraic stroke.
 
 ### Representing Wiring as a Permutation
 
@@ -173,6 +183,8 @@ By Schwartz-Zippel, equality at random $\gamma$ implies the multisets match.
 The multiset check has a flaw. A cheating prover could satisfy copy constraints on some wires by *violating* them on others, as long as they swap equal amounts. The overall multiset remains unchanged even though specific equalities fail.
 
 **Example**: Circuit requires $c_1 = a_2$. Honest values: $c_1 = 5$, $a_2 = 5$. Cheating prover sets $c_1 = 5$, $a_2 = 99$, but compensates by swapping some other wire that should be $99$ to $5$. The multiset of all values is preserved.
+
+**The ID Badge Analogy.** Imagine a room full of people (values) wearing ID badges (locations). You want to check that everyone is present after they swap seats according to a seating chart (the permutation). If you only check names, people could swap identities. But if each person's badge is permanently fused to their chair number, any swap becomes detectable. The value "5" at position $c_1$ wears a badge reading "5 at $c_1$"; after permutation, it should match "5 at $a_2$." If the values differ, the badges don't match, and the product check fails.
 
 The fix: bind each value to its **location** using a second challenge $\beta$:
 
@@ -578,6 +590,12 @@ More wires mean fewer gates for complex operations.
 ### Higher-Degree Terms
 
 The Poseidon hash uses $x^5$ in its S-box. A custom gate term $Q_{\text{pow5}} \cdot a^5$ computes this in one gate rather than five multiplications.
+
+### Non-Native Arithmetic
+
+A major driver for custom gates is *non-native arithmetic*: computing over a field different from the proof system's native field. PLONK (with BN254) operates over a ~254-bit prime field. But many applications require arithmetic over other fields: Bitcoin uses secp256k1's scalar field, Ethereum signatures use different curve parameters, and recursive proof verification requires operating over the "inner" proof's field.
+
+Without custom gates, non-native field multiplication requires decomposing elements into limbs, performing schoolbook multiplication with carries, and range-checking intermediate results. A single non-native multiplication can cost 50+ native gates. Custom gates can batch these operations, reducing the cost by 5-10×. This is why efficient ECDSA verification (for Ethereum account abstraction or Bitcoin bridge verification) demands sophisticated custom gate design.
 
 ### Boolean Constraints
 

@@ -87,6 +87,14 @@ We'll see exactly how in Chapter 3 when we study the sum-check protocol. But fir
 
 The first magical property: any finite dataset can be encoded as a polynomial.
 
+But first, we must define the terrain. Where do these polynomials live? Not in the real numbers. Remember the Patriot missile from Chapter 1: a rounding error of 0.000000095 seconds, accumulated over time, killed 28 soldiers. Real number arithmetic is treacherous. Equality is approximate, errors accumulate, and 0.1 has no exact binary representation.
+
+Polynomials in ZK proofs live in *finite fields*, mathematical structures where arithmetic is exact. In a finite field, $1/3$ isn't $0.333...$; it's a precise integer. There's no rounding, no overflow, no approximation. Two values are either exactly equal or they're not. This exactness is what makes polynomial "rigidity" possible: if two polynomials differ, they differ exactly, and we can detect it.
+
+It is a historical irony that this structure was discovered by someone who knew he was about to die. In May 1832, twenty-year-old Évariste Galois spent his final night frantically writing mathematics. He had been challenged to a duel the next morning and expected to lose. In those desperate hours, he outlined a new theory of algebraic symmetry, describing number systems that behaved like familiar arithmetic—you could add, subtract, multiply, and divide—but were finite. They didn't stretch to infinity; they looped back on themselves, like a clock.
+
+The next morning, Galois was shot in the abdomen and died the following day. But his "finite fields" turned out to be the perfect environment for computation. Every SNARK, every polynomial commitment, and every error-correcting code in this book lives inside the structure Galois sketched the night before his death.
+
 ### Two Ways to Encode Data
 
 Given a vector $a = (a_1, a_2, \ldots, a_n)$ of field elements, we have two natural polynomial representations:
@@ -106,6 +114,8 @@ Both encodings are useful in different contexts. Coefficient encoding is natural
 ### Lagrange Interpolation: The Existence Guarantee
 
 Why does a polynomial passing through $n$ specified points always exist and why is it unique?
+
+Picture a flexible curve that you need to pin down at specific points. With one point, infinitely many curves pass through it. With two points, you've constrained the curve more, but many still fit. The remarkable fact: with $n$ points, there's *exactly one* polynomial of degree at most $n-1$ that passes through all of them. The points completely determine the curve.
 
 **Theorem (Lagrange Interpolation).** Given $n$ distinct points $(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)$ in a field $\mathbb{F}$, there exists a unique polynomial $p(x)$ of degree at most $n-1$ such that $p(x_i) = y_i$ for all $i$.
 
@@ -141,6 +151,10 @@ Verification: $p(0) = 2$, $p(1) = 1 + 2 + 2 = 5$, $p(2) = 4 + 4 + 2 = 10$. All m
 
 ### The Rigidity of Polynomials
 
+<p align="center">
+  <img src="images/rigidityPoly.png" alt="Polynomial Rigidity">
+</p>
+
 Here's the key property that makes verification possible:
 
 **Two different degree-$d$ polynomials can agree on at most $d$ points.**
@@ -162,6 +176,10 @@ This is why a single random query suffices. The verifier isn't lucky to catch th
 
 
 ## Pillar 2: Randomization - The Schwartz-Zippel Lemma
+
+In 1976, Gary Miller discovered a fast algorithm to test whether a number is prime. There was one problem: proving it correct required assuming the Riemann Hypothesis, one of the deepest unsolved problems in mathematics. Four years later, Michael Rabin found a way out. He modified Miller's test to use random sampling. The new algorithm couldn't *guarantee* the right answer, but it could make errors arbitrarily unlikely—say, less likely than a cosmic ray flipping a bit in your computer's memory. By embracing randomness, Rabin traded an unproven conjecture for a proven bound on failure probability.
+
+This is the paradigm shift: randomness as a *resource* for verification. A cheating prover might fool a deterministic check, but fooling a random check requires being lucky, and we can make luck arbitrarily improbable.
 
 The rigidity of polynomials becomes a verification tool through one of the most important theorems in computational complexity:
 
@@ -437,7 +455,7 @@ $$C(x) = 0 \text{ for all } x \in \{1, 2, \ldots, n\}$$
 **Step 3: Use the Factor Theorem.** The polynomial $C(x)$ equals zero at points $\{1, 2, \ldots, n\}$ if and only if $C(x)$ is divisible by the *vanishing polynomial*:
 $$Z(x) = (x-1)(x-2)\cdots(x-n)$$
 
-This is a polynomial of degree $n$ that's zero exactly on our constraint domain.
+Think of $Z(x)$ as a stencil with holes at $x = 1, 2, \ldots, n$. If $C(x)$ truly equals zero at those points, it passes through the holes perfectly: the division $C(x) / Z(x)$ comes out clean with no remainder. If $C(x)$ misses even one hole (nonzero at some constraint point), it hits the stencil, and the division leaves a remainder. The polynomial doesn't fit.
 
 **Step 4: The divisibility test.** The statement "all constraints are satisfied" becomes: there exists a *quotient polynomial* $H(x)$ such that:
 $$C(x) = H(x) \cdot Z(x)$$

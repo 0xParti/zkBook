@@ -1,12 +1,14 @@
 # Chapter 7: The GKR Protocol: Verifying Circuits Layer by Layer
 
+In 2006, Amazon launched AWS, and the world changed. Companies stopped buying servers and started renting "compute" from invisible data centers. It was efficient, but it created a trust gap. If a bank rents a server to calculate interest rates, how do they know the server isn't buggy, or malicious?
+
+Verifying the computation by re-running it defeats the purpose of outsourcing. You want the cloud to do the heavy lifting, and you want to check the work with the effort of a text message.
+
+In 2008, Shafi Goldwasser, Yael Kalai, and Guy Rothblum published a theoretical solution. They proposed a protocol where a supercomputer could prove a massive calculation to a laptop, and the laptop could verify it in seconds. While it took a decade for hardware and cryptographic engineering to catch up to their math, every modern rollup and scaling solution on Ethereum is spiritually a descendant of that 2008 paper.
+
 The sum-check protocol is extraordinary. It transforms exponentially large sums ($2^n$ terms) into verification that runs in $O(n)$ time, logarithmic in the sum size. But every application we've seen (#SAT, triangle counting, matrix multiplication) requires a custom polynomial tailored to that specific problem. Each new computation demands a new arithmetization.
 
-What if we want to verify *any* computation, not just counting problems?
-
-Real programs don't come as polynomial identities. They come as algorithms: loops, conditionals, data structures, function calls. Before sum-check can help, someone must translate the computation into polynomial form. For every new program, we'd need a mathematician to design a custom reduction.
-
-The GKR protocol, named after Goldwasser, Kalai, and Rothblum, solves this problem elegantly. It provides a *universal* framework for verifying any computation that can be expressed as an arithmetic circuit (which turns out to be everything). Rather than designing a new protocol for each problem, GKR gives us a machine: feed in a circuit, get out an efficient verification protocol.
+What if we want to verify *any* computation, not just counting problems? The GKR protocol provides a *universal* framework for verifying any computation that can be expressed as an arithmetic circuit (which turns out to be everything). Rather than designing a new protocol for each problem, GKR gives us a machine: feed in a circuit, get out an efficient verification protocol.
 
 
 
@@ -93,6 +95,8 @@ Reading this: "Gate $a=0$ in layer 0 is a multiplication gate whose left input c
 The layer has no addition gates, so $\text{add}_0$ is identically zero.
 
 **The key observation**: These predicates depend only on the *circuit structure*, not on the input values. The verifier, who knows the circuit, can compute these predicates efficiently.
+
+**The Switchboard Analogy.** Think of the wiring predicates $\text{add}_i$ and $\text{mult}_i$ as the circuit's switchboard operators. Gate $a$ in layer 0 shouts: "I need inputs!" The switchboard looks up its directory. "Okay, gate $a$, you are a multiplication gate. I am connecting you to gate $b$ and gate $c$ from the previous layer." In the math, $\text{mult}_i(a, b, c) = 1$ is just the switchboard confirming: "Yes, that connection exists." If you ask about a connection that doesn't exist (say, gate 0 to gates 5 and 7), the switchboard says "0." The sum-check protocol essentially asks the switchboard to verify that all the cables are plugged into the right sockets.
 
 
 
@@ -282,6 +286,8 @@ where $d$ is the circuit depth and $\deg(f)$ is the degree of the sum-check poly
 Total: $O(d \log S + n)$ for a depth-$d$ circuit with layers of size at most $S$.
 
 For circuits with "regular" wiring (like FFT butterflies or matrix multiplication), evaluating wiring predicates takes $O(\log S)$ time. The verifier achieves **polylogarithmic verification** in the circuit size!
+
+**Why structure is the holy grail.** If the circuit is random (spaghetti wiring), the verifier has to store the entire wiring diagram ($O(S)$ work), which defeats the purpose of succinctness. But if the circuit is *structured*, like a matrix multiplication where the same wiring pattern repeats thousands of times, the verifier doesn't need to read a massive list of wires. She can write a tiny loop that *generates* the wiring predicates on the fly. This data parallelism is what makes GKR efficient in practice. It is why modern provers like Lasso and Jolt are so fast: they treat computation not as a random circuit, but as a structured, repeating pattern.
 
 **Prover's work**:
 

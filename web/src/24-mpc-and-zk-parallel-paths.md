@@ -4,7 +4,9 @@ In 1982, Andrew Yao posed a puzzle that sounded like a parlor game. Two milliona
 
 The question seems impossible. To compare two numbers, someone must see both numbers. A trusted third party could collect the figures, announce the winner, and burn the evidence. But what if there is no trusted party? What if the millionaires trust no one, not even each other?
 
-Yao proved something remarkable: the comparison can be done. Not by clever social arrangements or legal contracts, but by cryptography alone. The protocol he constructed, now called *garbled circuits*, allows the two parties to jointly compute any function on their private inputs while revealing nothing but the output. Neither party sees the other's input. The trusted third party dissolves into mathematics.
+The stakes extend far beyond money. Satellite operators need to check if their orbits will collide without revealing classified trajectories. Banks need to detect money laundering across institutions without exposing customer data. Nuclear inspectors need to verify warhead counts without learning weapon designs. In each case, the computation requires data that no single party can be trusted to see.
+
+Yao proved something remarkable: the comparison can be done. Not by clever social arrangements or legal contracts, but by cryptography alone. The protocol he constructed, now called *garbled circuits*, allows two parties to jointly compute any function on their private inputs while revealing nothing but the output. Neither party sees the other's input. The trusted third party dissolves into mathematics.
 
 This was the birth of **Secure Multiparty Computation** (MPC). The field expanded rapidly. In 1988, Ben-Or, Goldwasser, and Wigderson showed that with an honest majority of participants, MPC could achieve *information-theoretic* security: no computational assumption required, just the mathematics of secret sharing. The same year, Chaum, Crépeau, and Damgård proved that with dishonest majorities, MPC remained possible under cryptographic assumptions. By the early 1990s, the core theoretical question was settled: any function computable by a circuit could be computed securely by mutually distrustful parties.
 
@@ -103,6 +105,13 @@ Addition and scalar multiplication are free. The cost of MPC concentrates entire
 ### Multiplication: The Challenge
 
 Multiplication breaks the easy pattern. The product of two shares is *not* a valid share of the product. Shamir sharing uses polynomials of degree $t-1$. If parties locally multiply their shares $P_a(j) \cdot P_b(j)$, they get evaluations of the product polynomial $P_a \cdot P_b$, which has degree $2(t-1)$. This polynomial does encode $ab$ at zero, but the threshold has effectively doubled: now $2t-1$ parties are needed to reconstruct, not $t$. Repeated multiplications would make the degree explode.
+
+> [!note] The Paint Analogy
+> Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.
+>
+> Multiplying is like mixing colors: Red times Blue makes Purple. You can't un-mix paint to recover the original colors. Worse, the "shade" of your result depends on both inputs in a non-linear way.
+>
+> Beaver Triples are like pre-mixed paint samples from a store. We don't know the exact shades (the store mixed them secretly), but we know that Sample A mixed with Sample B produces Sample C. When we need to multiply our real secret colors, we use these pre-mixed samples as a reference point, adjusting our result without ever revealing the original colors we started with.
 
 Donald Beaver's solution is elegant. Before the computation begins, distribute shares of random *triples* $(u, v, w)$ satisfying $w = u \cdot v$. Nobody knows $u$, $v$, or $w$ individually, but everyone holds valid shares of all three.
 
@@ -376,7 +385,9 @@ The idea exploits a strange symmetry. In MPC, multiple real parties compute on s
 
 The construction works as follows. The prover secret-shares the witness among $n$ *imaginary* parties. Then the prover simulates the MPC protocol that would compute $R(x, w)$, playing all $n$ roles simultaneously. Each simulated party has a "view": the messages it sent and received, its random tape, its share of the witness. The prover commits to all $n$ views.
 
-The verifier challenges: "Open the views of parties $i$ and $j$." The prover reveals those two views. The verifier checks consistency: do the messages that party $i$ claims to have sent match what party $j$ claims to have received? Did both parties follow the protocol correctly given their views? Does the MPC output equal 1?
+Think of the prover as a one-person theater troupe performing a conversation between three characters (Alice, Bob, Charlie). The prover writes out the full script: what Alice said to Bob, what Bob said to Charlie, what Charlie said to Alice. Then they seal each character's script in a separate envelope.
+
+The verifier challenges: "Open the views of parties $i$ and $j$." (Show me Alice and Bob's envelopes.) The prover reveals those two views. The verifier checks consistency: do the messages that party $i$ claims to have sent match what party $j$ claims to have received? Did both parties follow the protocol correctly given their views? Does the MPC output equal 1? If Alice's script says she sent "7" to Bob, but Bob's script says he received "9" from Alice, the prover is caught lying. By randomly checking different pairs, the verifier catches any inconsistency in the performance.
 
 Why is this sound? If the witness is invalid, the MPC would output 0. For the prover to fake acceptance, they must forge views where the MPC appears to output 1. But faking a valid MPC execution requires consistency across all parties. If any pair of views is inconsistent—messages don't match, or a party deviated from the protocol—the verifier catches it. A cheating prover can make some pairs consistent, but not all. The random challenge catches an inconsistent pair with constant probability. Repeat to amplify.
 
@@ -427,6 +438,8 @@ The theoretical protocols are complete: given enough time and bandwidth, any fun
 ### Communication Patterns
 
 The network topology shapes everything. MPC protocols differ in how parties communicate, and the choice significantly affects performance. In a star topology, all parties route messages through a central dealer or combiner. This simplifies coordination but creates a bottleneck and a single point of failure. In full connectivity, every party communicates directly with every other party. This eliminates the central bottleneck but requires $O(n^2)$ connections. Broadcast protocols have each message go to all parties simultaneously, useful when the computation requires everyone to see the same values (like reconstructing a shared secret).
+
+The bottleneck inversion between ZK and MPC deserves emphasis. In ZK, the bottleneck is usually **compute**: the prover performs heavy cryptographic work (MSMs, FFTs, hashes) and sends relatively small proofs. In MPC, the bottleneck is almost always **bandwidth**: many parties do lightweight operations but exchange massive amounts of data. A ZK prover might spend 10 seconds computing and 10 milliseconds sending. An MPC protocol might spend 10 milliseconds computing and 10 seconds sending. This inversion dictates architecture: you can run a ZK prover on a single powerful machine, but you can't run high-speed MPC over a 4G connection.
 
 Network latency often dominates the cost of MPC. A protocol that requires 100 rounds of communication will be slow even if each round sends only a few bytes. This is why garbled circuits, with their constant round complexity, often outperform secret-sharing MPC for interactive applications despite sending more data. The design choice depends on whether bandwidth or latency is the limiting factor.
 

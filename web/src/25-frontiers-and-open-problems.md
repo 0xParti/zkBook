@@ -1,10 +1,12 @@
 # Chapter 25: Frontiers and Open Problems
 
-How much trust can we actually remove?
+In 1894, physicist Albert Michelson declared that "the more important fundamental laws and facts of physical science have all been discovered." Physics was done; all that remained was measuring constants to more decimal places. Eleven years later, Einstein published Special Relativity. Then came quantum mechanics. Michelson had mistaken a plateau for a summit.
 
-This book has traced a progression: from interactive proofs that required back-and-forth dialogue, to non-interactive systems that need only a single message; from trusted setups where a coordinator could forge proofs, to transparent systems where security rests on public randomness alone; from proofs that scale linearly with computation, to ones logarithmic or even constant in size. Each advance eliminated a form of trust. Each made verification more accessible, more universal, more credible.
+In 2020, SNARKs felt similarly settled. We had Groth16 for minimal proofs and PLONK for universal setups. The trade-offs seemed fixed, the design space mapped. Then came the Lookup Revolution (2020), Folding (2021), and Binary Fields (2023). Each reshaped what we thought possible.
 
-But we are not done. Today's proof systems still demand trust in places we would prefer to eliminate. They rely on cryptographic assumptions that quantum computers may shatter. They waste enormous computational resources proving that small integers satisfy constraints designed for 256-bit fields. They require setup ceremonies that, while transparent, still involve coordination and complexity. The frontier of research is the frontier of trust removal: finding what remains assumed, and engineering it away.
+This chapter is a reminder that we are not at the end of history. The "fundamental laws" of ZK are still being written. The techniques described here are the Special Relativity moments of our decade: advances that didn't refine existing theory but rewrote it.
+
+The frontiers span a remarkable range: from the algebraic structure of binary fields to the engineering of GPU kernels, from quantum threat models to the economics of decentralized proving markets. What unites them is a common goal: making proofs smaller, faster, and more trustworthy.
 
 This chapter surveys those frontiers. Some involve hardness assumptions we cannot yet prove. Others involve efficiency gaps between what theory permits and what practice achieves. A few touch questions so deep that resolving them would reshape our understanding of computation itself. Think of what follows as a map of the territory we have not yet conquered.
 
@@ -21,6 +23,13 @@ This isn't merely inelegant; it's expensive. Field multiplications dominate prov
 ### Binary Fields: The Natural Solution
 
 **Binius** takes a radical approach: work over binary fields $\mathbb{F}_{2^k}$ where field elements are actual $k$-bit strings. A boolean is a 1-bit field element. A byte is an 8-bit field element. No padding, no waste.
+
+> [!note] The Native Language Analogy
+> Imagine a Spanish speaker forced to express every thought in German, even when talking to other Spanish speakers. Every sentence requires mental translation. Simple ideas become laborious.
+>
+> This is what traditional SNARKs do. They force computer data (bits and bytes) into prime fields (large numbers). A single bit becomes a 256-bit integer. The computer "thinks" in binary, but the proof system demands a foreign representation.
+>
+> Binius speaks the computer's native language. It treats bits as bits. It doesn't translate "0" into a 256-bit representation of zero; it keeps it as a single bit. No translation, no overhead.
 
 The arithmetic of binary fields differs from prime fields. Addition is XOR (free in hardware). Multiplication uses polynomial arithmetic over $\mathbb{F}_2$. There are no "negative" elements; the field characteristic is 2. This seems like a step backward; binary fields lack the convenient structure of prime-order groups. But Binius recovers efficiency through clever protocol design.
 
@@ -128,7 +137,9 @@ The zkVM landscape has stratified into distinct architectural approaches, each w
 
 **RISC Zero.** The production workhorse. STARK-based with FRI commitments over the Baby Bear field, targeting RISC-V. Uses continuations to split large computations into bounded segments (~$10^6$ cycles), proves each with STARK, then aggregates via recursion. Final proofs wrap in Groth16 for cheap on-chain verification. The Bonsai network provides prover-as-a-service infrastructure, abstracting away proof generation entirely. R0VM 2.0 (April 2025) reduced Ethereum block proving from 35 minutes to 44 seconds. The "dual-engine" strategy: Bonsai for hosted enterprise proving, Boundless for a decentralized proof marketplace.
 
-**SP1 (Succinct).** The precompile optimizer. Cross-table lookup architecture with a flexible precompile system that accelerates common operations (signature verification, hashing) by 5-10× over raw RISC-V. SP1 Hypercube (2025) moved from STARKs to multilinear polynomials, achieving real-time Ethereum proving: 99.7% of L1 blocks proven in under 12 seconds on 16 GPUs. First general-purpose zkVM to eliminate proximity gap conjectures. The team estimates a real-time prover cluster could be built for ~$100K in hardware.
+*Note on continuations:* Continuations are a specific flavor of recursion. Instead of proving the entire computation history at each step, you prove only the current segment plus a commitment to the previous segment's final state (a memory root or hash). This lets you pause and resume computation at arbitrary points, which is critical for programs that run longer than a single proof cycle allows. Think of it as a checkpoint system: each segment proves "I started from this checkpoint and reached that checkpoint," rather than "I verified everything that came before me."
+
+**SP1 (Succinct).** The precompile optimizer. Cross-table lookup architecture with a flexible precompile system that accelerates common operations (signature verification, hashing) by 5-10× over raw RISC-V. A *precompile* is essentially a "cheat code" for the VM: instead of executing a SHA-256 hash step-by-step through thousands of RISC-V instructions, the VM recognizes the operation and delegates it to a specialized, hand-optimized sub-circuit. Think of it as a GPU inside the CPU specifically for heavy cryptographic math. SP1 Hypercube (2025) moved from STARKs to multilinear polynomials, achieving real-time Ethereum proving: 99.7% of L1 blocks proven in under 12 seconds on 16 GPUs. First general-purpose zkVM to eliminate proximity gap conjectures. The team estimates a real-time prover cluster could be built for ~$100K in hardware.
 
 **Zisk (Polygon spinoff).** The latency minimizer. Spun out of Polygon's zkEVM team (led by co-founder Jordi Baylina) in June 2025, with all Polygon zkEVM IP transferred to the new entity. Built on RISC-V 64, designed from the ground up for low-latency distributed proving. Features a 1.5GHz zkVM execution engine, highly parallelized proof generation, GPU-optimized code, and advanced aggregation circuits. The architecture targets real-time Ethereum block proving via massive parallelization across prover clusters.
 
@@ -237,6 +248,13 @@ Aggregation addresses the question of how to combine proofs after they exist. Bu
 ### The Hidden Cost
 
 Discussions of prover efficiency focus on the cryptographic work: computing commitments, running sum-check, evaluating polynomials. But there's a step before that. The witness includes not just the prover's secret input but all intermediate values in the computation. For a circuit with $n$ gates, the witness has $O(n)$ elements. Computing these elements (executing the circuit) can take longer than the proving step itself.
+
+> [!note] The Hidden Iceberg
+> Academic papers report "prover time" as the time spent on cryptographic operations: MSMs, FFTs, hashes. But the full cost of generating a proof includes witness generation, and this is often the larger piece.
+>
+> Think of an iceberg. The cryptographic prover is the visible tip above water. Witness generation is the massive bulk beneath the surface. A paper might report "proving takes 10 seconds" while silently omitting that witness generation took 60 seconds. The total time to produce a proof is 70 seconds, not 10.
+>
+> This matters because witness generation and proving have different scaling properties. Proving can be parallelized across GPUs; witness generation is often sequential and memory-bound. Optimizing the cryptographic prover by 10× helps less than you'd expect if witness generation dominates.
 
 This hidden cost explains why benchmarks sometimes mislead. A proof system might advertise "10 million constraints per second," but if witness generation runs at 1 million constraints per second, the advertised speed is unreachable.
 

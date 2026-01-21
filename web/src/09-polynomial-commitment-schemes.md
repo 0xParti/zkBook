@@ -1,12 +1,12 @@
 # Chapter 9: Polynomial Commitment Schemes: The Cryptographic Engine
 
-In 2010, Aniket Kate, a graduate student at the University of Waterloo, was thinking about a gap between theory and practice.
+In 2016, six people met in a hotel room to birth the Zcash privacy protocol. Their task: generate a cryptographic secret so dangerous that if even one of them kept a copy, it could forge unlimited fake coins, undetectable forever. They called it "toxic waste."
 
-Interactive proof systems had shown that polynomials were the key to verification: checking a polynomial at a random point could catch cheaters with overwhelming probability. But these protocols assumed the verifier could somehow "see" the polynomial. In practice, the polynomial was huge. Sending it would defeat the purpose of succinct proofs.
+The ceremony was a paranoid ballet. Participants were scattered across the globe, connected by encrypted channels. One flew to an undisclosed location, computed on an air-gapped laptop, then incinerated the machine and its hard drive. Another broadcast their participation live so viewers could verify no one was coercing them. The randomness they generated was combined through multi-party computation, ensuring that if *any single participant* destroyed their secret, the final parameters would be safe.
 
-Kate, together with Gregory Zaverucha and Ian Goldberg, asked: what if we could *commit* to a polynomial without revealing it, then later *prove* individual evaluations without exposing anything else?
+Why such extreme measures? Because polynomial commitment schemes, the cryptographic engine that makes SNARKs work, sometimes require a *structured reference string*: public parameters computed from a secret that must then cease to exist. The Zcash ceremony became legendary in cryptography circles, part security protocol, part performance art. It demonstrated both the power and the peril of pairing-based commitments.
 
-Their answer was KZG, a scheme where the commitment is a single group element (32 bytes), and each evaluation proof is also a single group element. No matter whether the polynomial has 10 coefficients or 10 million, the commitment stays the same size. This was the missing piece that made practical SNARKs possible.
+This chapter explores that peril and its alternatives. We'll see three approaches to polynomial commitments: **KZG**, which achieves constant-size proofs at the cost of trusted setup; **IPA/Bulletproofs**, which eliminates the toxic waste but pays with linear verification; and **Dory**, which threads the needle with logarithmic verification and no trusted setup. Each represents a different answer to the same question: how do you prove facts about a polynomial without revealing it?
 
 ---
 
@@ -57,6 +57,8 @@ This seemingly simple equation has profound consequences. It allows us to check 
 $$e(g^a, g^b) = e(g^c, g)$$
 
 One multiplication check "for free" in the hidden exponent world. This is exactly what polynomial evaluation needs.
+
+**The Laser Pointer Intuition.** Imagine $G_1$ and $G_2$ as two flashlights with polarized lenses at different angles. You can shine each one on a wall ($G_T$) and see a spot. But if you shine *both* through the same point, the interaction of their polarizations creates a unique interference pattern. Knowing the two individual spots, you can predict what the combined pattern should be. This lets you *verify* multiplicative relationships (did these two beams combine correctly?) even though you can never *extract* the individual beam settings from looking at the wall alone. That one-way verification is the cryptographic leverage that makes KZG possible.
 
 ### The Trusted Setup
 
@@ -212,6 +214,8 @@ $$f(z) = \sum_{i=0}^{n-1} c_i z^i = \langle \vec{c}, \vec{z} \rangle$$
 where $\vec{c} = (c_0, \ldots, c_{n-1})$ are coefficients and $\vec{z} = (1, z, z^2, \ldots, z^{n-1})$ is the evaluation vector.
 
 If we can prove inner product claims efficiently, we can prove polynomial evaluations!
+
+> **Connection to Chapter 4.** This is the same inner product structure we saw with multilinear extensions. There, evaluating $\tilde{f}(r_1, \ldots, r_n)$ was an inner product between the coefficient table and Lagrange basis weights. The sum-check protocol exploited this structure by reducing the inner product one variable at a time. IPA does something similar: it reduces the inner product by *folding* both vectors with random challenges, halving the dimension each round. The algebraic trick is the same; only the cryptographic wrapping differs.
 
 ### Pedersen Vector Commitments
 
@@ -461,6 +465,8 @@ But what if we want both transparency *and* efficient verification? This is wher
 ## Dory: Logarithmic Verification Without Trusted Setup
 
 The IPA scheme's $O(n)$ verification is a fundamental limitation: the verifier must compute folded generators. **Dory** breaks this barrier using pairings in a clever way.
+
+**The core insight is "lazy verification."** In IPA, the verifier diligently recalculates the folded generators at each step, doing $O(n)$ work. Dory's verifier is lazier: instead of checking each step, they accumulate commitments and defer all verification to a single final pairing check. It's like a teacher who doesn't grade homework each night, but assigns problems so cleverly that a single final exam can catch any cheating retroactively. The algebraic structure of pairings makes this possible: the verifier can "absorb" all the folding challenges into target group elements, then verify everything at once.
 
 > **Note:** Dory is one of the more advanced commitment schemes covered in this book. The two-tier structure, pairing-based folding, and binding arguments involve subtle cryptographic reasoning. Don't worry if the details don't click on first reading—the key intuition is that pairings allow verification to happen "in the target group" without the verifier touching the original generators directly.
 

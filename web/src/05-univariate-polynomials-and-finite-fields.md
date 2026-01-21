@@ -1,12 +1,12 @@
 # Chapter 5: Univariate Polynomials and Finite Fields
 
-There is something deeply satisfying about roots of unity.
+In 1965, James Cooley and John Tukey published a paper that changed the world. They described an algorithm that could compute Fourier transforms in $O(n \log n)$ time instead of $O(n^2)$. This speedup was the difference between impossible and instant. It launched the digital signal processing revolution, enabling everything from MRI machines to JPEG compression.
 
-Take a special element $\omega$ in a field: one where $\omega^n = 1$ but $\omega^k \neq 1$ for any smaller positive $k$. Such an element is called a **primitive $n$-th root of unity**. Raise it to successive powers: $\omega, \omega^2, \omega^3, \ldots$ and you trace out exactly $n$ distinct values before cycling back to 1. Not every element has this property (most don't). But when one does, the powers form a perfect cyclic structure. In the complex plane, these values are evenly spaced around the unit circle, a perfect $n$-gon inscribed in a circle of radius one.
+But they weren't the first.
 
-This cyclical structure has consequences. When you square all the $n$-th roots of unity, you get the $(n/2)$-th roots, each appearing twice. When you add a root to its "opposite" (half a cycle away), you get zero: $\omega^k + \omega^{k+n/2} = 0$. These aren't coincidences to be memorized; they're manifestations of the underlying symmetry, which we'll explore in detail below.
+Years later, historians discovered that Carl Friedrich Gauss had written down the exact same algorithm in 1805, predating Joseph Fourier's foundational work on Fourier analysis by two years. Gauss used it to calculate the orbits of asteroids Pallas and Juno from astronomical observations. He wrote it in Latin in a notebook, but never published it. The algorithm sat dormant for 160 years.
 
-And this symmetry is *useful*. The Fast Fourier Transform, one of the most important algorithms in all of computing, exists because of roots of unity. Polynomial multiplication, signal processing, and now zero-knowledge proofs all exploit the same beautiful structure.
+That such a powerful technique could be discovered, forgotten, and rediscovered says something about its naturalness. Once you understand the symmetries of roots of unity, the FFT practically writes itself. And those same symmetries now power zero-knowledge proofs.
 
 This chapter develops the univariate polynomial paradigm: finite fields, roots of unity, and the techniques that make systems like Groth16, PLONK, and STARKs possible. Where Chapter 4 explored multilinear polynomials over the Boolean hypercube, here we explore a single variable of high degree over a very different domain.
 
@@ -22,6 +22,8 @@ $$3 + 5 = 8 \equiv 1 \pmod 7$$
 $$3 \times 5 = 15 \equiv 1 \pmod 7$$
 
 The magic is in division. Every nonzero element has a multiplicative inverse: this is guaranteed because $p$ is prime. (More generally, finite fields exist for any prime power $p^k$, but prime fields $\mathbb{F}_p$ are the simplest case.) In $\mathbb{F}_7$, we have $3^{-1} = 5$ because $3 \times 5 = 15 \equiv 1$. You can divide by any nonzero element, and the result is exact (no fractions, no approximations).
+
+This is why we call it a *field*. A *ring* (like the integers $\mathbb{Z}$) lets you add, subtract, and multiply. A *field* lets you also divide. The integers are not a field because $1/2$ isn't an integer. But in $\mathbb{F}_7$, division always works: $1/2 = 1 \cdot 2^{-1} = 1 \cdot 4 = 4$, since $2 \cdot 4 = 8 \equiv 1$.
 
 The nonzero elements $\mathbb{F}_p^* = \{1, 2, \ldots, p-1\}$ form a **cyclic group** under multiplication. This is fundamental: there exists a **generator** $g$ such that every nonzero element is some power of $g$.
 
@@ -362,11 +364,12 @@ We now have two paradigms for polynomial proofs:
 
 | Aspect | Multilinear | Univariate |
 |--------|-------------|------------|
-| **Variables** | $n$ variables, degree 1 each | 1 variable, degree $n-1$ |
+| **Variables** | $n$ variables, degree 1 each | 1 variable, degree $N-1$ |
 | **Domain** | Boolean hypercube $\{0,1\}^n$ | Roots of unity $H$ |
-| **Size** | $2^n$ points | $n$ points |
+| **Size** | $N = 2^n$ points | $N$ points |
 | **Constraint encoding** | Sum over hypercube | Divisibility by $Z_H$ |
 | **Key algorithm** | Recursive halving | FFT |
+| **Prover cost** | $O(N)$ (linear) | $O(N \log N)$ (quasi-linear) |
 | **Verification** | Sum-check protocol | Random evaluation |
 | **Systems** | GKR, Spartan, Lasso | PLONK, Marlin, STARKs |
 

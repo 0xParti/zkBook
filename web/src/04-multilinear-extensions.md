@@ -1,8 +1,16 @@
 # Chapter 4: Multilinear Extensions
 
+In 1971, the Mariner 9 probe became the first spacecraft to orbit another planet. Its mission: map the surface of Mars. But transmitting high-resolution images across 100 million miles of static-filled space was a nightmare. A single burst of cosmic noise could turn a crater into a glitch.
+
+NASA didn't send raw pixels. They used a code developed years earlier by Irving Reed and David Muller: treat the pixel data as values and send evaluations of a *multivariate polynomial*. The Reed-Muller code could correct up to seven bit errors per 32-bit word. When Mariner 9 arrived to find Mars engulfed in a planet-wide dust storm, mission control reprogrammed the spacecraft from Earth and waited. When the dust cleared, the code delivered 7,329 images, mapping 85% of the Martian surface.
+
+The same mathematical structure that gave humanity its first clear look at Mars now powers zero-knowledge proofs. Multivariate polynomials are robust: they let you reconstruct data even when parts are corrupted, or verify data by checking a single random point. This chapter develops that theory.
+
+---
+
 How do you turn data into a polynomial?
 
-This question is more subtle than it first appears. Data is discrete: a list of values, a vector of field elements, the output of gates in a circuit. Polynomials are continuous mathematical objects defined over all of $\mathbb{F}^n$. Bridging this gap is the art of **extension**: taking a function defined on a finite set and stretching it to a polynomial defined everywhere.
+The question is more subtle than it appears. Data is discrete: a list of values, a vector of field elements, the output of gates in a circuit. Polynomials are continuous mathematical objects defined over all of $\mathbb{F}^n$. Bridging this gap is the art of **extension**: taking a function defined on a finite set and stretching it to a polynomial defined everywhere.
 
 The choice of extension matters enormously. A bad extension creates polynomials of exponential degree, destroying efficiency. A good extension preserves structure, enables fast algorithms, and makes random evaluation meaningful.
 
@@ -40,6 +48,12 @@ The hypercube is our *discrete* domain. We want a polynomial that agrees with $f
 
 
 ## Why Multilinear?
+
+In Chapter 2, we used univariate polynomials (Reed-Solomon). Why switch to multivariate now?
+
+**The degree problem.** If you encode $N = 2^{20}$ data points into a single-variable polynomial $p(x)$, that polynomial has degree about one million. Manipulating degree-million polynomials is expensive, requiring heavy FFT operations.
+
+**The multilinear solution.** If you encode the same $2^{20}$ points into a 20-variable multilinear polynomial, the degree in each variable is just 1. The total degree is only 20. By increasing the number of variables, we drastically lower the per-variable degree. This tradeoff (more variables, lower degree) enables the linear-time prover algorithms that power modern systems like HyperPlonk and Lasso, avoiding the expensive FFTs required by univariate approaches.
 
 A polynomial in $n$ variables has terms like $X_1^{a_1} X_2^{a_2} \cdots X_n^{a_n}$ with various exponents. The **degree** in variable $X_i$ is the maximum exponent of $X_i$ across all terms.
 
@@ -250,7 +264,54 @@ $$L_{(b_1, b_2)}(r_1, r_2) = L_{b_1}(r_1) \cdot L_{b_2}(r_2)$$
 
 where $L_0(r) = 1 - r$ and $L_1(r) = r$. So when we compute the weighted sum in Step 1, we're effectively "absorbing" the $L_{b_1}(r_1)$ factor from each term. What remains is a smaller sum over just $b_2$, which we handle in Step 2.
 
-This pattern, using a random challenge to collapse pairs of values and halving the problem size, will reappear throughout this book. In Chapter 10 (FRI), we'll name it **folding** and see it as one of the central techniques in zero-knowledge proofs.
+**The Tournament Bracket.** Think of a single-elimination tournament with $2^n$ players. In each round, pairs compete and half are eliminated. After $n$ rounds, one champion remains. The streaming algorithm works the same way: $2^n$ table entries enter, each round uses a random weight to combine pairs, and after $n$ rounds a single evaluation emerges. The tournament bracket is the structure of multilinear computation.
+
+This pattern of using a random challenge to collapse pairs of values and halving the problem size will reappear throughout this book. In Chapter 10 (FRI), we'll name it **folding** and see it as one of the central techniques in zero-knowledge proofs.
+
+### Code: Streaming MLE Evaluation
+
+The algorithm above translates directly to code. Each coordinate of $r$ folds the table in half.
+
+```python
+def mle_eval(table, r):
+    """
+    Evaluate the multilinear extension of `table` at point `r`.
+
+    Args:
+        table: List of 2^n field elements (the function values on hypercube)
+        r: Tuple of n coordinates (r_1, ..., r_n)
+
+    Returns: The value of the MLE at r
+    """
+    T = table.copy()
+
+    for r_i in r:
+        half = len(T) // 2
+        # Fold: T'[j] = (1 - r_i) * T[2j] + r_i * T[2j+1]
+        T = [(1 - r_i) * T[2*j] + r_i * T[2*j + 1]
+             for j in range(half)]
+
+    return T[0]  # Single value remains
+
+# Example from the worked example above
+table = [3, 7, 2, 5]  # f(0,0)=3, f(0,1)=7, f(1,0)=2, f(1,1)=5
+r = (0.4, 0.7)
+
+result = mle_eval(table, r)
+print(f"Streaming: MLE({r}) = {result}")
+
+# Verify against explicit formula: f(X1,X2) = 3 - X1 + 4*X2 - X1*X2
+explicit = 3 - 0.4 + 4*0.7 - 0.4*0.7
+print(f"Explicit:  MLE({r}) = {explicit}")
+```
+
+Output:
+```
+Streaming: MLE((0.4, 0.7)) = 5.12
+Explicit:  MLE((0.4, 0.7)) = 5.12
+```
+
+The streaming algorithm touches each table entry exactly once. For a table of size $N = 2^n$, total work is $N/2 + N/4 + \cdots + 1 = N - 1 = O(N)$.
 
 
 
@@ -317,9 +378,11 @@ This is the bridge from "data" to "proof": encode data as an MLE, verify propert
 
 Here's a perspective that clarifies many constructions.
 
-A multilinear polynomial $\tilde{f}$ has $2^n$ coefficients. These coefficients live in an abstract "coefficient space."
+A multilinear polynomial $\tilde{f}$ has $2^n$ coefficients (the $c_S$ values in the monomial expansion $\sum_S c_S \prod_{i \in S} X_i$). These coefficients live in an abstract "coefficient space."
 
-But $\tilde{f}$ also has $2^n$ evaluations on the hypercube. These evaluations are just $f(w)$, the original table values.
+But $\tilde{f}$ also has $2^n$ evaluations on the hypercube. These evaluations are just $f(w)$, the original table values you started with.
+
+These are not the same numbers. The table entry $f(0,0) = 3$ in our worked example is not a coefficient of the polynomial. The polynomial $\tilde{f}(X_1, X_2) = 3 - X_1 + 4X_2 - X_1X_2$ has coefficients $\{3, -1, 4, -1\}$, while the table values are $\{3, 7, 2, 5\}$. They're related by the Lagrange interpolation formula.
 
 **The key insight**: For multilinear polynomials, the evaluation table *is* a complete description. You can recover coefficients from evaluations and vice versa. They're just two bases for the same $2^n$-dimensional vector space.
 
@@ -345,7 +408,9 @@ $$\tilde{f}(r) = \sum_{w \in \{0,1\}^n} f(w) \cdot L_w(r) = \langle \vec{f}, \ve
 
 where $\vec{f} = (f(w))_{w \in \{0,1\}^n}$ is the table of values and $\vec{L}(r) = (L_w(r))_{w \in \{0,1\}^n}$ is the vector of Lagrange basis evaluations at $r$.
 
-This perspective is surprisingly powerful:
+This linear algebra perspective is surprisingly powerful, and it sparked what researchers call the "Sum-Check Renaissance" in the 2010s. For decades, sum-check was seen as a beautiful theoretical result with limited practical use. Then came the realization: if you express polynomial evaluation as an inner product, and you have efficient inner product arguments, you can build practical proof systems entirely from sum-check and linear algebra. No FFTs, no trusted setups, just vectors and dot products. Systems like Spartan, HyperPlonk, and Lasso all exploit this insight.
+
+The consequences are immediate:
 
 - **Commitment**: Committing to $\tilde{f}$ means committing to the vector $\vec{f}$
 - **Evaluation proof**: Proving $\tilde{f}(r) = y$ means proving an inner product claim $\langle \vec{f}, \vec{L}(r) \rangle = y$

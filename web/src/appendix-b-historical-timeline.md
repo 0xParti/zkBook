@@ -32,6 +32,16 @@ Kilian shows how to compile PCPs using Merkle trees and collision-resistant hash
 
 
 
+## The ZK Winter (1992-2008)
+
+For sixteen years, zero-knowledge proofs remained a theoretical curiosity. The PCP theorem promised succinct proofs, but the constructions had astronomical overhead ($O(n^{10})$ blowup in early versions). Computers were too slow. The algorithms were too heavy. Cryptographers knew ZK was possible but not practical.
+
+The field didn't stop entirely. Researchers refined PCP constructions, developed new proof composition techniques, and explored connections to coding theory. But there were no implementations, no applications, no urgency.
+
+Two events ended the winter. In 2008, Goldwasser, Kalai, and Rothblum published GKR, showing that sum-check could verify arithmetic circuits with manageable overhead. Then in 2009, Bitcoin launched. Suddenly there was a financial ecosystem that desperately needed what ZK could provide: privacy, scalability, trustless verification. Theoretical possibility met practical demand. The spring began.
+
+
+
 ## The Path to Practical Systems (2008-2016)
 
 **2008: GKR (Efficient Verification of Arithmetic Circuits)**
@@ -51,6 +61,9 @@ The Zerocoin team, building on Pinocchio, starts developing what becomes Zcash, 
 
 **2016: Groth16 (The Speed King)**
 Groth publishes an optimized SNARK with the smallest known proofs (3 group elements) and fastest verification (3 pairings). Despite requiring per-circuit trusted setup, Groth16 becomes the de facto standard for production systems.
+
+**2016: ZKBoo (MPC-in-the-Head)**
+Giacomelli, Madsen, and Orlandi publish ZKBoo, the first practical implementation of "MPC-in-the-head." The prover simulates a multiparty computation internally, then lets the verifier audit random subsets. ZKBoo proves that zero-knowledge could be built entirely from symmetric primitives (hashes), offering a third path distinct from pairings (Groth16) and polynomial commitments (STARKs).
 
 
 
@@ -73,6 +86,30 @@ Bowe, Grigg, and Hopwood demonstrate recursion using inner-product arguments ove
 
 **2019-2020: zk-Rollups Emerge**
 Teams including Loopring, zkSync, and StarkWare deploy zk-rollups on Ethereum. Transaction data lives on-chain; execution validity is proven off-chain. Throughput increases 100-1000×.
+
+### The Phylogenetic Tree
+
+By the end of this era, three distinct "species" of zero-knowledge proofs had evolved from a common ancestor:
+
+```
+                    Interactive Proofs (1985)
+                              │
+            ┌─────────────────┼─────────────────┐
+            │                 │                 │
+            ▼                 ▼                 ▼
+    PAIRING LINEAGE     HASH LINEAGE     SUM-CHECK LINEAGE
+            │                 │                 │
+            ▼                 ▼                 ▼
+     Pinocchio (2013)    FRI (2017)        GKR (2008)
+            │                 │                 │
+            ▼                 ▼                 ▼
+     Groth16 (2016)    STARKs (2017)    Spartan (2019)
+            │                 │                 │
+            ▼                 ▼                 ▼
+      PLONK (2019)    Circle STARKs      Jolt (2023)
+```
+
+*The three main species of zero-knowledge proofs, each with distinct cryptographic foundations: pairings, hashes, and sum-check.*
 
 
 
@@ -101,6 +138,31 @@ StarkWare and others explore STARKs over small fields (Mersenne primes, binary t
 
 **2024-Present: Folding and IVC Proliferate**
 Nova variants (SuperNova, HyperNova, ProtoStar) extend folding to handle complex constraint types. Incrementally verifiable computation becomes practical for long-running programs.
+
+### The Convergence
+
+Modern zkVMs are not new inventions. They are the confluence of three decades of distinct research streams:
+
+```
+    SUM-CHECK              LOOKUPS              FOLDING
+    (1990)                 (2020)               (2021)
+        │                     │                    │
+        │   LFKN, GKR         │   Plookup, Lasso   │   Nova, HyperNova
+        │   Spartan           │   cq, Jolt         │   ProtoStar
+        │                     │                    │
+        └─────────────────────┼────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │     zkVMs       │
+                    │                 │
+                    │  Jolt, SP1,     │
+                    │  RISC Zero,     │
+                    │  Zisk           │
+                    └─────────────────┘
+```
+
+*Modern systems like Jolt and SP1 combine sum-check's linear proving, lookup arguments' efficient table access, and folding's cheap recursion. The zkVM is where three rivers meet.*
 
 
 

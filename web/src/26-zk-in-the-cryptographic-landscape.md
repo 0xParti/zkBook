@@ -1,8 +1,10 @@
 # Chapter 26: ZK in the Cryptographic Landscape
 
-Traditional cryptography is about locks.
+In 1943, a resistance fighter in occupied France needs to send a message to London. She writes it in cipher, slips it into a dead letter drop, and waits. A courier retrieves it, carries it across the Channel, and a cryptographer at Bletchley Park decrypts it. The message travels safely because no one who intercepts it can read it.
 
-Encrypt, transmit, decrypt. The data is either hidden or visible, nothing in between. A message is sealed or opened, a secret stored or revealed. For most of cryptographic history, this binary was sufficient. But as computation became ubiquitous, a new question emerged: what if we could compute on secrets without exposing them?
+For the next fifty years, this was cryptography's entire mission: move secrets from A to B without anyone in between learning them. Telegraph, radio, internet. The medium changed; the problem stayed the same. Encrypt, transmit, decrypt. A message sealed or opened, a secret stored or revealed.
+
+Then computers stopped being message carriers and became *thinkers*. The question changed. It was no longer enough to ask "can I send a secret?" Now we needed to ask: "can I *use* a secret without exposing it?"
 
 This is the dream of **programmable cryptography**: not just secure storage and transmission, but secure *computation*. Mathematics that thinks while blindfolded.
 
@@ -38,6 +40,11 @@ Craig Gentry's 2009 thesis changed everything.
 ### The Core Idea: Learning With Errors
 
 Modern FHE rests on a problem called **Learning With Errors (LWE)**. The intuition is simple: linear equations are easy to solve, but linear equations with noise are hard.
+
+> [!note] The Radio Noise Analogy
+> Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.
+>
+> LWE works the same way. The "signal" is a linear equation. Without noise, anyone can solve it. But add a small random error to each equation, and the system becomes unsolvable. The legitimate receiver has a "filter" (the secret key) that strips away the static. Everyone else hears only noise.
 
 **The easy problem.** Suppose I give you equations like $3x + 2y = 17$ and $5x + y = 19$. You solve for $x$ and $y$ immediately. This is high school algebra. Even with hundreds of variables, Gaussian elimination solves it in polynomial time.
 
@@ -128,6 +135,13 @@ The fifteen years since Gentry's thesis have seen real improvements, but FHE rem
 For narrow applications (simple queries on encrypted databases, basic encrypted analytics), FHE is starting to see deployment. But for general computation, the overhead remains prohibitive. Nobody is running encrypted video processing or encrypted large-language-model inference.
 
 **Will it ever be practical?** Unknown. The optimists point to the trajectory: million-fold → thousand-fold in 15 years. Another 15 years might bring another few orders of magnitude. Hardware acceleration (custom FPGAs, ASICs) could help. The pessimists note that the overhead may be fundamental: noise management and ciphertext expansion might have irreducible costs. ZK proofs found clever ways around their bottlenecks; FHE might not.
+
+> [!note] Why Hardware Acceleration Matters
+> FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.
+>
+> Custom hardware (FPGAs, ASICs) can exploit this parallelism directly. Where a CPU computes one multiplication, a dedicated chip computes thousands in the same clock cycle. Companies like Intel, DARPA, and several startups are building FHE accelerators that promise 100-1000× speedups over software implementations.
+>
+> If these accelerators deliver, FHE's effective overhead drops from 1000× to 1-10×. That's the difference between "research curiosity" and "production deployment."
 
 Libraries like Microsoft SEAL, OpenFHE, and Zama's Concrete have made FHE accessible to researchers and adventurous practitioners. But "accessible" doesn't mean "deployable at scale."
 
@@ -228,6 +242,13 @@ This means you can take Program B, obfuscate it, and publish the result. The sec
 **The utopia iO promises.** With efficient iO, you could build almost any cryptographic primitive imaginable. The most striking is *witness encryption*: encrypt a message so that only someone who knows a solution to a puzzle can decrypt it. Not a specific person with a specific key, but *anyone* who can solve the puzzle. "This message can be read by whoever proves P ≠ NP." "This inheritance unlocks for whoever finds my will." The decryption key doesn't exist until someone produces the witness.
 
 $$\text{WE.Enc}(\text{statement}, m) \to c \qquad \text{WE.Dec}(c, \text{witness}) \to m$$
+
+> [!note] The Time Capsule Analogy: Witness Encryption vs ZK
+> Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know *who* will solve it, or *when*. The lock itself enforces the access rule.
+>
+> Zero-knowledge works in the opposite direction. Instead of "prove you can solve this to read the secret," ZK says "prove you already solved this without showing your solution." WE grants access based on future knowledge. ZK demonstrates existing knowledge.
+>
+> The duality is precise: both are parameterized by an NP statement. WE encrypts *to* the statement (anyone with a witness can decrypt). ZK proves *about* the statement (I have a witness, but you won't learn it).
 
 Witness encryption reveals a beautiful duality with zero-knowledge. A ZK proof says "I know a witness for statement $x$" without revealing it. Witness encryption says "only someone who knows a witness can read this" without specifying who. One proves knowledge; the other grants access based on knowledge. They're two sides of the same coin, formalized through the same NP relation.
 

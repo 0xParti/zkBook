@@ -42,6 +42,8 @@ $$\widetilde{\text{eq}}(X, Y) = \prod_{i=1}^{n} \left( X_i Y_i + (1 - X_i)(1 - Y
 
 ## Sum-Check Protocol
 
+*Dimensions: Vector size $N = 2^n$; protocol runs $n$ rounds.*
+
 ### The Claim
 
 Prove:
@@ -90,6 +92,8 @@ applied variable by variable in multilinear settings.
 
 ### R1CS Constraint
 
+*Dimensions: Matrices $A, B, C$ are $m \times n$; witness $z$ is $n \times 1$; result is $m \times 1$.*
+
 For witness vector $z = (1, x, w)$:
 
 $$(A \cdot z) \circ (B \cdot z) = C \cdot z$$
@@ -110,6 +114,8 @@ where $Z_H(X) = \prod_{\alpha \in H}(X - \alpha)$ is the vanishing polynomial.
 
 ## KZG Polynomial Commitments
 
+*Dimensions: Polynomial degree $< D$; SRS size $D+1$ elements.*
+
 ### Structured Reference String (SRS)
 
 Secret $\tau$; public: $(g, g^\tau, g^{\tau^2}, \ldots, g^{\tau^D})$
@@ -122,7 +128,7 @@ $$C = g^{f(\tau)} = \prod_i (g^{\tau^i})^{c_i}$$
 
 ### Evaluation Proof
 
-To prove $f(z) = v$:
+To prove $f(z) = v$: *(Prover knows $f(X)$; Verifier knows $C$, $z$, $v$)*
 
 1. Compute quotient: $w(X) = \frac{f(X) - v}{X - z}$
 2. Proof: $\pi = g^{w(\tau)}$
@@ -268,11 +274,15 @@ $$\sum_{i=1}^{n} \frac{1}{\gamma + f_i} = \sum_{j=1}^{d} \frac{m_j}{\gamma + t_j
 
 **Property**: Equality holds iff each $f_i \in t$ and $m_j$ counts occurrences correctly.
 
+**Soundness**: By Schwartz-Zippel, equality holds with probability $\geq 1 - (n+d)/|\mathbb{F}|$ over random $\gamma$.
+
 **Advantage**: No sorting required; additive structure enables multi-table batching.
 
 
 
 ## GKR Protocol
+
+*Dimensions: Layer $i$ has $S_i$ gates; layer $i+1$ (inputs) has $S_{i+1}$ gates; $k = \log_2 S_i$.*
 
 ### Layer Reduction
 
@@ -368,13 +378,15 @@ The hash must include:
 
 ## Field Sizes (Common Choices)
 
-| Field | Size | Use Case |
-|-------|------|----------|
-| BN254 scalar | $\approx 2^{254}$ | Ethereum, Groth16, PLONK |
-| BLS12-381 scalar | $\approx 2^{255}$ | Zcash, many SNARKs |
-| Goldilocks | $2^{64} - 2^{32} + 1$ | Plonky2, fast arithmetic |
-| Baby Bear | $2^{31} - 2^{27} + 1$ | RISC Zero |
-| Mersenne-31 | $2^{31} - 1$ | Circle STARKs |
+| Field | Size | Security | Use Case |
+|-------|------|----------|----------|
+| BN254 scalar | $\approx 2^{254}$ | ~100 bits | Ethereum, Groth16, PLONK |
+| BLS12-381 scalar | $\approx 2^{255}$ | ~128 bits | Zcash, many SNARKs |
+| Goldilocks | $2^{64} - 2^{32} + 1$ | ~100 bits* | Plonky2, fast arithmetic |
+| Baby Bear | $2^{31} - 2^{27} + 1$ | ~100 bits* | RISC Zero |
+| Mersenne-31 | $2^{31} - 1$ | ~100 bits* | Circle STARKs |
+
+*Small fields require extension fields for cryptographic security; base field security refers to the overall system design.
 
 
 
