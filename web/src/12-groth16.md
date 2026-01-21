@@ -151,7 +151,8 @@ The **Proving Key** $\text{pk}$ contains:
 - Blinding elements: $g_1^{\alpha}$, $g_1^{\beta}$, $g_2^{\beta}$, $g_1^{\delta}$, $g_2^{\delta}$
 - Basis polynomial commitments: $\{g_1^{A_j(\tau)}\}$, $\{g_1^{B_j(\tau)}\}$, $\{g_2^{B_j(\tau)}\}$
 - Consistency check elements for private inputs:
-  $$\left\{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\delta}} \right\}_{j \in \text{private}}$$
+
+  $$\left\\{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\delta}} \right\\}_{j \in \text{private}}$$
 
 - Quotient polynomial support: $\{g_1^{\tau^i \cdot Z_H(\tau) / \delta}\}$
 
@@ -159,7 +160,8 @@ The **Verification Key** $\text{vk}$ contains:
 
 - Pairing elements: $g_1^{\alpha}$, $g_2^{\beta}$, $g_2^{\gamma}$, $g_2^{\delta}$
 - Public input consistency elements:
-  $$\left\{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\gamma}} \right\}_{j \in \text{public}}$$
+
+  $$\left\\{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\gamma}} \right\\}_{j \in \text{public}}$$
 
 ### Prover Algorithm
 
