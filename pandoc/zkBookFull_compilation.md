@@ -2441,17 +2441,18 @@ Both achieve the same essential goal: reduce exponentially many constraint check
 
 # Chapter 6: Commitment Schemes: Cryptographic Binding
 
-Imagine a game. I write down a number, seal it in an envelope, and hand you the sealed envelope. Later, after you've made some decisions based on knowing I'm committed to *something*, I open the envelope and reveal the number.
+In 1981, Manuel Blum posed a simple question: can two people play a fair game of coin-flipping over the telephone?
 
-This simple ritual, commit first, reveal later, is one of the oldest ideas in cryptography. Children play it when they choose rock-paper-scissors by committing to their choice before revealing. Auctions use it when bidders submit sealed bids. The envelope enforces two properties: I can't change my mind after sealing (binding), and you can't peek before opening (hiding).
+The problem seems impossible. Alice flips a coin and announces "heads." Bob has no way to verify she actually flipped anything. She might have waited to hear his guess first. Or she might change her answer after hearing his response. Without shared physical reality, without a coin both parties can see, how can either trust the outcome?
 
-But how do you build a digital envelope? Bits can be copied. There's no physical seal to break. This is where mathematics enters, and where the story of commitment schemes begins.
+Blum's solution introduced one of the most fundamental primitives in cryptography. Alice doesn't announce her flip directly. Instead, she first sends a *commitment*: a cryptographic object that locks in her choice without revealing it. Only after Bob makes his guess does Alice *open* the commitment, proving what she had chosen all along. The commitment is binding (Alice cannot change her answer after sending it) and hiding (Bob learns nothing until the reveal).
 
-You've designed a protocol. The prover claims a polynomial evaluates to some value, and you, the verifier, want to check this with just a few random queries. There's one problem: the prover sends their response *after* seeing your challenge. What stops them from constructing a fake polynomial that happens to pass your spot-checks?
+This two-phase structure, commit then reveal, turns out to be exactly what our proof systems need. You've designed a protocol where the prover claims a polynomial evaluates to some value, and you want to check this with random queries. But the prover responds *after* seeing your challenge. What stops them from constructing a fake polynomial that happens to pass your spot-checks?
 
-This is the **binding problem**. In an interactive proof, the verifier's randomness is meant to catch a cheating prover off-guard. But if the prover can choose their answers *after* seeing the challenge, they can simply tailor their responses to pass. The polynomial identity testing that underlies our protocols becomes meaningless.
+This is the **binding problem**. The verifier's randomness is meant to catch a cheating prover off-guard. But if the prover can adapt their answers after seeing the challenge, they can tailor responses to pass. The polynomial identity testing that underlies our protocols becomes meaningless.
 
-We need a mechanism that forces the prover to fix their polynomial before the verification begins: a cryptographic primitive that makes changing one's mind computationally infeasible.
+We need a mechanism that forces the prover to fix their polynomial before verification begins.
+
 
 
 
