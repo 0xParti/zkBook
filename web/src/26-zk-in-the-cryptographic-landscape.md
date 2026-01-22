@@ -41,7 +41,8 @@ Craig Gentry's 2009 thesis changed everything.
 
 Modern FHE rests on a problem called **Learning With Errors (LWE)**. The intuition is simple: linear equations are easy to solve, but linear equations with noise are hard.
 
-> [!note] The Radio Noise Analogy
+> **The Radio Noise Analogy**
+>
 > Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.
 >
 > LWE works the same way. The "signal" is a linear equation. Without noise, anyone can solve it. But add a small random error to each equation, and the system becomes unsolvable. The legitimate receiver has a "filter" (the secret key) that strips away the static. Everyone else hears only noise.
@@ -136,7 +137,8 @@ For narrow applications (simple queries on encrypted databases, basic encrypted 
 
 **Will it ever be practical?** Unknown. The optimists point to the trajectory: million-fold → thousand-fold in 15 years. Another 15 years might bring another few orders of magnitude. Hardware acceleration (custom FPGAs, ASICs) could help. The pessimists note that the overhead may be fundamental: noise management and ciphertext expansion might have irreducible costs. ZK proofs found clever ways around their bottlenecks; FHE might not.
 
-> [!note] Why Hardware Acceleration Matters
+> **Why Hardware Acceleration Matters**
+>
 > FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.
 >
 > Custom hardware (FPGAs, ASICs) can exploit this parallelism directly. Where a CPU computes one multiplication, a dedicated chip computes thousands in the same clock cycle. Companies like Intel, DARPA, and several startups are building FHE accelerators that promise 100-1000× speedups over software implementations.
@@ -243,7 +245,8 @@ This means you can take Program B, obfuscate it, and publish the result. The sec
 
 $$\text{WE.Enc}(\text{statement}, m) \to c \qquad \text{WE.Dec}(c, \text{witness}) \to m$$
 
-> [!note] The Time Capsule Analogy: Witness Encryption vs ZK
+> **The Time Capsule Analogy: Witness Encryption vs ZK**
+>
 > Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know *who* will solve it, or *when*. The lock itself enforces the access rule.
 >
 > Zero-knowledge works in the opposite direction. Instead of "prove you can solve this to read the secret," ZK says "prove you already solved this without showing your solution." WE grants access based on future knowledge. ZK demonstrates existing knowledge.

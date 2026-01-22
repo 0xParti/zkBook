@@ -24,7 +24,8 @@ This isn't merely inelegant; it's expensive. Field multiplications dominate prov
 
 **Binius** takes a radical approach: work over binary fields $\mathbb{F}_{2^k}$ where field elements are actual $k$-bit strings. A boolean is a 1-bit field element. A byte is an 8-bit field element. No padding, no waste.
 
-> [!note] The Native Language Analogy
+> **The Native Language Analogy**
+>
 > Imagine a Spanish speaker forced to express every thought in German, even when talking to other Spanish speakers. Every sentence requires mental translation. Simple ideas become laborious.
 >
 > This is what traditional SNARKs do. They force computer data (bits and bytes) into prime fields (large numbers). A single bit becomes a 256-bit integer. The computer "thinks" in binary, but the proof system demands a foreign representation.
@@ -249,7 +250,8 @@ Aggregation addresses the question of how to combine proofs after they exist. Bu
 
 Discussions of prover efficiency focus on the cryptographic work: computing commitments, running sum-check, evaluating polynomials. But there's a step before that. The witness includes not just the prover's secret input but all intermediate values in the computation. For a circuit with $n$ gates, the witness has $O(n)$ elements. Computing these elements (executing the circuit) can take longer than the proving step itself.
 
-> [!note] The Hidden Iceberg
+> **The Hidden Iceberg**
+>
 > Academic papers report "prover time" as the time spent on cryptographic operations: MSMs, FFTs, hashes. But the full cost of generating a proof includes witness generation, and this is often the larger piece.
 >
 > Think of an iceberg. The cryptographic prover is the visible tip above water. Witness generation is the massive bulk beneath the surface. A paper might report "proving takes 10 seconds" while silently omitting that witness generation took 60 seconds. The total time to produce a proof is 70 seconds, not 10.

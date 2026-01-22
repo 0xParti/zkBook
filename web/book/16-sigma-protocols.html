@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -171,8 +187,8 @@
 <p>The mathematics was forbidding. Goldwasser, Micali, and Rackoff had formalized the concept four years earlier, but their definitions involved Turing machines, polynomial-time simulators, and computational indistinguishability. Quisquater wanted something a six-year-old could grasp.</p>
 <p>So he invented a cave.</p>
 <blockquote>
-<p>[!note] The Children's Story
-In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier) that she knows the magic word to open a door deep inside a cave. The cave splits into two paths (Left and Right) that reconnect at the magic door.</p>
+<p><strong>The Children's Story</strong></p>
+<p>In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier) that she knows the magic word to open a door deep inside a cave. The cave splits into two paths (Left and Right) that reconnect at the magic door.</p>
 <p>Peggy enters the cave and takes a random path while Victor waits outside. Victor then walks to the fork and shouts: &quot;Come out the Left path!&quot;</p>
 <p>If Peggy knows the magic word, she can always comply. If she originally went Left, she walks out. If she went Right, she opens the door with the magic word and exits through the Left. Either way, Victor sees her emerge from the Left.</p>
 <p>If Peggy <em>doesn't</em> know the word, she's trapped. Half the time, Victor shouts for the path she's already on (she succeeds). Half the time, he shouts for the other side (she fails, stuck behind a locked door).</p>
@@ -210,10 +226,27 @@ In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier)
 <p><strong>Verification.</strong> The verifier checks whether $g^z = a \cdot h^e$. Accept if yes, reject otherwise.</p>
 </li>
 </ol>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant P as Prover (knows w)
+    participant V as Verifier
+
+    Note over P: Sample r ← ℤq
+    Note over P: Compute a = gʳ
+    P-&gt;&gt;V: a (commitment)
+
+    Note over V: Sample e ← ℤq
+    V-&gt;&gt;P: e (challenge)
+
+    Note over P: Compute z = r + w·e
+    P-&gt;&gt;V: z (response)
+
+    Note over V: Check gᶻ = a · hᵉ
+    Note over V: Accept / Reject
+</code></pre>
 <p>That's the entire protocol. Let's understand why it works.</p>
 <blockquote>
-<p>[!note] The Equation of a Line
-Schnorr's protocol is secretly proving you know the equation of a line. In $z = r + w \cdot e$, think of $w$ as the slope and $r$ as the y-intercept. The prover commits to the intercept ($r$, hidden as $a = g^r$). The verifier picks an x-coordinate ($e$). The prover reveals the y-coordinate ($z$). One point on a line doesn't reveal the slope, but two points would. That's why the protocol must be run once per challenge: a single $(e, z)$ pair is consistent with infinitely many slopes, but two pairs with the same intercept uniquely determine $w$.</p>
+<p><strong>The Equation of a Line</strong></p>
+<p>Schnorr's protocol is secretly proving you know the equation of a line. In $z = r + w \cdot e$, think of $w$ as the slope and $r$ as the y-intercept. The prover commits to the intercept ($r$, hidden as $a = g^r$). The verifier picks an x-coordinate ($e$). The prover reveals the y-coordinate ($z$). One point on a line doesn't reveal the slope, but two points would. That's why the protocol must be run once per challenge: a single $(e, z)$ pair is consistent with infinitely many slopes, but two pairs with the same intercept uniquely determine $w$.</p>
 </blockquote>
 <p><strong>Completeness.</strong> An honest prover with the correct $w$ always passes verification:
 $$g^z = g^{r + we} = g^r \cdot g^{we} = g^r \cdot (g^w)^e = a \cdot h^e$$</p>
@@ -227,8 +260,8 @@ $$g^{z_1 - z_2} = h^{e_1 - e_2}$$</p>
 $$w = \frac{z_1 - z_2}{e_1 - e_2} \mod q$$</p>
 <p>A cheater who could answer two challenges <em>must</em> know $w$. This is <strong>special soundness</strong>: two accepting transcripts with different challenges allow extracting the witness.</p>
 <blockquote>
-<p>[!note] The Rewinding Lemma
-How do we get two transcripts with the same commitment $a$ but different challenges? In real life, we cannot. The prover sends $a$ only once, receives one challenge, and responds.</p>
+<p><strong>The Rewinding Lemma</strong></p>
+<p>How do we get two transcripts with the same commitment $a$ but different challenges? In real life, we cannot. The prover sends $a$ only once, receives one challenge, and responds.</p>
 <p>But in a thought experiment, we can <em>rewind time</em>. We let the prover send $a$, we send challenge $e_1$, and receive response $z_1$. Then we press &quot;rewind,&quot; return to the moment after they sent $a$, and send a <em>different</em> challenge $e_2$. If the prover can answer both, we solve the system of equations to extract $w$.</p>
 <p>This &quot;rewinding&quot; argument is the mathematical foundation of proofs of knowledge. It's why $\Sigma$-protocols prove you <em>know</em> something, not merely that something exists. An extractor with rewind powers could pry the secret from any successful prover.</p>
 </blockquote>
@@ -239,8 +272,8 @@ How do we get two transcripts with the same commitment $a$ but different challen
 <li>Compute $a = g^z \cdot h^{-e}$ (the commitment that <em>makes</em> the equation hold)</li>
 </ol>
 <blockquote>
-<p>[!note] The Simulator's Time Machine
-In real execution, events unfold: Commitment → Challenge → Response. The simulator cheats time. It picks the answer first ($z$), invents a question that fits ($e$), then back-calculates what the commitment &quot;must have been&quot; ($a = g^z h^{-e}$). This temporal reversal is invisible in the final transcript. Anyone looking at $(a, e, z)$ cannot tell whether it was produced forward (by someone who knows $w$) or backward (by someone who cheated time). This is the heart of zero-knowledge: if a transcript can be faked without the secret, then having the secret cannot be what makes the transcript convincing. The transcript itself carries no information about $w$.</p>
+<p><strong>The Simulator's Time Machine</strong></p>
+<p>In real execution, events unfold: Commitment → Challenge → Response. The simulator cheats time. It picks the answer first ($z$), invents a question that fits ($e$), then back-calculates what the commitment &quot;must have been&quot; ($a = g^z h^{-e}$). This temporal reversal is invisible in the final transcript. Anyone looking at $(a, e, z)$ cannot tell whether it was produced forward (by someone who knows $w$) or backward (by someone who cheated time). This is the heart of zero-knowledge: if a transcript can be faked without the secret, then having the secret cannot be what makes the transcript convincing. The transcript itself carries no information about $w$.</p>
 </blockquote>
 <p>Check: $g^z = a \cdot h^e = g^z h^{-e} \cdot h^e = g^z$.</p>
 <p>The transcript $(a, e, z)$ is valid. And its distribution is identical to a real transcript:</p>
@@ -380,8 +413,8 @@ $$C_3 = (C_1 \cdot h^{-r_1})^{m_2} h^{r_3} = C_1^{m_2} \cdot h^{r_3 - r_1 m_2}$$
 <p>If the prover knows both witnesses, they can respond to any challenge. If they lack either witness, they can't respond correctly.</p>
 <p><strong>OR composition.</strong> To prove &quot;I know $w_1$ OR $w_2$&quot; (without revealing which):</p>
 <blockquote>
-<p>[!note] The Card Trick Analogy
-Imagine a magician holding two decks of cards. They claim: &quot;I know the order of Deck A OR the order of Deck B.&quot; You shuffle one deck and ask them to name the top card.</p>
+<p><strong>The Card Trick Analogy</strong></p>
+<p>Imagine a magician holding two decks of cards. They claim: &quot;I know the order of Deck A OR the order of Deck B.&quot; You shuffle one deck and ask them to name the top card.</p>
 <p>If the magician knows that deck's order, they answer instantly. If they don't, they use sleight of hand: they &quot;force&quot; the right card to the top, making it look like they predicted it all along.</p>
 <p>In an OR-proof, the prover plays the magician. For the secret they know, they answer honestly. For the secret they don't know, they use the Simulator (the &quot;sleight of hand&quot;) to produce a transcript that looks legitimate. The verifier sees two correct answers and cannot tell which was genuine knowledge and which was mathematical magic.</p>
 </blockquote>

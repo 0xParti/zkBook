@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -225,8 +241,8 @@
 <h3 id="multiplication-the-challenge"><a class="header" href="#multiplication-the-challenge">Multiplication: The Challenge</a></h3>
 <p>Multiplication breaks the easy pattern. The product of two shares is <em>not</em> a valid share of the product. Shamir sharing uses polynomials of degree $t-1$. If parties locally multiply their shares $P_a(j) \cdot P_b(j)$, they get evaluations of the product polynomial $P_a \cdot P_b$, which has degree $2(t-1)$. This polynomial does encode $ab$ at zero, but the threshold has effectively doubled: now $2t-1$ parties are needed to reconstruct, not $t$. Repeated multiplications would make the degree explode.</p>
 <blockquote>
-<p>[!note] The Paint Analogy
-Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.</p>
+<p><strong>The Paint Analogy</strong></p>
+<p>Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.</p>
 <p>Multiplying is like mixing colors: Red times Blue makes Purple. You can't un-mix paint to recover the original colors. Worse, the &quot;shade&quot; of your result depends on both inputs in a non-linear way.</p>
 <p>Beaver Triples are like pre-mixed paint samples from a store. We don't know the exact shades (the store mixed them secretly), but we know that Sample A mixed with Sample B produces Sample C. When we need to multiply our real secret colors, we use these pre-mixed samples as a reference point, adjusting our result without ever revealing the original colors we started with.</p>
 </blockquote>

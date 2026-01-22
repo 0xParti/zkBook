@@ -316,49 +316,51 @@ The prover uses sum-check to convince the verifier of this count. The polynomial
 
 The following diagram traces the claim reduction through each round:
 
-```
-+------------------------------------------------------------------+
-|  INITIAL CLAIM: H = sum of g(b_1, b_2, ..., b_v) over 2^v points |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 1: Prover sends g_1(X_1)                                  |
-|                                                                  |
-|  Verifier checks: g_1(0) + g_1(1) = H                            |
-|  Verifier picks random r_1                                       |
-|  New claim: g_1(r_1) = sum of g(r_1, b_2, ..., b_v)              |
-|             over 2^(v-1) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 2: Prover sends g_2(X_2)                                  |
-|                                                                  |
-|  Verifier checks: g_2(0) + g_2(1) = g_1(r_1)                     |
-|  Verifier picks random r_2                                       |
-|  New claim: g_2(r_2) = sum of g(r_1, r_2, b_3, ..., b_v)         |
-|             over 2^(v-2) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-                             . . .
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND v: Prover sends g_v(X_v)                                  |
-|                                                                  |
-|  Verifier checks: g_v(0) + g_v(1) = g_{v-1}(r_{v-1})             |
-|  Verifier picks random r_v                                       |
-|  Final claim: g_v(r_v) = g(r_1, r_2, ..., r_v) -- a SINGLE point!|
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  FINAL CHECK: Verifier evaluates g(r_1, ..., r_v) directly       |
-|                                                                  |
-|  Compare with g_v(r_v). If equal -> ACCEPT. Otherwise -> REJECT. |
-+------------------------------------------------------------------+
+```mermaid
+flowchart TB
+    subgraph init["INITIAL CLAIM"]
+        I["H = Σ g(b₁, b₂, ..., bᵥ) over 2ᵛ points"]
+    end
+
+    subgraph r1["ROUND 1"]
+        R1P["Prover sends g₁(X₁)"]
+        R1V["Verifier checks: g₁(0) + g₁(1) = H"]
+        R1C["Verifier picks random r₁"]
+        R1N["New claim: g₁(r₁) = Σ g(r₁, b₂, ..., bᵥ)<br/>over 2ᵛ⁻¹ points"]
+        R1P --> R1V --> R1C --> R1N
+    end
+
+    subgraph r2["ROUND 2"]
+        R2P["Prover sends g₂(X₂)"]
+        R2V["Verifier checks: g₂(0) + g₂(1) = g₁(r₁)"]
+        R2C["Verifier picks random r₂"]
+        R2N["New claim: g₂(r₂) = Σ g(r₁, r₂, b₃, ..., bᵥ)<br/>over 2ᵛ⁻² points"]
+        R2P --> R2V --> R2C --> R2N
+    end
+
+    subgraph dots["..."]
+        D["ν rounds total"]
+    end
+
+    subgraph rv["ROUND ν"]
+        RVP["Prover sends gᵥ(Xᵥ)"]
+        RVV["Verifier checks: gᵥ(0) + gᵥ(1) = gᵥ₋₁(rᵥ₋₁)"]
+        RVC["Verifier picks random rᵥ"]
+        RVN["Final claim: gᵥ(rᵥ) = g(r₁, r₂, ..., rᵥ)<br/>A SINGLE POINT!"]
+        RVP --> RVV --> RVC --> RVN
+    end
+
+    subgraph final["FINAL CHECK"]
+        F1["Verifier evaluates g(r₁, ..., rᵥ) directly"]
+        F2{"g(r₁,...,rᵥ) = gᵥ(rᵥ)?"}
+        F3["✓ ACCEPT"]
+        F4["✗ REJECT"]
+        F1 --> F2
+        F2 -->|Yes| F3
+        F2 -->|No| F4
+    end
+
+    init --> r1 --> r2 --> dots --> rv --> final
 ```
 
 The reduction is exponential: $2^\nu \to 2^{\nu-1} \to 2^{\nu-2} \to \ldots \to 2^0 = 1$.

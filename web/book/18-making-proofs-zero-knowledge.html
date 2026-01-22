@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -171,8 +187,8 @@
 <p>Zero-knowledge inverts this. The proof convinces by <em>concealing</em> structure: by showing that patterns exist without showing what they are, that relationships hold without revealing the terms, that chains of reasoning connect without exposing the links. The verifier becomes certain of one bit (the statement is true) while learning nothing else.</p>
 <p>This sounds impossible. It isn't, but it requires care.</p>
 <blockquote>
-<p>[!note] The Retrofit Problem
-Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?</p>
+<p><strong>The Retrofit Problem</strong></p>
+<p>Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?</p>
 </blockquote>
 <p>We've defined zero-knowledge in Chapter 17. We've seen it in $\Sigma$-protocols. But proof systems aren't born zero-knowledge; they're made that way. Strip the blinding from Groth16 and you still have a valid SNARK: sound, succinct, verifiable. But the proof elements would leak information about the witness. The random values $r, s$ we saw in Chapter 12 exist precisely to prevent this. Similarly, PLONK without its blinding polynomials $(b_1 X + b_2) Z_H(X)$ would verify correctly but expose witness-dependent evaluations.</p>
 <p>The same is true everywhere. Sum-check sends univariate polynomials derived from the witness (information leaks). GKR reveals layer values computed from the witness (information leaks). Raw STARKs expose trace polynomial evaluations (information leaks). Without deliberate masking, every proof system betrays its secrets.</p>
@@ -476,8 +492,8 @@ $$\tilde{w}(\omega^i) = w(\omega^i) + (b_1 \omega^i + b_2) \cdot 0 = w(\omega^i)
 </tbody></table>
 </div>
 <blockquote>
-<p>[!note] A Dimensionality Distinction
-These two techniques operate at different levels of abstraction. Commit-and-prove works on <em>scalars</em>: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on <em>functions</em>: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.</p>
+<p><strong>A Dimensionality Distinction</strong></p>
+<p>These two techniques operate at different levels of abstraction. Commit-and-prove works on <em>scalars</em>: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on <em>functions</em>: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.</p>
 </blockquote>
 <p><strong>When to use commit-and-prove:</strong></p>
 <ul>

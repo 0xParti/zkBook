@@ -6,7 +6,8 @@ The mathematics was forbidding. Goldwasser, Micali, and Rackoff had formalized t
 
 So he invented a cave.
 
-> [!note] The Children's Story
+> **The Children's Story**
+>
 > In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier) that she knows the magic word to open a door deep inside a cave. The cave splits into two paths (Left and Right) that reconnect at the magic door.
 >
 > Peggy enters the cave and takes a random path while Victor waits outside. Victor then walks to the fork and shouts: "Come out the Left path!"
@@ -61,9 +62,29 @@ Claus Schnorr discovered the canonical solution in 1989. The protocol is three m
 
 4. **Verification.** The verifier checks whether $g^z = a \cdot h^e$. Accept if yes, reject otherwise.
 
+```mermaid
+sequenceDiagram
+    participant P as Prover (knows w)
+    participant V as Verifier
+
+    Note over P: Sample r ← ℤq
+    Note over P: Compute a = gʳ
+    P->>V: a (commitment)
+
+    Note over V: Sample e ← ℤq
+    V->>P: e (challenge)
+
+    Note over P: Compute z = r + w·e
+    P->>V: z (response)
+
+    Note over V: Check gᶻ = a · hᵉ
+    Note over V: Accept / Reject
+```
+
 That's the entire protocol. Let's understand why it works.
 
-> [!note] The Equation of a Line
+> **The Equation of a Line**
+>
 > Schnorr's protocol is secretly proving you know the equation of a line. In $z = r + w \cdot e$, think of $w$ as the slope and $r$ as the y-intercept. The prover commits to the intercept ($r$, hidden as $a = g^r$). The verifier picks an x-coordinate ($e$). The prover reveals the y-coordinate ($z$). One point on a line doesn't reveal the slope, but two points would. That's why the protocol must be run once per challenge: a single $(e, z)$ pair is consistent with infinitely many slopes, but two pairs with the same intercept uniquely determine $w$.
 
 **Completeness.** An honest prover with the correct $w$ always passes verification:
@@ -84,7 +105,8 @@ $$w = \frac{z_1 - z_2}{e_1 - e_2} \mod q$$
 
 A cheater who could answer two challenges *must* know $w$. This is **special soundness**: two accepting transcripts with different challenges allow extracting the witness.
 
-> [!note] The Rewinding Lemma
+> **The Rewinding Lemma**
+>
 > How do we get two transcripts with the same commitment $a$ but different challenges? In real life, we cannot. The prover sends $a$ only once, receives one challenge, and responds.
 >
 > But in a thought experiment, we can *rewind time*. We let the prover send $a$, we send challenge $e_1$, and receive response $z_1$. Then we press "rewind," return to the moment after they sent $a$, and send a *different* challenge $e_2$. If the prover can answer both, we solve the system of equations to extract $w$.
@@ -97,7 +119,8 @@ A cheater who could answer two challenges *must* know $w$. This is **special sou
 2. Sample $z \leftarrow \mathbb{Z}_q$ (the response, uniform and independent)
 3. Compute $a = g^z \cdot h^{-e}$ (the commitment that *makes* the equation hold)
 
-> [!note] The Simulator's Time Machine
+> **The Simulator's Time Machine**
+>
 > In real execution, events unfold: Commitment → Challenge → Response. The simulator cheats time. It picks the answer first ($z$), invents a question that fits ($e$), then back-calculates what the commitment "must have been" ($a = g^z h^{-e}$). This temporal reversal is invisible in the final transcript. Anyone looking at $(a, e, z)$ cannot tell whether it was produced forward (by someone who knows $w$) or backward (by someone who cheated time). This is the heart of zero-knowledge: if a transcript can be faked without the secret, then having the secret cannot be what makes the transcript convincing. The transcript itself carries no information about $w$.
 
 Check: $g^z = a \cdot h^e = g^z h^{-e} \cdot h^e = g^z$.
@@ -301,7 +324,8 @@ If the prover knows both witnesses, they can respond to any challenge. If they l
 
 **OR composition.** To prove "I know $w_1$ OR $w_2$" (without revealing which):
 
-> [!note] The Card Trick Analogy
+> **The Card Trick Analogy**
+>
 > Imagine a magician holding two decks of cards. They claim: "I know the order of Deck A OR the order of Deck B." You shuffle one deck and ask them to name the top card.
 >
 > If the magician knows that deck's order, they answer instantly. If they don't, they use sleight of hand: they "force" the right card to the top, making it look like they predicted it all along.

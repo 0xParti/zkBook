@@ -141,7 +141,8 @@ $$Q(X) = \frac{C(X)}{Z_{H'}(X)}$$
 
 is a polynomial of known degree. If $C(X)$ doesn't vanish on $H'$ (if the trace violates the transition constraint somewhere) then $Q(X)$ isn't a polynomial. It's a rational function with poles at the violation points.
 
-> [!note] Why Constraint Degree Matters
+> **Why Constraint Degree Matters**
+>
 > The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.
 >
 > This creates a fundamental trade-off. Higher-degree constraints let you express more complex transitions in a single step, but they blow up the prover's work. A degree-8 constraint over a million-step trace produces a composition polynomial of degree ~8 million, requiring proportionally more commitment and FRI work. Most practical AIR systems keep constraint degree between 2 and 4, accepting more trace columns (more registers) to avoid high-degree terms. The art of AIR design is balancing expressiveness against this degree bottleneck.
@@ -253,7 +254,8 @@ Why does this work? The prover committed to the trace *before* learning the quer
 
 The AIR-FRI link is where the abstract (FRI proves low-degree) meets the concrete (this specific polynomial encodes this specific computation).
 
-> [!note] DEEP-FRI vs. Standard FRI
+> **DEEP-FRI vs. Standard FRI**
+>
 > The protocol described here uses the **DEEP method** (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree *on $D$* but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ *outside* $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The "domain extension" refers to this expansion beyond $D$; "eliminating pretenders" refers to catching cheaters whose polynomials only *pretend* to be correct within the original domain.
 
 

@@ -4,7 +4,8 @@ Imagine a child's puzzle book: *Where's Waldo?*, with its massive, crowded scene
 
 How?
 
-> [!note] The Where's Waldo Proof
+> **The Where's Waldo Proof**
+>
 > You take a large sheet of cardboard with a small hole cut in the middle. You place the puzzle page behind the cardboard, sliding it around until Waldo is visible through the hole. You invite your friend to look.
 >
 > They see Waldo. They are convinced you know where he is. But because the cardboard blocks the context (the trees, the crowd, the hot dog stands), they have no idea where on the page he is located. The surrounding scene, which would reveal the coordinates, is hidden.
@@ -163,7 +164,8 @@ Rewinding is a proof technique, not a real capability. It demonstrates that the 
 
 Students encountering zero-knowledge often stumble on this point: *if the simulator can produce valid transcripts without the witness, what stops a cheater from doing the same?*
 
-> [!note] The Green Screen Analogy
+> **The Green Screen Analogy**
+>
 > Think of a ZK proof as a video of someone walking on the moon.
 >
 > **Real Interaction**: The astronaut actually flew to the moon, filmed in real time.
@@ -211,7 +213,8 @@ The way forward is to relax both soundness and zero-knowledge:
 
 Modern SNARKs take both paths. They are *arguments* (computationally sound) with *computational zero-knowledge*. This combination enables practical ZK proofs for arbitrary computations, including NP-complete problems and beyond.
 
-> [!note] Witness Indistinguishability
+> **Witness Indistinguishability**
+>
 > Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weaker but often sufficient property is **Witness Indistinguishability (WI)**. This guarantees that if there are multiple valid witnesses (e.g., two different private keys that both sign the same message, or two different paths through a maze), the verifier cannot tell which one the prover used.
 >
 > WI doesn't promise that the verifier learns *nothing*; it only promises they can't distinguish *which* witness was used. For many privacy applications (anonymous credentials, ring signatures), WI suffices and is easier to achieve than full ZK.

@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -319,6 +335,47 @@ $$f_i(r_i, s_b, s_c) = \widetilde{\text{add}}<em>i(r_i, s_b, s_c) \cdot (\tilde{
 <p><strong>Final Check</strong>:</p>
 <p>After $d$ reductions, the verifier holds a claim: &quot;$\tilde{W}_d(r_d) = V_d$&quot;</p>
 <p>But layer $d$ is the input layer! The verifier knows the inputs. She computes $\tilde{W}_d(r_d)$ herself and checks if it equals $V_d$.</p>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph setup[&quot;SETUP&quot;]
+        S1[&quot;Prover sends claimed output W₀&quot;]
+        S2[&quot;Verifier picks random r₀&quot;]
+        S3[&quot;V₀ = W̃₀(r₀)&quot;]
+        S1 --&gt; S2 --&gt; S3
+    end
+
+    subgraph layer0[&quot;LAYER 0 → LAYER 1&quot;]
+        L0A[&quot;Claim: W̃₀(r₀) = V₀&quot;]
+        L0B[&quot;Run sum-check on&lt;br/&gt;V₀ = Σ f₀(r₀, b, c)&quot;]
+        L0C[&quot;Sum-check yields points s_b, s_c&quot;]
+        L0D[&quot;Prover claims W̃₁(s_b) and W̃₁(s_c)&quot;]
+        L0E[&quot;Reduce two claims to one via&lt;br/&gt;random α on line through s_b, s_c&quot;]
+        L0F[&quot;New claim: W̃₁(r₁) = V₁&quot;]
+        L0A --&gt; L0B --&gt; L0C --&gt; L0D --&gt; L0E --&gt; L0F
+    end
+
+    subgraph layeri[&quot;LAYER i → LAYER i+1&quot;]
+        LIA[&quot;Claim: W̃ᵢ(rᵢ) = Vᵢ&quot;]
+        LIB[&quot;Run sum-check on&lt;br/&gt;Vᵢ = Σ fᵢ(rᵢ, b, c)&quot;]
+        LIC[&quot;Reduce to single claim&quot;]
+        LID[&quot;New claim: W̃ᵢ₊₁(rᵢ₊₁) = Vᵢ₊₁&quot;]
+        LIA --&gt; LIB --&gt; LIC --&gt; LID
+    end
+
+    subgraph final[&quot;FINAL CHECK (Layer d = Inputs)&quot;]
+        F1[&quot;Claim: W̃_d(r_d) = V_d&quot;]
+        F2[&quot;Verifier computes W̃_d(r_d)&lt;br/&gt;directly from known inputs&quot;]
+        F3{&quot;Match?&quot;}
+        F4[&quot;✓ ACCEPT&quot;]
+        F5[&quot;✗ REJECT&quot;]
+        F1 --&gt; F2 --&gt; F3
+        F3 --&gt;|Yes| F4
+        F3 --&gt;|No| F5
+    end
+
+    setup --&gt; layer0
+    layer0 --&gt; layeri
+    layeri -.-&gt;|&quot;d-1 reductions&quot;| final
+</code></pre>
 <h2 id="worked-example-verifying-x_1--x_2-cdot-x_3"><a class="header" href="#worked-example-verifying-x_1--x_2-cdot-x_3">Worked Example: Verifying $(x_1 + x_2) \cdot x_3$</a></h2>
 <p>Let's trace through the protocol with $x_1 = 2$, $x_2 = 3$, $x_3 = 4$.</p>
 <p><strong>Honest computation</strong>:</p>

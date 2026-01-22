@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -170,8 +186,8 @@
 <p>Imagine a child's puzzle book: <em>Where's Waldo?</em>, with its massive, crowded scenes hiding a single striped figure. You claim you found Waldo. Your friend doesn't believe you. You want to prove you found him without revealing his location (so your friend can still enjoy the puzzle).</p>
 <p>How?</p>
 <blockquote>
-<p>[!note] The Where's Waldo Proof
-You take a large sheet of cardboard with a small hole cut in the middle. You place the puzzle page behind the cardboard, sliding it around until Waldo is visible through the hole. You invite your friend to look.</p>
+<p><strong>The Where's Waldo Proof</strong></p>
+<p>You take a large sheet of cardboard with a small hole cut in the middle. You place the puzzle page behind the cardboard, sliding it around until Waldo is visible through the hole. You invite your friend to look.</p>
 <p>They see Waldo. They are convinced you know where he is. But because the cardboard blocks the context (the trees, the crowd, the hot dog stands), they have no idea where on the page he is located. The surrounding scene, which would reveal the coordinates, is hidden.</p>
 <p>This is the essence of Zero Knowledge. You prove the statement (&quot;I found Waldo&quot;) while hiding the witness (&quot;He's at coordinates (342, 891)&quot;).</p>
 </blockquote>
@@ -269,8 +285,8 @@ $$\text{View}_{\mathcal{V}} \stackrel{c}{\approx} \mathcal{S}(x)$$</p>
 <h2 id="the-central-confusion"><a class="header" href="#the-central-confusion">The Central Confusion</a></h2>
 <p>Students encountering zero-knowledge often stumble on this point: <em>if the simulator can produce valid transcripts without the witness, what stops a cheater from doing the same?</em></p>
 <blockquote>
-<p>[!note] The Green Screen Analogy
-Think of a ZK proof as a video of someone walking on the moon.</p>
+<p><strong>The Green Screen Analogy</strong></p>
+<p>Think of a ZK proof as a video of someone walking on the moon.</p>
 <p><strong>Real Interaction</strong>: The astronaut actually flew to the moon, filmed in real time.</p>
 <p><strong>Simulation</strong>: A special effects artist used a green screen to create a video that looks identical to the moon landing.</p>
 <p>If the special effects are perfect (indistinguishable from reality), then watching the video <em>alone</em> proves nothing about whether the moon landing happened. The video itself contains zero knowledge about whether it's real.</p>
@@ -301,8 +317,8 @@ Think of a ZK proof as a video of someone walking on the moon.</p>
 </ul>
 <p>Modern SNARKs take both paths. They are <em>arguments</em> (computationally sound) with <em>computational zero-knowledge</em>. This combination enables practical ZK proofs for arbitrary computations, including NP-complete problems and beyond.</p>
 <blockquote>
-<p>[!note] Witness Indistinguishability
-Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weaker but often sufficient property is <strong>Witness Indistinguishability (WI)</strong>. This guarantees that if there are multiple valid witnesses (e.g., two different private keys that both sign the same message, or two different paths through a maze), the verifier cannot tell which one the prover used.</p>
+<p><strong>Witness Indistinguishability</strong></p>
+<p>Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weaker but often sufficient property is <strong>Witness Indistinguishability (WI)</strong>. This guarantees that if there are multiple valid witnesses (e.g., two different private keys that both sign the same message, or two different paths through a maze), the verifier cannot tell which one the prover used.</p>
 <p>WI doesn't promise that the verifier learns <em>nothing</em>; it only promises they can't distinguish <em>which</em> witness was used. For many privacy applications (anonymous credentials, ring signatures), WI suffices and is easier to achieve than full ZK.</p>
 </blockquote>
 <h2 id="zero-knowledge-in-the-wild-sum-check"><a class="header" href="#zero-knowledge-in-the-wild-sum-check">Zero-Knowledge in the Wild: Sum-Check</a></h2>

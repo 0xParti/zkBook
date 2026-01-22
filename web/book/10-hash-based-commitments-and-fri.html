@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -292,49 +308,41 @@
 <p><strong>Folding as the algorithmic Schwartz-Zippel</strong>: One way to test if a polynomial is zero: evaluate at a random point. Folding is this idea applied recursively with structure. Each fold is a random evaluation in disguise, and the structure ensures that evaluations compose coherently across rounds.</p>
 <p>This paradigm extends beyond what we cover here. <em>Nova</em> and <em>folding schemes</em> (Chapter 22) fold entire R1CS instances: not polynomials, but constraint systems. The same principle applies: random linear combination of two instances yields a &quot;relaxed&quot; instance that's satisfiable iff both originals were.</p>
 <h2 id="the-fri-folding-process-visual-overview"><a class="header" href="#the-fri-folding-process-visual-overview">The FRI Folding Process: Visual Overview</a></h2>
-<pre><code>+----------------------------------------------------------------------+
-|                      FRI RECURSIVE FOLDING                           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  ROUND 0: f_0(X) has degree &lt; d, evaluated on domain D_0 (size n)    |
-|                                                                      |
-|     f_0(X) = f_{0,E}(X^2) + X * f_{0,O}(X^2)                         |
-|              '---even---'     '---odd---'                            |
-|                    |            |                                    |
-|                    '-----+------'                                    |
-|                          v                                           |
-|                    f_1(Y) = f_{0,E}(Y) + a_0 * f_{0,O}(Y)            |
-|                                    ^                                 |
-|                         random challenge from verifier               |
-|                                                                      |
-|  RESULT: f_1 has degree &lt; d/2, evaluated on D_1 (size n/2)           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  ROUND 1: Repeat with f_1                                            |
-|                                                                      |
-|     f_1(Y) = f_{1,E}(Y^2) + Y * f_{1,O}(Y^2)                         |
-|                    |            |                                    |
-|                    '-----+------'                                    |
-|                          v                                           |
-|                    f_2(Z) = f_{1,E}(Z) + a_1 * f_{1,O}(Z)            |
-|                                                                      |
-|  RESULT: f_2 has degree &lt; d/4, evaluated on D_2 (size n/4)           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|                        ... log(d) rounds ...                         |
-|                                                                      |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  FINAL ROUND: f_k is a CONSTANT                                      |
-|                                                                      |
-|     degree &lt; d/2^k = 1  -&gt;  f_k = c  (prover sends c directly)       |
-|                                                                      |
-+----------------------------------------------------------------------+
+<pre><code class="language-mermaid">flowchart TB
+    subgraph round0[&quot;ROUND 0: deg(f₀) &lt; d, domain D₀ (size n)&quot;]
+        R0A[&quot;f₀(X) = f₀,E(X²) + X · f₀,O(X²)&quot;]
+        R0B[&quot;even part&quot;]
+        R0C[&quot;odd part&quot;]
+        R0D[&quot;f₁(Y) = f₀,E(Y) + α₀ · f₀,O(Y)&quot;]
+        R0E[&quot;Prover commits via Merkle tree&quot;]
+        R0F[&quot;Verifier sends random α₀&quot;]
+        R0A --&gt; R0B &amp; R0C
+        R0B &amp; R0C --&gt; R0D
+        R0E --&gt; R0F --&gt; R0D
+    end
 
-DOMAIN SHRINKAGE:    n → n/2 → n/4 → ... → constant
-DEGREE SHRINKAGE:    d → d/2 → d/4 → ... → 1
+    subgraph round1[&quot;ROUND 1: deg(f₁) &lt; d/2, domain D₁ (size n/2)&quot;]
+        R1A[&quot;f₁(Y) = f₁,E(Y²) + Y · f₁,O(Y²)&quot;]
+        R1B[&quot;f₂(Z) = f₁,E(Z) + α₁ · f₁,O(Z)&quot;]
+        R1A --&gt; R1B
+    end
 
-Each round: Prover commits via Merkle tree, receives random α
+    subgraph dots[&quot;...&quot;]
+        DD[&quot;log(d) rounds total&quot;]
+    end
+
+    subgraph final[&quot;FINAL: deg(f_k) &lt; 1 = CONSTANT&quot;]
+        FF[&quot;f_k = c&quot;]
+        FG[&quot;Prover sends c directly&quot;]
+        FF --&gt; FG
+    end
+
+    round0 --&gt; round1 --&gt; dots --&gt; final
+
+    subgraph shrink[&quot;SHRINKAGE&quot;]
+        SH1[&quot;Domain: n → n/2 → n/4 → ... → 1&quot;]
+        SH2[&quot;Degree: d → d/2 → d/4 → ... → 1&quot;]
+    end
 </code></pre>
 <h2 id="the-full-fri-protocol"><a class="header" href="#the-full-fri-protocol">The Full FRI Protocol</a></h2>
 <p>FRI consists of two phases: <strong>Commit</strong> and <strong>Query</strong>.</p>

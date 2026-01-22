@@ -6,7 +6,8 @@ Zero-knowledge inverts this. The proof convinces by *concealing* structure: by s
 
 This sounds impossible. It isn't, but it requires care.
 
-> [!note] The Retrofit Problem
+> **The Retrofit Problem**
+>
 > Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?
 
 We've defined zero-knowledge in Chapter 17. We've seen it in $\Sigma$-protocols. But proof systems aren't born zero-knowledge; they're made that way. Strip the blinding from Groth16 and you still have a valid SNARK: sound, succinct, verifiable. But the proof elements would leak information about the witness. The random values $r, s$ we saw in Chapter 12 exist precisely to prevent this. Similarly, PLONK without its blinding polynomials $(b_1 X + b_2) Z_H(X)$ would verify correctly but expose witness-dependent evaluations.
@@ -431,7 +432,8 @@ The pattern: find the "null space" of the verification procedure (transformation
 | **Post-quantum** | No (relies on discrete log) | Yes (with hash-based PCS) |
 | **Complexity** | Conceptually straightforward | Requires algebraic design |
 
-> [!note] A Dimensionality Distinction
+> **A Dimensionality Distinction**
+>
 > These two techniques operate at different levels of abstraction. Commit-and-prove works on *scalars*: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on *functions*: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.
 
 **When to use commit-and-prove:**

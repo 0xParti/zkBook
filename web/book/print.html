@@ -26,6 +26,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -1253,48 +1269,50 @@ For a CNF formula $\phi = C_1 \land C_2 \land \cdots \land C_m$, the formula is 
 <p>The prover uses sum-check to convince the verifier of this count. The polynomial $g_\phi$ has degree 2 in each variable (degree 4 total), so each round polynomial has degree at most 2, requiring 3 field elements per round.</p>
 <h2 id="the-protocol-flow-a-visual-guide"><a class="header" href="#the-protocol-flow-a-visual-guide">The Protocol Flow: A Visual Guide</a></h2>
 <p>The following diagram traces the claim reduction through each round:</p>
-<pre><code>+------------------------------------------------------------------+
-|  INITIAL CLAIM: H = sum of g(b_1, b_2, ..., b_v) over 2^v points |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 1: Prover sends g_1(X_1)                                  |
-|                                                                  |
-|  Verifier checks: g_1(0) + g_1(1) = H                            |
-|  Verifier picks random r_1                                       |
-|  New claim: g_1(r_1) = sum of g(r_1, b_2, ..., b_v)              |
-|             over 2^(v-1) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 2: Prover sends g_2(X_2)                                  |
-|                                                                  |
-|  Verifier checks: g_2(0) + g_2(1) = g_1(r_1)                     |
-|  Verifier picks random r_2                                       |
-|  New claim: g_2(r_2) = sum of g(r_1, r_2, b_3, ..., b_v)         |
-|             over 2^(v-2) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-                             . . .
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND v: Prover sends g_v(X_v)                                  |
-|                                                                  |
-|  Verifier checks: g_v(0) + g_v(1) = g_{v-1}(r_{v-1})             |
-|  Verifier picks random r_v                                       |
-|  Final claim: g_v(r_v) = g(r_1, r_2, ..., r_v) -- a SINGLE point!|
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  FINAL CHECK: Verifier evaluates g(r_1, ..., r_v) directly       |
-|                                                                  |
-|  Compare with g_v(r_v). If equal -&gt; ACCEPT. Otherwise -&gt; REJECT. |
-+------------------------------------------------------------------+
+<pre><code class="language-mermaid">flowchart TB
+    subgraph init[&quot;INITIAL CLAIM&quot;]
+        I[&quot;H = Σ g(b₁, b₂, ..., bᵥ) over 2ᵛ points&quot;]
+    end
+
+    subgraph r1[&quot;ROUND 1&quot;]
+        R1P[&quot;Prover sends g₁(X₁)&quot;]
+        R1V[&quot;Verifier checks: g₁(0) + g₁(1) = H&quot;]
+        R1C[&quot;Verifier picks random r₁&quot;]
+        R1N[&quot;New claim: g₁(r₁) = Σ g(r₁, b₂, ..., bᵥ)&lt;br/&gt;over 2ᵛ⁻¹ points&quot;]
+        R1P --&gt; R1V --&gt; R1C --&gt; R1N
+    end
+
+    subgraph r2[&quot;ROUND 2&quot;]
+        R2P[&quot;Prover sends g₂(X₂)&quot;]
+        R2V[&quot;Verifier checks: g₂(0) + g₂(1) = g₁(r₁)&quot;]
+        R2C[&quot;Verifier picks random r₂&quot;]
+        R2N[&quot;New claim: g₂(r₂) = Σ g(r₁, r₂, b₃, ..., bᵥ)&lt;br/&gt;over 2ᵛ⁻² points&quot;]
+        R2P --&gt; R2V --&gt; R2C --&gt; R2N
+    end
+
+    subgraph dots[&quot;...&quot;]
+        D[&quot;ν rounds total&quot;]
+    end
+
+    subgraph rv[&quot;ROUND ν&quot;]
+        RVP[&quot;Prover sends gᵥ(Xᵥ)&quot;]
+        RVV[&quot;Verifier checks: gᵥ(0) + gᵥ(1) = gᵥ₋₁(rᵥ₋₁)&quot;]
+        RVC[&quot;Verifier picks random rᵥ&quot;]
+        RVN[&quot;Final claim: gᵥ(rᵥ) = g(r₁, r₂, ..., rᵥ)&lt;br/&gt;A SINGLE POINT!&quot;]
+        RVP --&gt; RVV --&gt; RVC --&gt; RVN
+    end
+
+    subgraph final[&quot;FINAL CHECK&quot;]
+        F1[&quot;Verifier evaluates g(r₁, ..., rᵥ) directly&quot;]
+        F2{&quot;g(r₁,...,rᵥ) = gᵥ(rᵥ)?&quot;}
+        F3[&quot;✓ ACCEPT&quot;]
+        F4[&quot;✗ REJECT&quot;]
+        F1 --&gt; F2
+        F2 --&gt;|Yes| F3
+        F2 --&gt;|No| F4
+    end
+
+    init --&gt; r1 --&gt; r2 --&gt; dots --&gt; rv --&gt; final
 </code></pre>
 <p>The reduction is exponential: $2^\nu \to 2^{\nu-1} \to 2^{\nu-2} \to \ldots \to 2^0 = 1$.</p>
 <h2 id="the-magic-of-deferred-evaluation"><a class="header" href="#the-magic-of-deferred-evaluation">The Magic of Deferred Evaluation</a></h2>
@@ -2423,6 +2441,47 @@ $$f_i(r_i, s_b, s_c) = \widetilde{\text{add}}<em>i(r_i, s_b, s_c) \cdot (\tilde{
 <p><strong>Final Check</strong>:</p>
 <p>After $d$ reductions, the verifier holds a claim: &quot;$\tilde{W}_d(r_d) = V_d$&quot;</p>
 <p>But layer $d$ is the input layer! The verifier knows the inputs. She computes $\tilde{W}_d(r_d)$ herself and checks if it equals $V_d$.</p>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph setup[&quot;SETUP&quot;]
+        S1[&quot;Prover sends claimed output W₀&quot;]
+        S2[&quot;Verifier picks random r₀&quot;]
+        S3[&quot;V₀ = W̃₀(r₀)&quot;]
+        S1 --&gt; S2 --&gt; S3
+    end
+
+    subgraph layer0[&quot;LAYER 0 → LAYER 1&quot;]
+        L0A[&quot;Claim: W̃₀(r₀) = V₀&quot;]
+        L0B[&quot;Run sum-check on&lt;br/&gt;V₀ = Σ f₀(r₀, b, c)&quot;]
+        L0C[&quot;Sum-check yields points s_b, s_c&quot;]
+        L0D[&quot;Prover claims W̃₁(s_b) and W̃₁(s_c)&quot;]
+        L0E[&quot;Reduce two claims to one via&lt;br/&gt;random α on line through s_b, s_c&quot;]
+        L0F[&quot;New claim: W̃₁(r₁) = V₁&quot;]
+        L0A --&gt; L0B --&gt; L0C --&gt; L0D --&gt; L0E --&gt; L0F
+    end
+
+    subgraph layeri[&quot;LAYER i → LAYER i+1&quot;]
+        LIA[&quot;Claim: W̃ᵢ(rᵢ) = Vᵢ&quot;]
+        LIB[&quot;Run sum-check on&lt;br/&gt;Vᵢ = Σ fᵢ(rᵢ, b, c)&quot;]
+        LIC[&quot;Reduce to single claim&quot;]
+        LID[&quot;New claim: W̃ᵢ₊₁(rᵢ₊₁) = Vᵢ₊₁&quot;]
+        LIA --&gt; LIB --&gt; LIC --&gt; LID
+    end
+
+    subgraph final[&quot;FINAL CHECK (Layer d = Inputs)&quot;]
+        F1[&quot;Claim: W̃_d(r_d) = V_d&quot;]
+        F2[&quot;Verifier computes W̃_d(r_d)&lt;br/&gt;directly from known inputs&quot;]
+        F3{&quot;Match?&quot;}
+        F4[&quot;✓ ACCEPT&quot;]
+        F5[&quot;✗ REJECT&quot;]
+        F1 --&gt; F2 --&gt; F3
+        F3 --&gt;|Yes| F4
+        F3 --&gt;|No| F5
+    end
+
+    setup --&gt; layer0
+    layer0 --&gt; layeri
+    layeri -.-&gt;|&quot;d-1 reductions&quot;| final
+</code></pre>
 <h2 id="worked-example-verifying-x_1--x_2-cdot-x_3"><a class="header" href="#worked-example-verifying-x_1--x_2-cdot-x_3">Worked Example: Verifying $(x_1 + x_2) \cdot x_3$</a></h2>
 <p>Let's trace through the protocol with $x_1 = 2$, $x_2 = 3$, $x_3 = 4$.</p>
 <p><strong>Honest computation</strong>:</p>
@@ -3920,49 +3979,41 @@ $$D_1 = \langle \vec{v}<em>1, \Gamma_2 \rangle + r</em>{D_1} H_T, \quad D_2 = \l
 <p><strong>Folding as the algorithmic Schwartz-Zippel</strong>: One way to test if a polynomial is zero: evaluate at a random point. Folding is this idea applied recursively with structure. Each fold is a random evaluation in disguise, and the structure ensures that evaluations compose coherently across rounds.</p>
 <p>This paradigm extends beyond what we cover here. <em>Nova</em> and <em>folding schemes</em> (Chapter 22) fold entire R1CS instances: not polynomials, but constraint systems. The same principle applies: random linear combination of two instances yields a &quot;relaxed&quot; instance that's satisfiable iff both originals were.</p>
 <h2 id="the-fri-folding-process-visual-overview"><a class="header" href="#the-fri-folding-process-visual-overview">The FRI Folding Process: Visual Overview</a></h2>
-<pre><code>+----------------------------------------------------------------------+
-|                      FRI RECURSIVE FOLDING                           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  ROUND 0: f_0(X) has degree &lt; d, evaluated on domain D_0 (size n)    |
-|                                                                      |
-|     f_0(X) = f_{0,E}(X^2) + X * f_{0,O}(X^2)                         |
-|              '---even---'     '---odd---'                            |
-|                    |            |                                    |
-|                    '-----+------'                                    |
-|                          v                                           |
-|                    f_1(Y) = f_{0,E}(Y) + a_0 * f_{0,O}(Y)            |
-|                                    ^                                 |
-|                         random challenge from verifier               |
-|                                                                      |
-|  RESULT: f_1 has degree &lt; d/2, evaluated on D_1 (size n/2)           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  ROUND 1: Repeat with f_1                                            |
-|                                                                      |
-|     f_1(Y) = f_{1,E}(Y^2) + Y * f_{1,O}(Y^2)                         |
-|                    |            |                                    |
-|                    '-----+------'                                    |
-|                          v                                           |
-|                    f_2(Z) = f_{1,E}(Z) + a_1 * f_{1,O}(Z)            |
-|                                                                      |
-|  RESULT: f_2 has degree &lt; d/4, evaluated on D_2 (size n/4)           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|                        ... log(d) rounds ...                         |
-|                                                                      |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  FINAL ROUND: f_k is a CONSTANT                                      |
-|                                                                      |
-|     degree &lt; d/2^k = 1  -&gt;  f_k = c  (prover sends c directly)       |
-|                                                                      |
-+----------------------------------------------------------------------+
+<pre><code class="language-mermaid">flowchart TB
+    subgraph round0[&quot;ROUND 0: deg(f₀) &lt; d, domain D₀ (size n)&quot;]
+        R0A[&quot;f₀(X) = f₀,E(X²) + X · f₀,O(X²)&quot;]
+        R0B[&quot;even part&quot;]
+        R0C[&quot;odd part&quot;]
+        R0D[&quot;f₁(Y) = f₀,E(Y) + α₀ · f₀,O(Y)&quot;]
+        R0E[&quot;Prover commits via Merkle tree&quot;]
+        R0F[&quot;Verifier sends random α₀&quot;]
+        R0A --&gt; R0B &amp; R0C
+        R0B &amp; R0C --&gt; R0D
+        R0E --&gt; R0F --&gt; R0D
+    end
 
-DOMAIN SHRINKAGE:    n → n/2 → n/4 → ... → constant
-DEGREE SHRINKAGE:    d → d/2 → d/4 → ... → 1
+    subgraph round1[&quot;ROUND 1: deg(f₁) &lt; d/2, domain D₁ (size n/2)&quot;]
+        R1A[&quot;f₁(Y) = f₁,E(Y²) + Y · f₁,O(Y²)&quot;]
+        R1B[&quot;f₂(Z) = f₁,E(Z) + α₁ · f₁,O(Z)&quot;]
+        R1A --&gt; R1B
+    end
 
-Each round: Prover commits via Merkle tree, receives random α
+    subgraph dots[&quot;...&quot;]
+        DD[&quot;log(d) rounds total&quot;]
+    end
+
+    subgraph final[&quot;FINAL: deg(f_k) &lt; 1 = CONSTANT&quot;]
+        FF[&quot;f_k = c&quot;]
+        FG[&quot;Prover sends c directly&quot;]
+        FF --&gt; FG
+    end
+
+    round0 --&gt; round1 --&gt; dots --&gt; final
+
+    subgraph shrink[&quot;SHRINKAGE&quot;]
+        SH1[&quot;Domain: n → n/2 → n/4 → ... → 1&quot;]
+        SH2[&quot;Degree: d → d/2 → d/4 → ... → 1&quot;]
+    end
 </code></pre>
 <h2 id="the-full-fri-protocol"><a class="header" href="#the-full-fri-protocol">The Full FRI Protocol</a></h2>
 <p>FRI consists of two phases: <strong>Commit</strong> and <strong>Query</strong>.</p>
@@ -4212,64 +4263,45 @@ The &quot;S&quot; stands for &quot;Scalable&quot;: prover time is quasi-linear, 
 <p>Modern SNARKs decompose into three layers, each with a distinct role. Understanding this decomposition is more valuable than memorizing any particular system; it provides the conceptual vocabulary to navigate the entire landscape.</p>
 <h2 id="the-three-layer-architecture"><a class="header" href="#the-three-layer-architecture">The Three-Layer Architecture</a></h2>
 <p>Every modern SNARK follows the same structural pattern:</p>
-<pre><code>┌───────────────────────────────────────────────────────────────────────┐
-│                    THE SNARK CONSTRUCTION PIPELINE                     │
-├───────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  COMPUTATION                                                 │    │
-│   │  &quot;I know x such that f(x) = y&quot;                              │    │
-│   └───────────────────────────────┬─────────────────────────────┘    │
-│                                   │                                   │
-│                                   ▼  Arithmetization                  │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  POLYNOMIAL CONSTRAINTS                                      │    │
-│   │  R1CS, PLONK gates, AIR, etc.                               │    │
-│   └───────────────────────────────┬─────────────────────────────┘    │
-│                                   │                                   │
-│                                   ▼                                   │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 1: Interactive Oracle Proof (IOP)                        ║ │
-│  ║                                                                  ║ │
-│  ║  • Prover sends polynomials (abstractly)                        ║ │
-│  ║  • Verifier queries evaluations at random points                ║ │
-│  ║  • Protocol logic: what to check, how to challenge              ║ │
-│  ║                                                                  ║ │
-│  ║  Examples: Sum-check, PLONK IOP, GKR                            ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 2: Polynomial Commitment Scheme (PCS)                    ║ │
-│  ║                                                                  ║ │
-│  ║  • Commit: polynomial → short commitment                        ║ │
-│  ║  • Open: prove evaluation at a point                            ║ │
-│  ║  • Binding: can't change polynomial after commit                ║ │
-│  ║                                                                  ║ │
-│  ║  Options: KZG (trusted), IPA (transparent), FRI (post-quantum)  ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 3: Fiat-Shamir Transformation                            ║ │
-│  ║                                                                  ║ │
-│  ║  • Replace verifier randomness with hash outputs                ║ │
-│  ║  • Challenge = Hash(transcript so far)                          ║ │
-│  ║  • Interactive → Non-interactive                                ║ │
-│  ║                                                                  ║ │
-│  ║  Security: Random Oracle Model                                  ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  RESULT: Non-Interactive Zero-Knowledge Argument (SNARK)    │    │
-│   │                                                              │    │
-│   │  • Proof: ~100 bytes to ~100 KB depending on choices        │    │
-│   │  • Verification: milliseconds, independent of circuit size  │    │
-│   │  • Properties: succinct, sound, (optionally) zero-knowledge │    │
-│   └─────────────────────────────────────────────────────────────┘    │
-│                                                                       │
-└───────────────────────────────────────────────────────────────────────┘
+<pre><code class="language-mermaid">flowchart TB
+    subgraph input[&quot;INPUT&quot;]
+        COMP[&quot;COMPUTATION&lt;br/&gt;'I know x such that f(x) = y'&quot;]
+    end
+
+    subgraph arith[&quot;ARITHMETIZATION&quot;]
+        POLY[&quot;POLYNOMIAL CONSTRAINTS&lt;br/&gt;R1CS, PLONK gates, AIR, etc.&quot;]
+    end
+
+    subgraph layer1[&quot;LAYER 1: Interactive Oracle Proof (IOP)&quot;]
+        IOP1[&quot;• Prover sends polynomials (abstractly)&quot;]
+        IOP2[&quot;• Verifier queries evaluations at random points&quot;]
+        IOP3[&quot;• Protocol logic: what to check, how to challenge&quot;]
+        IOP4[&quot;Examples: Sum-check, PLONK IOP, GKR&quot;]
+    end
+
+    subgraph layer2[&quot;LAYER 2: Polynomial Commitment Scheme (PCS)&quot;]
+        PCS1[&quot;• Commit: polynomial → short commitment&quot;]
+        PCS2[&quot;• Open: prove evaluation at a point&quot;]
+        PCS3[&quot;• Binding: can't change polynomial after commit&quot;]
+        PCS4[&quot;Options: KZG (trusted), IPA (transparent), FRI (post-quantum)&quot;]
+    end
+
+    subgraph layer3[&quot;LAYER 3: Fiat-Shamir Transformation&quot;]
+        FS1[&quot;• Replace verifier randomness with hash outputs&quot;]
+        FS2[&quot;• Challenge = Hash(transcript so far)&quot;]
+        FS3[&quot;• Interactive → Non-interactive&quot;]
+        FS4[&quot;Security: Random Oracle Model&quot;]
+    end
+
+    subgraph output[&quot;RESULT&quot;]
+        SNARK[&quot;NON-INTERACTIVE ZERO-KNOWLEDGE ARGUMENT (SNARK)&lt;br/&gt;• Proof: ~100 bytes to ~100 KB&lt;br/&gt;• Verification: milliseconds&lt;br/&gt;• Properties: succinct, sound, (optionally) zero-knowledge&quot;]
+    end
+
+    COMP --&gt; POLY
+    POLY --&gt; layer1
+    layer1 --&gt; layer2
+    layer2 --&gt; layer3
+    layer3 --&gt; SNARK
 </code></pre>
 <p><strong>Layer 1</strong> operates in an idealized model where the verifier has <em>oracle access</em> to polynomials (they can query evaluations at arbitrary points without seeing the polynomial's full description). The protocol's logic is defined here: what polynomials the prover sends, what checks the verifier performs, how challenges and responses interleave.</p>
 <p><strong>Layer 2</strong> instantiates the oracle model cryptographically. Oracle access becomes commitment and opening: the prover commits to a polynomial before seeing queries, then provides evaluation proofs at requested points. The binding property of the commitment scheme ensures the prover cannot retroactively modify their polynomial.</p>
@@ -5962,8 +5994,8 @@ $$h(X) = \sum_{i: f(\omega^i) = f_i} \frac{1}{\gamma + f(\omega^i)} - \sum_{j} \
 <p>$$Q(X) = \frac{C(X)}{Z_{H'}(X)}$$</p>
 <p>is a polynomial of known degree. If $C(X)$ doesn't vanish on $H'$ (if the trace violates the transition constraint somewhere) then $Q(X)$ isn't a polynomial. It's a rational function with poles at the violation points.</p>
 <blockquote>
-<p>[!note] Why Constraint Degree Matters
-The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.</p>
+<p><strong>Why Constraint Degree Matters</strong></p>
+<p>The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.</p>
 <p>This creates a fundamental trade-off. Higher-degree constraints let you express more complex transitions in a single step, but they blow up the prover's work. A degree-8 constraint over a million-step trace produces a composition polynomial of degree ~8 million, requiring proportionally more commitment and FRI work. Most practical AIR systems keep constraint degree between 2 and 4, accepting more trace columns (more registers) to avoid high-degree terms. The art of AIR design is balancing expressiveness against this degree bottleneck.</p>
 </blockquote>
 <p><strong>Boundary constraints</strong> pin down the inputs and outputs. Transition constraints say &quot;each step follows the rules&quot;; boundary constraints say &quot;we started here and ended there.&quot; In our $3^8$ example:</p>
@@ -6060,8 +6092,8 @@ The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If 
 <p>Why does this work? The prover committed to the trace <em>before</em> learning the query points (Fiat-Shamir). If the trace violates any constraint, the composition &quot;polynomial&quot; isn't actually low-degree; it has poles. FRI catches this. If the trace is valid but the prover committed to a <em>different</em> composition, the two disagree at most points (Schwartz-Zippel). The random queries catch this.</p>
 <p>The AIR-FRI link is where the abstract (FRI proves low-degree) meets the concrete (this specific polynomial encodes this specific computation).</p>
 <blockquote>
-<p>[!note] DEEP-FRI vs. Standard FRI
-The protocol described here uses the <strong>DEEP method</strong> (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree <em>on $D$</em> but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ <em>outside</em> $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The &quot;domain extension&quot; refers to this expansion beyond $D$; &quot;eliminating pretenders&quot; refers to catching cheaters whose polynomials only <em>pretend</em> to be correct within the original domain.</p>
+<p><strong>DEEP-FRI vs. Standard FRI</strong></p>
+<p>The protocol described here uses the <strong>DEEP method</strong> (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree <em>on $D$</em> but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ <em>outside</em> $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The &quot;domain extension&quot; refers to this expansion beyond $D$; &quot;eliminating pretenders&quot; refers to catching cheaters whose polynomials only <em>pretend</em> to be correct within the original domain.</p>
 </blockquote>
 <h2 id="a-concrete-example-fibonacci"><a class="header" href="#a-concrete-example-fibonacci">A Concrete Example: Fibonacci</a></h2>
 <p>Let's trace the protocol on a minimal computation: proving knowledge of the 7th Fibonacci number.</p>
@@ -6224,8 +6256,8 @@ $$(x_1, y_1) \cdot (x_2, y_2) = (x_1 x_2 - y_1 y_2, x_1 y_2 + x_2 y_1)$$</p>
 <p>The mathematics was forbidding. Goldwasser, Micali, and Rackoff had formalized the concept four years earlier, but their definitions involved Turing machines, polynomial-time simulators, and computational indistinguishability. Quisquater wanted something a six-year-old could grasp.</p>
 <p>So he invented a cave.</p>
 <blockquote>
-<p>[!note] The Children's Story
-In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier) that she knows the magic word to open a door deep inside a cave. The cave splits into two paths (Left and Right) that reconnect at the magic door.</p>
+<p><strong>The Children's Story</strong></p>
+<p>In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier) that she knows the magic word to open a door deep inside a cave. The cave splits into two paths (Left and Right) that reconnect at the magic door.</p>
 <p>Peggy enters the cave and takes a random path while Victor waits outside. Victor then walks to the fork and shouts: &quot;Come out the Left path!&quot;</p>
 <p>If Peggy knows the magic word, she can always comply. If she originally went Left, she walks out. If she went Right, she opens the door with the magic word and exits through the Left. Either way, Victor sees her emerge from the Left.</p>
 <p>If Peggy <em>doesn't</em> know the word, she's trapped. Half the time, Victor shouts for the path she's already on (she succeeds). Half the time, he shouts for the other side (she fails, stuck behind a locked door).</p>
@@ -6263,10 +6295,27 @@ In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier)
 <p><strong>Verification.</strong> The verifier checks whether $g^z = a \cdot h^e$. Accept if yes, reject otherwise.</p>
 </li>
 </ol>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant P as Prover (knows w)
+    participant V as Verifier
+
+    Note over P: Sample r ← ℤq
+    Note over P: Compute a = gʳ
+    P-&gt;&gt;V: a (commitment)
+
+    Note over V: Sample e ← ℤq
+    V-&gt;&gt;P: e (challenge)
+
+    Note over P: Compute z = r + w·e
+    P-&gt;&gt;V: z (response)
+
+    Note over V: Check gᶻ = a · hᵉ
+    Note over V: Accept / Reject
+</code></pre>
 <p>That's the entire protocol. Let's understand why it works.</p>
 <blockquote>
-<p>[!note] The Equation of a Line
-Schnorr's protocol is secretly proving you know the equation of a line. In $z = r + w \cdot e$, think of $w$ as the slope and $r$ as the y-intercept. The prover commits to the intercept ($r$, hidden as $a = g^r$). The verifier picks an x-coordinate ($e$). The prover reveals the y-coordinate ($z$). One point on a line doesn't reveal the slope, but two points would. That's why the protocol must be run once per challenge: a single $(e, z)$ pair is consistent with infinitely many slopes, but two pairs with the same intercept uniquely determine $w$.</p>
+<p><strong>The Equation of a Line</strong></p>
+<p>Schnorr's protocol is secretly proving you know the equation of a line. In $z = r + w \cdot e$, think of $w$ as the slope and $r$ as the y-intercept. The prover commits to the intercept ($r$, hidden as $a = g^r$). The verifier picks an x-coordinate ($e$). The prover reveals the y-coordinate ($z$). One point on a line doesn't reveal the slope, but two points would. That's why the protocol must be run once per challenge: a single $(e, z)$ pair is consistent with infinitely many slopes, but two pairs with the same intercept uniquely determine $w$.</p>
 </blockquote>
 <p><strong>Completeness.</strong> An honest prover with the correct $w$ always passes verification:
 $$g^z = g^{r + we} = g^r \cdot g^{we} = g^r \cdot (g^w)^e = a \cdot h^e$$</p>
@@ -6280,8 +6329,8 @@ $$g^{z_1 - z_2} = h^{e_1 - e_2}$$</p>
 $$w = \frac{z_1 - z_2}{e_1 - e_2} \mod q$$</p>
 <p>A cheater who could answer two challenges <em>must</em> know $w$. This is <strong>special soundness</strong>: two accepting transcripts with different challenges allow extracting the witness.</p>
 <blockquote>
-<p>[!note] The Rewinding Lemma
-How do we get two transcripts with the same commitment $a$ but different challenges? In real life, we cannot. The prover sends $a$ only once, receives one challenge, and responds.</p>
+<p><strong>The Rewinding Lemma</strong></p>
+<p>How do we get two transcripts with the same commitment $a$ but different challenges? In real life, we cannot. The prover sends $a$ only once, receives one challenge, and responds.</p>
 <p>But in a thought experiment, we can <em>rewind time</em>. We let the prover send $a$, we send challenge $e_1$, and receive response $z_1$. Then we press &quot;rewind,&quot; return to the moment after they sent $a$, and send a <em>different</em> challenge $e_2$. If the prover can answer both, we solve the system of equations to extract $w$.</p>
 <p>This &quot;rewinding&quot; argument is the mathematical foundation of proofs of knowledge. It's why $\Sigma$-protocols prove you <em>know</em> something, not merely that something exists. An extractor with rewind powers could pry the secret from any successful prover.</p>
 </blockquote>
@@ -6292,8 +6341,8 @@ How do we get two transcripts with the same commitment $a$ but different challen
 <li>Compute $a = g^z \cdot h^{-e}$ (the commitment that <em>makes</em> the equation hold)</li>
 </ol>
 <blockquote>
-<p>[!note] The Simulator's Time Machine
-In real execution, events unfold: Commitment → Challenge → Response. The simulator cheats time. It picks the answer first ($z$), invents a question that fits ($e$), then back-calculates what the commitment &quot;must have been&quot; ($a = g^z h^{-e}$). This temporal reversal is invisible in the final transcript. Anyone looking at $(a, e, z)$ cannot tell whether it was produced forward (by someone who knows $w$) or backward (by someone who cheated time). This is the heart of zero-knowledge: if a transcript can be faked without the secret, then having the secret cannot be what makes the transcript convincing. The transcript itself carries no information about $w$.</p>
+<p><strong>The Simulator's Time Machine</strong></p>
+<p>In real execution, events unfold: Commitment → Challenge → Response. The simulator cheats time. It picks the answer first ($z$), invents a question that fits ($e$), then back-calculates what the commitment &quot;must have been&quot; ($a = g^z h^{-e}$). This temporal reversal is invisible in the final transcript. Anyone looking at $(a, e, z)$ cannot tell whether it was produced forward (by someone who knows $w$) or backward (by someone who cheated time). This is the heart of zero-knowledge: if a transcript can be faked without the secret, then having the secret cannot be what makes the transcript convincing. The transcript itself carries no information about $w$.</p>
 </blockquote>
 <p>Check: $g^z = a \cdot h^e = g^z h^{-e} \cdot h^e = g^z$.</p>
 <p>The transcript $(a, e, z)$ is valid. And its distribution is identical to a real transcript:</p>
@@ -6433,8 +6482,8 @@ $$C_3 = (C_1 \cdot h^{-r_1})^{m_2} h^{r_3} = C_1^{m_2} \cdot h^{r_3 - r_1 m_2}$$
 <p>If the prover knows both witnesses, they can respond to any challenge. If they lack either witness, they can't respond correctly.</p>
 <p><strong>OR composition.</strong> To prove &quot;I know $w_1$ OR $w_2$&quot; (without revealing which):</p>
 <blockquote>
-<p>[!note] The Card Trick Analogy
-Imagine a magician holding two decks of cards. They claim: &quot;I know the order of Deck A OR the order of Deck B.&quot; You shuffle one deck and ask them to name the top card.</p>
+<p><strong>The Card Trick Analogy</strong></p>
+<p>Imagine a magician holding two decks of cards. They claim: &quot;I know the order of Deck A OR the order of Deck B.&quot; You shuffle one deck and ask them to name the top card.</p>
 <p>If the magician knows that deck's order, they answer instantly. If they don't, they use sleight of hand: they &quot;force&quot; the right card to the top, making it look like they predicted it all along.</p>
 <p>In an OR-proof, the prover plays the magician. For the secret they know, they answer honestly. For the secret they don't know, they use the Simulator (the &quot;sleight of hand&quot;) to produce a transcript that looks legitimate. The verifier sees two correct answers and cannot tell which was genuine knowledge and which was mathematical magic.</p>
 </blockquote>
@@ -6530,8 +6579,8 @@ $$z \cdot G = A + e \cdot H$$</p>
 <p>Imagine a child's puzzle book: <em>Where's Waldo?</em>, with its massive, crowded scenes hiding a single striped figure. You claim you found Waldo. Your friend doesn't believe you. You want to prove you found him without revealing his location (so your friend can still enjoy the puzzle).</p>
 <p>How?</p>
 <blockquote>
-<p>[!note] The Where's Waldo Proof
-You take a large sheet of cardboard with a small hole cut in the middle. You place the puzzle page behind the cardboard, sliding it around until Waldo is visible through the hole. You invite your friend to look.</p>
+<p><strong>The Where's Waldo Proof</strong></p>
+<p>You take a large sheet of cardboard with a small hole cut in the middle. You place the puzzle page behind the cardboard, sliding it around until Waldo is visible through the hole. You invite your friend to look.</p>
 <p>They see Waldo. They are convinced you know where he is. But because the cardboard blocks the context (the trees, the crowd, the hot dog stands), they have no idea where on the page he is located. The surrounding scene, which would reveal the coordinates, is hidden.</p>
 <p>This is the essence of Zero Knowledge. You prove the statement (&quot;I found Waldo&quot;) while hiding the witness (&quot;He's at coordinates (342, 891)&quot;).</p>
 </blockquote>
@@ -6629,8 +6678,8 @@ $$\text{View}_{\mathcal{V}} \stackrel{c}{\approx} \mathcal{S}(x)$$</p>
 <h2 id="the-central-confusion"><a class="header" href="#the-central-confusion">The Central Confusion</a></h2>
 <p>Students encountering zero-knowledge often stumble on this point: <em>if the simulator can produce valid transcripts without the witness, what stops a cheater from doing the same?</em></p>
 <blockquote>
-<p>[!note] The Green Screen Analogy
-Think of a ZK proof as a video of someone walking on the moon.</p>
+<p><strong>The Green Screen Analogy</strong></p>
+<p>Think of a ZK proof as a video of someone walking on the moon.</p>
 <p><strong>Real Interaction</strong>: The astronaut actually flew to the moon, filmed in real time.</p>
 <p><strong>Simulation</strong>: A special effects artist used a green screen to create a video that looks identical to the moon landing.</p>
 <p>If the special effects are perfect (indistinguishable from reality), then watching the video <em>alone</em> proves nothing about whether the moon landing happened. The video itself contains zero knowledge about whether it's real.</p>
@@ -6661,8 +6710,8 @@ Think of a ZK proof as a video of someone walking on the moon.</p>
 </ul>
 <p>Modern SNARKs take both paths. They are <em>arguments</em> (computationally sound) with <em>computational zero-knowledge</em>. This combination enables practical ZK proofs for arbitrary computations, including NP-complete problems and beyond.</p>
 <blockquote>
-<p>[!note] Witness Indistinguishability
-Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weaker but often sufficient property is <strong>Witness Indistinguishability (WI)</strong>. This guarantees that if there are multiple valid witnesses (e.g., two different private keys that both sign the same message, or two different paths through a maze), the verifier cannot tell which one the prover used.</p>
+<p><strong>Witness Indistinguishability</strong></p>
+<p>Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weaker but often sufficient property is <strong>Witness Indistinguishability (WI)</strong>. This guarantees that if there are multiple valid witnesses (e.g., two different private keys that both sign the same message, or two different paths through a maze), the verifier cannot tell which one the prover used.</p>
 <p>WI doesn't promise that the verifier learns <em>nothing</em>; it only promises they can't distinguish <em>which</em> witness was used. For many privacy applications (anonymous credentials, ring signatures), WI suffices and is easier to achieve than full ZK.</p>
 </blockquote>
 <h2 id="zero-knowledge-in-the-wild-sum-check"><a class="header" href="#zero-knowledge-in-the-wild-sum-check">Zero-Knowledge in the Wild: Sum-Check</a></h2>
@@ -6733,8 +6782,8 @@ Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weak
 <p>Zero-knowledge inverts this. The proof convinces by <em>concealing</em> structure: by showing that patterns exist without showing what they are, that relationships hold without revealing the terms, that chains of reasoning connect without exposing the links. The verifier becomes certain of one bit (the statement is true) while learning nothing else.</p>
 <p>This sounds impossible. It isn't, but it requires care.</p>
 <blockquote>
-<p>[!note] The Retrofit Problem
-Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?</p>
+<p><strong>The Retrofit Problem</strong></p>
+<p>Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?</p>
 </blockquote>
 <p>We've defined zero-knowledge in Chapter 17. We've seen it in $\Sigma$-protocols. But proof systems aren't born zero-knowledge; they're made that way. Strip the blinding from Groth16 and you still have a valid SNARK: sound, succinct, verifiable. But the proof elements would leak information about the witness. The random values $r, s$ we saw in Chapter 12 exist precisely to prevent this. Similarly, PLONK without its blinding polynomials $(b_1 X + b_2) Z_H(X)$ would verify correctly but expose witness-dependent evaluations.</p>
 <p>The same is true everywhere. Sum-check sends univariate polynomials derived from the witness (information leaks). GKR reveals layer values computed from the witness (information leaks). Raw STARKs expose trace polynomial evaluations (information leaks). Without deliberate masking, every proof system betrays its secrets.</p>
@@ -7038,8 +7087,8 @@ $$\tilde{w}(\omega^i) = w(\omega^i) + (b_1 \omega^i + b_2) \cdot 0 = w(\omega^i)
 </tbody></table>
 </div>
 <blockquote>
-<p>[!note] A Dimensionality Distinction
-These two techniques operate at different levels of abstraction. Commit-and-prove works on <em>scalars</em>: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on <em>functions</em>: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.</p>
+<p><strong>A Dimensionality Distinction</strong></p>
+<p>These two techniques operate at different levels of abstraction. Commit-and-prove works on <em>scalars</em>: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on <em>functions</em>: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.</p>
 </blockquote>
 <p><strong>When to use commit-and-prove:</strong></p>
 <ul>
@@ -7174,8 +7223,8 @@ $$O(2^{n-1}) + O(2^{n-2}) + \cdots + O(1) = O(2^n)$$</p>
 <p><em>Naive approach</em>: In each of the $n$ rounds, re-evaluate the polynomial at all necessary points from scratch. Round 1 touches $O(2^n)$ terms. Round 2 touches $O(2^{n-1})$ terms, but computes each by going back to the original tables. Round 3 the same. Each round performs a fresh evaluation, and &quot;fresh evaluation&quot; costs the full table size for that round. Total: $n$ separate evaluations, giving $O(n \cdot 2^n)$.</p>
 <p><em>Folding approach</em>: Evaluate once at the start, storing results in a table. Then, after each challenge $r_i$, <em>update</em> the table rather than re-evaluate. The update is cheap: just a linear combination of adjacent entries. No re-evaluation from scratch, ever. The table shrinks by half each round, and we touch each entry exactly once.</p>
 <blockquote>
-<p>[!note] The Origami Analogy
-Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.</p>
+<p><strong>The Origami Analogy</strong></p>
+<p>Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.</p>
 <p><em>Naive approach</em>: Walk down the strip, reading numbers and adding them up. For the next round, walk down the strip again.</p>
 <p><em>Folding approach</em>: Fold the paper in half. Where the paper overlaps, mix the two numbers together based on the random challenge. Now you have a strip half as long. Throw away the original.</p>
 <p>By the end, you have folded the paper into a single square containing one number. You never had to walk back and forth. This is why the prover achieves $O(N)$ total work instead of $O(N \log N)$: each number is touched exactly once, during the fold that eliminates its dimension.</p>
@@ -8171,8 +8220,8 @@ A zkVM with $2^{32}$ addressable memory, dozens of instruction types, and millio
 </tbody></table>
 </div>
 <blockquote>
-<p>[!note] Signal Processing vs. Statistics
-The two paradigms embody different engineering mindsets.</p>
+<p><strong>Signal Processing vs. Statistics</strong></p>
+<p>The two paradigms embody different engineering mindsets.</p>
 <p><strong>Quotienting is signal processing.</strong> It treats data like a sound wave. To check constraints, it runs a Fourier Transform (FFT) to convert the signal into a frequency domain where errors stick out like a sour note. Divisibility by $Z_H$ is the test: a clean signal has no energy at the forbidden frequencies.</p>
 <p><strong>Sum-check is statistics.</strong> It treats data like a population. To check constraints, it takes a random weighted average (expected value) over the whole population. If the average is zero, the population is healthy. No frequency analysis required, just a linear scan.</p>
 <p>This explains the performance gap. FFTs require &quot;shuffling&quot; data across the entire memory space (butterfly operations), which causes cache misses on modern CPUs. Sum-check scans data linearly, which is cache-friendly and trivially parallelizable.</p>
@@ -8277,13 +8326,30 @@ The two paradigms embody different engineering mindsets.</p>
 <p>The <strong>outer proof</strong> is the wrapper, created second. It proves &quot;I ran the inner verifier and it accepted.&quot;</p>
 </li>
 </ul>
-<pre><code>Inner: &quot;I know witness w such that C(w) = y&quot;
-              ↓ produces
-         [Inner Proof π]
-              ↓ becomes witness for
-Outer: &quot;I verified π and it was valid&quot;
-              ↓ produces
-         [Outer Proof π']
+<pre><code class="language-mermaid">flowchart TB
+    subgraph inner[&quot;INNER PROOF (Fast Prover, Large Proof)&quot;]
+        I1[&quot;Statement: 'I know witness w such that C(w) = y'&quot;]
+        I2[&quot;Inner Prover (e.g., STARK)&quot;]
+        I3[&quot;Inner Proof π&lt;br/&gt;(~100 KB)&quot;]
+        I1 --&gt; I2 --&gt; I3
+    end
+
+    subgraph outer[&quot;OUTER PROOF (Slow Prover, Tiny Proof)&quot;]
+        O1[&quot;Statement: 'I verified π and it was valid'&quot;]
+        O2[&quot;Outer Prover (e.g., Groth16)&quot;]
+        O3[&quot;Outer Proof π'&lt;br/&gt;(~128 bytes)&quot;]
+        O1 --&gt; O2 --&gt; O3
+    end
+
+    subgraph delivery[&quot;DELIVERY&quot;]
+        D1[&quot;Verifier receives only π'&quot;]
+        D2[&quot;Verifier checks π' in O(1) time&quot;]
+        D3[&quot;✓ Original statement validated&quot;]
+        D1 --&gt; D2 --&gt; D3
+    end
+
+    I3 --&gt;|&quot;becomes witness for&quot;| O1
+    O3 --&gt;|&quot;π discarded&quot;| D1
 </code></pre>
 <p>The verifier of the outer proof never sees the inner proof or the original witness. They see only $\pi'$ and check that it's valid. If the outer system is zero-knowledge, nothing leaks about $\pi$ or $w$.</p>
 <p>Think of it like nested containers: the inner proof is a large box containing detailed evidence. The outer proof is a small envelope containing a signed attestation that someone trustworthy opened the box and verified its contents. Recipients need only check the signature on the envelope.</p>
@@ -8509,8 +8575,8 @@ Outer: &quot;I verified π and it was valid&quot;
 <h3 id="the-key-insight"><a class="header" href="#the-key-insight">The Key Insight</a></h3>
 <p>Instead of <em>fully verifying</em> $\pi_{i-1}$ at step $i$, we <strong>fold</strong> the claim about step $i-1$ with the claim about step $i$. Folding combines two claims into one claim of the same structure, without verifying either.</p>
 <blockquote>
-<p>[!note] The Debt Analogy
-Imagine you owe the bank money every day (you must verify a proof).</p>
+<p><strong>The Debt Analogy</strong></p>
+<p>Imagine you owe the bank money every day (you must verify a proof).</p>
 <p><strong>Traditional recursion:</strong> You pay off the debt in full every single day. Expensive and slow.</p>
 <p><strong>Folding:</strong> You go to the bank and say, &quot;Can I combine yesterday's debt with today's debt into one IOU?&quot; The bank agrees, using a random challenge to prevent fraud. You do this for a million days. You never pay a cent. On the very last day, you pay off the single accumulated IOU.</p>
 <p>Because &quot;combining debts&quot; is far cheaper than &quot;paying them off,&quot; you save enormous work. The cost of combining is a few group operations; the cost of paying is a full SNARK proof.</p>
@@ -9125,8 +9191,8 @@ $$= (Az_1 \circ Bz_1) + r \cdot (Az_1 \circ Bz_2 + Az_2 \circ Bz_1) + r^2 \cdot 
 <h3 id="multiplication-the-challenge"><a class="header" href="#multiplication-the-challenge">Multiplication: The Challenge</a></h3>
 <p>Multiplication breaks the easy pattern. The product of two shares is <em>not</em> a valid share of the product. Shamir sharing uses polynomials of degree $t-1$. If parties locally multiply their shares $P_a(j) \cdot P_b(j)$, they get evaluations of the product polynomial $P_a \cdot P_b$, which has degree $2(t-1)$. This polynomial does encode $ab$ at zero, but the threshold has effectively doubled: now $2t-1$ parties are needed to reconstruct, not $t$. Repeated multiplications would make the degree explode.</p>
 <blockquote>
-<p>[!note] The Paint Analogy
-Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.</p>
+<p><strong>The Paint Analogy</strong></p>
+<p>Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.</p>
 <p>Multiplying is like mixing colors: Red times Blue makes Purple. You can't un-mix paint to recover the original colors. Worse, the &quot;shade&quot; of your result depends on both inputs in a non-linear way.</p>
 <p>Beaver Triples are like pre-mixed paint samples from a store. We don't know the exact shades (the store mixed them secretly), but we know that Sample A mixed with Sample B produces Sample C. When we need to multiply our real secret colors, we use these pre-mixed samples as a reference point, adjusting our result without ever revealing the original colors we started with.</p>
 </blockquote>
@@ -9400,8 +9466,8 @@ $$\text{Dec}_b(\text{Dec}_a(\text{Enc}_b(\text{Enc}_a(x)))) = x$$</p>
 <h3 id="binary-fields-the-natural-solution"><a class="header" href="#binary-fields-the-natural-solution">Binary Fields: The Natural Solution</a></h3>
 <p><strong>Binius</strong> takes a radical approach: work over binary fields $\mathbb{F}_{2^k}$ where field elements are actual $k$-bit strings. A boolean is a 1-bit field element. A byte is an 8-bit field element. No padding, no waste.</p>
 <blockquote>
-<p>[!note] The Native Language Analogy
-Imagine a Spanish speaker forced to express every thought in German, even when talking to other Spanish speakers. Every sentence requires mental translation. Simple ideas become laborious.</p>
+<p><strong>The Native Language Analogy</strong></p>
+<p>Imagine a Spanish speaker forced to express every thought in German, even when talking to other Spanish speakers. Every sentence requires mental translation. Simple ideas become laborious.</p>
 <p>This is what traditional SNARKs do. They force computer data (bits and bytes) into prime fields (large numbers). A single bit becomes a 256-bit integer. The computer &quot;thinks&quot; in binary, but the proof system demands a foreign representation.</p>
 <p>Binius speaks the computer's native language. It treats bits as bits. It doesn't translate &quot;0&quot; into a 256-bit representation of zero; it keeps it as a single bit. No translation, no overhead.</p>
 </blockquote>
@@ -9520,8 +9586,8 @@ Imagine a Spanish speaker forced to express every thought in German, even when t
 <h3 id="the-hidden-cost"><a class="header" href="#the-hidden-cost">The Hidden Cost</a></h3>
 <p>Discussions of prover efficiency focus on the cryptographic work: computing commitments, running sum-check, evaluating polynomials. But there's a step before that. The witness includes not just the prover's secret input but all intermediate values in the computation. For a circuit with $n$ gates, the witness has $O(n)$ elements. Computing these elements (executing the circuit) can take longer than the proving step itself.</p>
 <blockquote>
-<p>[!note] The Hidden Iceberg
-Academic papers report &quot;prover time&quot; as the time spent on cryptographic operations: MSMs, FFTs, hashes. But the full cost of generating a proof includes witness generation, and this is often the larger piece.</p>
+<p><strong>The Hidden Iceberg</strong></p>
+<p>Academic papers report &quot;prover time&quot; as the time spent on cryptographic operations: MSMs, FFTs, hashes. But the full cost of generating a proof includes witness generation, and this is often the larger piece.</p>
 <p>Think of an iceberg. The cryptographic prover is the visible tip above water. Witness generation is the massive bulk beneath the surface. A paper might report &quot;proving takes 10 seconds&quot; while silently omitting that witness generation took 60 seconds. The total time to produce a proof is 70 seconds, not 10.</p>
 <p>This matters because witness generation and proving have different scaling properties. Proving can be parallelized across GPUs; witness generation is often sequential and memory-bound. Optimizing the cryptographic prover by 10× helps less than you'd expect if witness generation dominates.</p>
 </blockquote>
@@ -9588,8 +9654,8 @@ Academic papers report &quot;prover time&quot; as the time spent on cryptographi
 <h3 id="the-core-idea-learning-with-errors"><a class="header" href="#the-core-idea-learning-with-errors">The Core Idea: Learning With Errors</a></h3>
 <p>Modern FHE rests on a problem called <strong>Learning With Errors (LWE)</strong>. The intuition is simple: linear equations are easy to solve, but linear equations with noise are hard.</p>
 <blockquote>
-<p>[!note] The Radio Noise Analogy
-Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.</p>
+<p><strong>The Radio Noise Analogy</strong></p>
+<p>Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.</p>
 <p>LWE works the same way. The &quot;signal&quot; is a linear equation. Without noise, anyone can solve it. But add a small random error to each equation, and the system becomes unsolvable. The legitimate receiver has a &quot;filter&quot; (the secret key) that strips away the static. Everyone else hears only noise.</p>
 </blockquote>
 <p><strong>The easy problem.</strong> Suppose I give you equations like $3x + 2y = 17$ and $5x + y = 19$. You solve for $x$ and $y$ immediately. This is high school algebra. Even with hundreds of variables, Gaussian elimination solves it in polynomial time.</p>
@@ -9655,8 +9721,8 @@ Imagine you're trying to tune into a radio station. If the signal comes through 
 <p>For narrow applications (simple queries on encrypted databases, basic encrypted analytics), FHE is starting to see deployment. But for general computation, the overhead remains prohibitive. Nobody is running encrypted video processing or encrypted large-language-model inference.</p>
 <p><strong>Will it ever be practical?</strong> Unknown. The optimists point to the trajectory: million-fold → thousand-fold in 15 years. Another 15 years might bring another few orders of magnitude. Hardware acceleration (custom FPGAs, ASICs) could help. The pessimists note that the overhead may be fundamental: noise management and ciphertext expansion might have irreducible costs. ZK proofs found clever ways around their bottlenecks; FHE might not.</p>
 <blockquote>
-<p>[!note] Why Hardware Acceleration Matters
-FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.</p>
+<p><strong>Why Hardware Acceleration Matters</strong></p>
+<p>FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.</p>
 <p>Custom hardware (FPGAs, ASICs) can exploit this parallelism directly. Where a CPU computes one multiplication, a dedicated chip computes thousands in the same clock cycle. Companies like Intel, DARPA, and several startups are building FHE accelerators that promise 100-1000× speedups over software implementations.</p>
 <p>If these accelerators deliver, FHE's effective overhead drops from 1000× to 1-10×. That's the difference between &quot;research curiosity&quot; and &quot;production deployment.&quot;</p>
 </blockquote>
@@ -9723,8 +9789,8 @@ Program B:
 <p><strong>The utopia iO promises.</strong> With efficient iO, you could build almost any cryptographic primitive imaginable. The most striking is <em>witness encryption</em>: encrypt a message so that only someone who knows a solution to a puzzle can decrypt it. Not a specific person with a specific key, but <em>anyone</em> who can solve the puzzle. &quot;This message can be read by whoever proves P ≠ NP.&quot; &quot;This inheritance unlocks for whoever finds my will.&quot; The decryption key doesn't exist until someone produces the witness.</p>
 <p>$$\text{WE.Enc}(\text{statement}, m) \to c \qquad \text{WE.Dec}(c, \text{witness}) \to m$$</p>
 <blockquote>
-<p>[!note] The Time Capsule Analogy: Witness Encryption vs ZK
-Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know <em>who</em> will solve it, or <em>when</em>. The lock itself enforces the access rule.</p>
+<p><strong>The Time Capsule Analogy: Witness Encryption vs ZK</strong></p>
+<p>Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know <em>who</em> will solve it, or <em>when</em>. The lock itself enforces the access rule.</p>
 <p>Zero-knowledge works in the opposite direction. Instead of &quot;prove you can solve this to read the secret,&quot; ZK says &quot;prove you already solved this without showing your solution.&quot; WE grants access based on future knowledge. ZK demonstrates existing knowledge.</p>
 <p>The duality is precise: both are parameterized by an NP statement. WE encrypts <em>to</em> the statement (anyone with a witness can decrypt). ZK proves <em>about</em> the statement (I have a witness, but you won't learn it).</p>
 </blockquote>
@@ -9983,8 +10049,8 @@ $$\prod_{j=0}^{t-1} C_j^{i^j} = \prod_{j=0}^{t-1} g^{a_j \cdot i^j} = g^{\sum_j 
 <p><strong>Montgomery representation</strong>: Store $\bar{a} = a \cdot R \mod p$ where $R = 2^k$ for convenient $k$.</p>
 <p>Montgomery product: $\bar{c} = \bar{a} \cdot \bar{b} \cdot R^{-1} \mod p$</p>
 <blockquote>
-<p>[!note] The Shift Analogy
-Think of Montgomery form as shifting the decimal point. We multiply numbers in a &quot;shifted space&quot; where division by $R$ is just &quot;deleting the last $k$ digits&quot; (a bit shift), which is essentially free in hardware. We only shift back at the end.</p>
+<p><strong>The Shift Analogy</strong></p>
+<p>Think of Montgomery form as shifting the decimal point. We multiply numbers in a &quot;shifted space&quot; where division by $R$ is just &quot;deleting the last $k$ digits&quot; (a bit shift), which is essentially free in hardware. We only shift back at the end.</p>
 <p>It's like computing $1.5 \times 2.5$ by working with $15 \times 25 = 375$, then remembering to put two decimal places back: $3.75$. The multiplication happens in the &quot;scaled up&quot; space where the arithmetic is simpler.</p>
 </blockquote>
 <p>Avoids expensive division by using bit shifts and addition. Conversion overhead amortized over many operations.</p>
@@ -10057,8 +10123,8 @@ $$r = 21888242871839275222246405745257275088548364400416034343698204186575808495
 </div>
 <p>Prove over Pallas, verify in a Vesta circuit; prove over Vesta, verify in a Pallas circuit. The cycle enables indefinite recursion.</p>
 <blockquote>
-<p>[!note] The BN254/Grumpkin Cycle
-While Pallas/Vesta is the most famous cycle (used in Halo 2), the BN254/Grumpkin cycle is crucial for Ethereum developers. Since BN254 is precompiled on Ethereum, systems like Aztec use this cycle to verify recursive proofs on-chain cheaply. Grumpkin is a curve whose base field matches BN254's scalar field, enabling the same recursive trick while staying compatible with Ethereum's existing infrastructure.</p>
+<p><strong>The BN254/Grumpkin Cycle</strong></p>
+<p>While Pallas/Vesta is the most famous cycle (used in Halo 2), the BN254/Grumpkin cycle is crucial for Ethereum developers. Since BN254 is precompiled on Ethereum, systems like Aztec use this cycle to verify recursive proofs on-chain cheaply. Grumpkin is a curve whose base field matches BN254's scalar field, enabling the same recursive trick while staying compatible with Ethereum's existing infrastructure.</p>
 </blockquote>
 <h2 id="group-operations"><a class="header" href="#group-operations">Group Operations</a></h2>
 <p>Elliptic curve SNARKs rely on fast group operations.</p>
@@ -10072,8 +10138,8 @@ $$y_3 = \lambda(x_1 - x_3) - y_1$$</p>
 <p>Represent $(x, y)$ as $(X : Y : Z)$ where $x = X/Z$, $y = Y/Z$.</p>
 <p>Point addition and doubling use only multiplication, avoiding inversion until final conversion.</p>
 <blockquote>
-<p>[!note] The No-Division Rule
-In computer hardware, division is expensive (like doing long division by hand). Multiplication is cheap.</p>
+<p><strong>The No-Division Rule</strong></p>
+<p>In computer hardware, division is expensive (like doing long division by hand). Multiplication is cheap.</p>
 <p>Projective coordinates let us represent points as ratios $(X:Y:Z)$ so we can do all our math using only multiplication. We only perform the expensive division once at the very end to convert back. It's like working with fractions: to compute $\frac{1}{3} + \frac{1}{4}$, you do $\frac{4+3}{12}$ and delay the actual division as long as possible.</p>
 </blockquote>
 <p><strong>Jacobian coordinates</strong>: $(X : Y : Z)$ with $x = X/Z^2$, $y = Y/Z^3$. Optimized for repeated doubling.</p>

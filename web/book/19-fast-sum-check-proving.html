@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -228,8 +244,8 @@ $$O(2^{n-1}) + O(2^{n-2}) + \cdots + O(1) = O(2^n)$$</p>
 <p><em>Naive approach</em>: In each of the $n$ rounds, re-evaluate the polynomial at all necessary points from scratch. Round 1 touches $O(2^n)$ terms. Round 2 touches $O(2^{n-1})$ terms, but computes each by going back to the original tables. Round 3 the same. Each round performs a fresh evaluation, and &quot;fresh evaluation&quot; costs the full table size for that round. Total: $n$ separate evaluations, giving $O(n \cdot 2^n)$.</p>
 <p><em>Folding approach</em>: Evaluate once at the start, storing results in a table. Then, after each challenge $r_i$, <em>update</em> the table rather than re-evaluate. The update is cheap: just a linear combination of adjacent entries. No re-evaluation from scratch, ever. The table shrinks by half each round, and we touch each entry exactly once.</p>
 <blockquote>
-<p>[!note] The Origami Analogy
-Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.</p>
+<p><strong>The Origami Analogy</strong></p>
+<p>Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.</p>
 <p><em>Naive approach</em>: Walk down the strip, reading numbers and adding them up. For the next round, walk down the strip again.</p>
 <p><em>Folding approach</em>: Fold the paper in half. Where the paper overlaps, mix the two numbers together based on the random challenge. Now you have a strip half as long. Throw away the original.</p>
 <p>By the end, you have folded the paper into a single square containing one number. You never had to walk back and forth. This is why the prover achieves $O(N)$ total work instead of $O(N \log N)$: each number is touched exactly once, during the fold that eliminates its dimension.</p>

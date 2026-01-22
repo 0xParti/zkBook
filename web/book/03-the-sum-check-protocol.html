@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -348,48 +364,50 @@ For a CNF formula $\phi = C_1 \land C_2 \land \cdots \land C_m$, the formula is 
 <p>The prover uses sum-check to convince the verifier of this count. The polynomial $g_\phi$ has degree 2 in each variable (degree 4 total), so each round polynomial has degree at most 2, requiring 3 field elements per round.</p>
 <h2 id="the-protocol-flow-a-visual-guide"><a class="header" href="#the-protocol-flow-a-visual-guide">The Protocol Flow: A Visual Guide</a></h2>
 <p>The following diagram traces the claim reduction through each round:</p>
-<pre><code>+------------------------------------------------------------------+
-|  INITIAL CLAIM: H = sum of g(b_1, b_2, ..., b_v) over 2^v points |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 1: Prover sends g_1(X_1)                                  |
-|                                                                  |
-|  Verifier checks: g_1(0) + g_1(1) = H                            |
-|  Verifier picks random r_1                                       |
-|  New claim: g_1(r_1) = sum of g(r_1, b_2, ..., b_v)              |
-|             over 2^(v-1) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 2: Prover sends g_2(X_2)                                  |
-|                                                                  |
-|  Verifier checks: g_2(0) + g_2(1) = g_1(r_1)                     |
-|  Verifier picks random r_2                                       |
-|  New claim: g_2(r_2) = sum of g(r_1, r_2, b_3, ..., b_v)         |
-|             over 2^(v-2) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-                             . . .
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND v: Prover sends g_v(X_v)                                  |
-|                                                                  |
-|  Verifier checks: g_v(0) + g_v(1) = g_{v-1}(r_{v-1})             |
-|  Verifier picks random r_v                                       |
-|  Final claim: g_v(r_v) = g(r_1, r_2, ..., r_v) -- a SINGLE point!|
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  FINAL CHECK: Verifier evaluates g(r_1, ..., r_v) directly       |
-|                                                                  |
-|  Compare with g_v(r_v). If equal -&gt; ACCEPT. Otherwise -&gt; REJECT. |
-+------------------------------------------------------------------+
+<pre><code class="language-mermaid">flowchart TB
+    subgraph init[&quot;INITIAL CLAIM&quot;]
+        I[&quot;H = Σ g(b₁, b₂, ..., bᵥ) over 2ᵛ points&quot;]
+    end
+
+    subgraph r1[&quot;ROUND 1&quot;]
+        R1P[&quot;Prover sends g₁(X₁)&quot;]
+        R1V[&quot;Verifier checks: g₁(0) + g₁(1) = H&quot;]
+        R1C[&quot;Verifier picks random r₁&quot;]
+        R1N[&quot;New claim: g₁(r₁) = Σ g(r₁, b₂, ..., bᵥ)&lt;br/&gt;over 2ᵛ⁻¹ points&quot;]
+        R1P --&gt; R1V --&gt; R1C --&gt; R1N
+    end
+
+    subgraph r2[&quot;ROUND 2&quot;]
+        R2P[&quot;Prover sends g₂(X₂)&quot;]
+        R2V[&quot;Verifier checks: g₂(0) + g₂(1) = g₁(r₁)&quot;]
+        R2C[&quot;Verifier picks random r₂&quot;]
+        R2N[&quot;New claim: g₂(r₂) = Σ g(r₁, r₂, b₃, ..., bᵥ)&lt;br/&gt;over 2ᵛ⁻² points&quot;]
+        R2P --&gt; R2V --&gt; R2C --&gt; R2N
+    end
+
+    subgraph dots[&quot;...&quot;]
+        D[&quot;ν rounds total&quot;]
+    end
+
+    subgraph rv[&quot;ROUND ν&quot;]
+        RVP[&quot;Prover sends gᵥ(Xᵥ)&quot;]
+        RVV[&quot;Verifier checks: gᵥ(0) + gᵥ(1) = gᵥ₋₁(rᵥ₋₁)&quot;]
+        RVC[&quot;Verifier picks random rᵥ&quot;]
+        RVN[&quot;Final claim: gᵥ(rᵥ) = g(r₁, r₂, ..., rᵥ)&lt;br/&gt;A SINGLE POINT!&quot;]
+        RVP --&gt; RVV --&gt; RVC --&gt; RVN
+    end
+
+    subgraph final[&quot;FINAL CHECK&quot;]
+        F1[&quot;Verifier evaluates g(r₁, ..., rᵥ) directly&quot;]
+        F2{&quot;g(r₁,...,rᵥ) = gᵥ(rᵥ)?&quot;}
+        F3[&quot;✓ ACCEPT&quot;]
+        F4[&quot;✗ REJECT&quot;]
+        F1 --&gt; F2
+        F2 --&gt;|Yes| F3
+        F2 --&gt;|No| F4
+    end
+
+    init --&gt; r1 --&gt; r2 --&gt; dots --&gt; rv --&gt; final
 </code></pre>
 <p>The reduction is exponential: $2^\nu \to 2^{\nu-1} \to 2^{\nu-2} \to \ldots \to 2^0 = 1$.</p>
 <h2 id="the-magic-of-deferred-evaluation"><a class="header" href="#the-magic-of-deferred-evaluation">The Magic of Deferred Evaluation</a></h2>

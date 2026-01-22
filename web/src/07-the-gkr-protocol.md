@@ -194,6 +194,49 @@ After $d$ reductions, the verifier holds a claim: "$\tilde{W}_d(r_d) = V_d$"
 
 But layer $d$ is the input layer! The verifier knows the inputs. She computes $\tilde{W}_d(r_d)$ herself and checks if it equals $V_d$.
 
+```mermaid
+flowchart TB
+    subgraph setup["SETUP"]
+        S1["Prover sends claimed output W₀"]
+        S2["Verifier picks random r₀"]
+        S3["V₀ = W̃₀(r₀)"]
+        S1 --> S2 --> S3
+    end
+
+    subgraph layer0["LAYER 0 → LAYER 1"]
+        L0A["Claim: W̃₀(r₀) = V₀"]
+        L0B["Run sum-check on<br/>V₀ = Σ f₀(r₀, b, c)"]
+        L0C["Sum-check yields points s_b, s_c"]
+        L0D["Prover claims W̃₁(s_b) and W̃₁(s_c)"]
+        L0E["Reduce two claims to one via<br/>random α on line through s_b, s_c"]
+        L0F["New claim: W̃₁(r₁) = V₁"]
+        L0A --> L0B --> L0C --> L0D --> L0E --> L0F
+    end
+
+    subgraph layeri["LAYER i → LAYER i+1"]
+        LIA["Claim: W̃ᵢ(rᵢ) = Vᵢ"]
+        LIB["Run sum-check on<br/>Vᵢ = Σ fᵢ(rᵢ, b, c)"]
+        LIC["Reduce to single claim"]
+        LID["New claim: W̃ᵢ₊₁(rᵢ₊₁) = Vᵢ₊₁"]
+        LIA --> LIB --> LIC --> LID
+    end
+
+    subgraph final["FINAL CHECK (Layer d = Inputs)"]
+        F1["Claim: W̃_d(r_d) = V_d"]
+        F2["Verifier computes W̃_d(r_d)<br/>directly from known inputs"]
+        F3{"Match?"}
+        F4["✓ ACCEPT"]
+        F5["✗ REJECT"]
+        F1 --> F2 --> F3
+        F3 -->|Yes| F4
+        F3 -->|No| F5
+    end
+
+    setup --> layer0
+    layer0 --> layeri
+    layeri -.->|"d-1 reductions"| final
+```
+
 
 
 ## Worked Example: Verifying $(x_1 + x_2) \cdot x_3$

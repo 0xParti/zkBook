@@ -182,50 +182,42 @@ This paradigm extends beyond what we cover here. *Nova* and *folding schemes* (C
 
 ## The FRI Folding Process: Visual Overview
 
-```
-+----------------------------------------------------------------------+
-|                      FRI RECURSIVE FOLDING                           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  ROUND 0: f_0(X) has degree < d, evaluated on domain D_0 (size n)    |
-|                                                                      |
-|     f_0(X) = f_{0,E}(X^2) + X * f_{0,O}(X^2)                         |
-|              '---even---'     '---odd---'                            |
-|                    |            |                                    |
-|                    '-----+------'                                    |
-|                          v                                           |
-|                    f_1(Y) = f_{0,E}(Y) + a_0 * f_{0,O}(Y)            |
-|                                    ^                                 |
-|                         random challenge from verifier               |
-|                                                                      |
-|  RESULT: f_1 has degree < d/2, evaluated on D_1 (size n/2)           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  ROUND 1: Repeat with f_1                                            |
-|                                                                      |
-|     f_1(Y) = f_{1,E}(Y^2) + Y * f_{1,O}(Y^2)                         |
-|                    |            |                                    |
-|                    '-----+------'                                    |
-|                          v                                           |
-|                    f_2(Z) = f_{1,E}(Z) + a_1 * f_{1,O}(Z)            |
-|                                                                      |
-|  RESULT: f_2 has degree < d/4, evaluated on D_2 (size n/4)           |
-+----------------------------------------------------------------------+
-|                                                                      |
-|                        ... log(d) rounds ...                         |
-|                                                                      |
-+----------------------------------------------------------------------+
-|                                                                      |
-|  FINAL ROUND: f_k is a CONSTANT                                      |
-|                                                                      |
-|     degree < d/2^k = 1  ->  f_k = c  (prover sends c directly)       |
-|                                                                      |
-+----------------------------------------------------------------------+
+```mermaid
+flowchart TB
+    subgraph round0["ROUND 0: deg(f₀) < d, domain D₀ (size n)"]
+        R0A["f₀(X) = f₀,E(X²) + X · f₀,O(X²)"]
+        R0B["even part"]
+        R0C["odd part"]
+        R0D["f₁(Y) = f₀,E(Y) + α₀ · f₀,O(Y)"]
+        R0E["Prover commits via Merkle tree"]
+        R0F["Verifier sends random α₀"]
+        R0A --> R0B & R0C
+        R0B & R0C --> R0D
+        R0E --> R0F --> R0D
+    end
 
-DOMAIN SHRINKAGE:    n → n/2 → n/4 → ... → constant
-DEGREE SHRINKAGE:    d → d/2 → d/4 → ... → 1
+    subgraph round1["ROUND 1: deg(f₁) < d/2, domain D₁ (size n/2)"]
+        R1A["f₁(Y) = f₁,E(Y²) + Y · f₁,O(Y²)"]
+        R1B["f₂(Z) = f₁,E(Z) + α₁ · f₁,O(Z)"]
+        R1A --> R1B
+    end
 
-Each round: Prover commits via Merkle tree, receives random α
+    subgraph dots["..."]
+        DD["log(d) rounds total"]
+    end
+
+    subgraph final["FINAL: deg(f_k) < 1 = CONSTANT"]
+        FF["f_k = c"]
+        FG["Prover sends c directly"]
+        FF --> FG
+    end
+
+    round0 --> round1 --> dots --> final
+
+    subgraph shrink["SHRINKAGE"]
+        SH1["Domain: n → n/2 → n/4 → ... → 1"]
+        SH2["Degree: d → d/2 → d/4 → ... → 1"]
+    end
 ```
 
 

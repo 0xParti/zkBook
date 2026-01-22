@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -187,13 +203,30 @@
 <p>The <strong>outer proof</strong> is the wrapper, created second. It proves &quot;I ran the inner verifier and it accepted.&quot;</p>
 </li>
 </ul>
-<pre><code>Inner: &quot;I know witness w such that C(w) = y&quot;
-              ↓ produces
-         [Inner Proof π]
-              ↓ becomes witness for
-Outer: &quot;I verified π and it was valid&quot;
-              ↓ produces
-         [Outer Proof π']
+<pre><code class="language-mermaid">flowchart TB
+    subgraph inner[&quot;INNER PROOF (Fast Prover, Large Proof)&quot;]
+        I1[&quot;Statement: 'I know witness w such that C(w) = y'&quot;]
+        I2[&quot;Inner Prover (e.g., STARK)&quot;]
+        I3[&quot;Inner Proof π&lt;br/&gt;(~100 KB)&quot;]
+        I1 --&gt; I2 --&gt; I3
+    end
+
+    subgraph outer[&quot;OUTER PROOF (Slow Prover, Tiny Proof)&quot;]
+        O1[&quot;Statement: 'I verified π and it was valid'&quot;]
+        O2[&quot;Outer Prover (e.g., Groth16)&quot;]
+        O3[&quot;Outer Proof π'&lt;br/&gt;(~128 bytes)&quot;]
+        O1 --&gt; O2 --&gt; O3
+    end
+
+    subgraph delivery[&quot;DELIVERY&quot;]
+        D1[&quot;Verifier receives only π'&quot;]
+        D2[&quot;Verifier checks π' in O(1) time&quot;]
+        D3[&quot;✓ Original statement validated&quot;]
+        D1 --&gt; D2 --&gt; D3
+    end
+
+    I3 --&gt;|&quot;becomes witness for&quot;| O1
+    O3 --&gt;|&quot;π discarded&quot;| D1
 </code></pre>
 <p>The verifier of the outer proof never sees the inner proof or the original witness. They see only $\pi'$ and check that it's valid. If the outer system is zero-knowledge, nothing leaks about $\pi$ or $w$.</p>
 <p>Think of it like nested containers: the inner proof is a large box containing detailed evidence. The outer proof is a small envelope containing a signed attestation that someone trustworthy opened the box and verified its contents. Recipients need only check the signature on the envelope.</p>
@@ -419,8 +452,8 @@ Outer: &quot;I verified π and it was valid&quot;
 <h3 id="the-key-insight"><a class="header" href="#the-key-insight">The Key Insight</a></h3>
 <p>Instead of <em>fully verifying</em> $\pi_{i-1}$ at step $i$, we <strong>fold</strong> the claim about step $i-1$ with the claim about step $i$. Folding combines two claims into one claim of the same structure, without verifying either.</p>
 <blockquote>
-<p>[!note] The Debt Analogy
-Imagine you owe the bank money every day (you must verify a proof).</p>
+<p><strong>The Debt Analogy</strong></p>
+<p>Imagine you owe the bank money every day (you must verify a proof).</p>
 <p><strong>Traditional recursion:</strong> You pay off the debt in full every single day. Expensive and slow.</p>
 <p><strong>Folding:</strong> You go to the bank and say, &quot;Can I combine yesterday's debt with today's debt into one IOU?&quot; The bank agrees, using a random challenge to prevent fraud. You do this for a million days. You never pay a cent. On the very last day, you pay off the single accumulated IOU.</p>
 <p>Because &quot;combining debts&quot; is far cheaper than &quot;paying them off,&quot; you save enormous work. The cost of combining is a few group operations; the cost of paying is a full SNARK proof.</p>

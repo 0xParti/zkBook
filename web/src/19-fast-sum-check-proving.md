@@ -102,7 +102,8 @@ The total prover work is $O(2^n)$, down from the naive $O(n \cdot 2^n)$ analysis
 
 *Folding approach*: Evaluate once at the start, storing results in a table. Then, after each challenge $r_i$, *update* the table rather than re-evaluate. The update is cheap: just a linear combination of adjacent entries. No re-evaluation from scratch, ever. The table shrinks by half each round, and we touch each entry exactly once.
 
-> [!note] The Origami Analogy
+> **The Origami Analogy**
+>
 > Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.
 >
 > *Naive approach*: Walk down the strip, reading numbers and adding them up. For the next round, walk down the strip again.

@@ -16,3 +16,19 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Transform mdBook's code blocks into Mermaid-compatible format
+    document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+      const pre = codeBlock.parentElement;
+      const div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = codeBlock.textContent;
+      pre.parentElement.replaceChild(div, pre);
+    });
+    mermaid.run();
+  });
+</script>

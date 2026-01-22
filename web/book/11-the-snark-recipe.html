@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -173,64 +189,45 @@
 <p>Modern SNARKs decompose into three layers, each with a distinct role. Understanding this decomposition is more valuable than memorizing any particular system; it provides the conceptual vocabulary to navigate the entire landscape.</p>
 <h2 id="the-three-layer-architecture"><a class="header" href="#the-three-layer-architecture">The Three-Layer Architecture</a></h2>
 <p>Every modern SNARK follows the same structural pattern:</p>
-<pre><code>┌───────────────────────────────────────────────────────────────────────┐
-│                    THE SNARK CONSTRUCTION PIPELINE                     │
-├───────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  COMPUTATION                                                 │    │
-│   │  &quot;I know x such that f(x) = y&quot;                              │    │
-│   └───────────────────────────────┬─────────────────────────────┘    │
-│                                   │                                   │
-│                                   ▼  Arithmetization                  │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  POLYNOMIAL CONSTRAINTS                                      │    │
-│   │  R1CS, PLONK gates, AIR, etc.                               │    │
-│   └───────────────────────────────┬─────────────────────────────┘    │
-│                                   │                                   │
-│                                   ▼                                   │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 1: Interactive Oracle Proof (IOP)                        ║ │
-│  ║                                                                  ║ │
-│  ║  • Prover sends polynomials (abstractly)                        ║ │
-│  ║  • Verifier queries evaluations at random points                ║ │
-│  ║  • Protocol logic: what to check, how to challenge              ║ │
-│  ║                                                                  ║ │
-│  ║  Examples: Sum-check, PLONK IOP, GKR                            ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 2: Polynomial Commitment Scheme (PCS)                    ║ │
-│  ║                                                                  ║ │
-│  ║  • Commit: polynomial → short commitment                        ║ │
-│  ║  • Open: prove evaluation at a point                            ║ │
-│  ║  • Binding: can't change polynomial after commit                ║ │
-│  ║                                                                  ║ │
-│  ║  Options: KZG (trusted), IPA (transparent), FRI (post-quantum)  ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 3: Fiat-Shamir Transformation                            ║ │
-│  ║                                                                  ║ │
-│  ║  • Replace verifier randomness with hash outputs                ║ │
-│  ║  • Challenge = Hash(transcript so far)                          ║ │
-│  ║  • Interactive → Non-interactive                                ║ │
-│  ║                                                                  ║ │
-│  ║  Security: Random Oracle Model                                  ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  RESULT: Non-Interactive Zero-Knowledge Argument (SNARK)    │    │
-│   │                                                              │    │
-│   │  • Proof: ~100 bytes to ~100 KB depending on choices        │    │
-│   │  • Verification: milliseconds, independent of circuit size  │    │
-│   │  • Properties: succinct, sound, (optionally) zero-knowledge │    │
-│   └─────────────────────────────────────────────────────────────┘    │
-│                                                                       │
-└───────────────────────────────────────────────────────────────────────┘
+<pre><code class="language-mermaid">flowchart TB
+    subgraph input[&quot;INPUT&quot;]
+        COMP[&quot;COMPUTATION&lt;br/&gt;'I know x such that f(x) = y'&quot;]
+    end
+
+    subgraph arith[&quot;ARITHMETIZATION&quot;]
+        POLY[&quot;POLYNOMIAL CONSTRAINTS&lt;br/&gt;R1CS, PLONK gates, AIR, etc.&quot;]
+    end
+
+    subgraph layer1[&quot;LAYER 1: Interactive Oracle Proof (IOP)&quot;]
+        IOP1[&quot;• Prover sends polynomials (abstractly)&quot;]
+        IOP2[&quot;• Verifier queries evaluations at random points&quot;]
+        IOP3[&quot;• Protocol logic: what to check, how to challenge&quot;]
+        IOP4[&quot;Examples: Sum-check, PLONK IOP, GKR&quot;]
+    end
+
+    subgraph layer2[&quot;LAYER 2: Polynomial Commitment Scheme (PCS)&quot;]
+        PCS1[&quot;• Commit: polynomial → short commitment&quot;]
+        PCS2[&quot;• Open: prove evaluation at a point&quot;]
+        PCS3[&quot;• Binding: can't change polynomial after commit&quot;]
+        PCS4[&quot;Options: KZG (trusted), IPA (transparent), FRI (post-quantum)&quot;]
+    end
+
+    subgraph layer3[&quot;LAYER 3: Fiat-Shamir Transformation&quot;]
+        FS1[&quot;• Replace verifier randomness with hash outputs&quot;]
+        FS2[&quot;• Challenge = Hash(transcript so far)&quot;]
+        FS3[&quot;• Interactive → Non-interactive&quot;]
+        FS4[&quot;Security: Random Oracle Model&quot;]
+    end
+
+    subgraph output[&quot;RESULT&quot;]
+        SNARK[&quot;NON-INTERACTIVE ZERO-KNOWLEDGE ARGUMENT (SNARK)&lt;br/&gt;• Proof: ~100 bytes to ~100 KB&lt;br/&gt;• Verification: milliseconds&lt;br/&gt;• Properties: succinct, sound, (optionally) zero-knowledge&quot;]
+    end
+
+    COMP --&gt; POLY
+    POLY --&gt; layer1
+    layer1 --&gt; layer2
+    layer2 --&gt; layer3
+    layer3 --&gt; SNARK
 </code></pre>
 <p><strong>Layer 1</strong> operates in an idealized model where the verifier has <em>oracle access</em> to polynomials (they can query evaluations at arbitrary points without seeing the polynomial's full description). The protocol's logic is defined here: what polynomials the prover sends, what checks the verifier performs, how challenges and responses interleave.</p>
 <p><strong>Layer 2</strong> instantiates the oracle model cryptographically. Oracle access becomes commitment and opening: the prover commits to a polynomial before seeing queries, then provides evaluation proofs at requested points. The binding property of the commitment scheme ensures the prover cannot retroactively modify their polynomial.</p>

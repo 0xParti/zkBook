@@ -14,65 +14,46 @@ Modern SNARKs decompose into three layers, each with a distinct role. Understand
 
 Every modern SNARK follows the same structural pattern:
 
-```
-┌───────────────────────────────────────────────────────────────────────┐
-│                    THE SNARK CONSTRUCTION PIPELINE                     │
-├───────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  COMPUTATION                                                 │    │
-│   │  "I know x such that f(x) = y"                              │    │
-│   └───────────────────────────────┬─────────────────────────────┘    │
-│                                   │                                   │
-│                                   ▼  Arithmetization                  │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  POLYNOMIAL CONSTRAINTS                                      │    │
-│   │  R1CS, PLONK gates, AIR, etc.                               │    │
-│   └───────────────────────────────┬─────────────────────────────┘    │
-│                                   │                                   │
-│                                   ▼                                   │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 1: Interactive Oracle Proof (IOP)                        ║ │
-│  ║                                                                  ║ │
-│  ║  • Prover sends polynomials (abstractly)                        ║ │
-│  ║  • Verifier queries evaluations at random points                ║ │
-│  ║  • Protocol logic: what to check, how to challenge              ║ │
-│  ║                                                                  ║ │
-│  ║  Examples: Sum-check, PLONK IOP, GKR                            ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 2: Polynomial Commitment Scheme (PCS)                    ║ │
-│  ║                                                                  ║ │
-│  ║  • Commit: polynomial → short commitment                        ║ │
-│  ║  • Open: prove evaluation at a point                            ║ │
-│  ║  • Binding: can't change polynomial after commit                ║ │
-│  ║                                                                  ║ │
-│  ║  Options: KZG (trusted), IPA (transparent), FRI (post-quantum)  ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│  ╔═════════════════════════════════════════════════════════════════╗ │
-│  ║  LAYER 3: Fiat-Shamir Transformation                            ║ │
-│  ║                                                                  ║ │
-│  ║  • Replace verifier randomness with hash outputs                ║ │
-│  ║  • Challenge = Hash(transcript so far)                          ║ │
-│  ║  • Interactive → Non-interactive                                ║ │
-│  ║                                                                  ║ │
-│  ║  Security: Random Oracle Model                                  ║ │
-│  ╚══════════════════════════════════╤══════════════════════════════╝ │
-│                                     │                                 │
-│                                     ▼                                 │
-│   ┌─────────────────────────────────────────────────────────────┐    │
-│   │  RESULT: Non-Interactive Zero-Knowledge Argument (SNARK)    │    │
-│   │                                                              │    │
-│   │  • Proof: ~100 bytes to ~100 KB depending on choices        │    │
-│   │  • Verification: milliseconds, independent of circuit size  │    │
-│   │  • Properties: succinct, sound, (optionally) zero-knowledge │    │
-│   └─────────────────────────────────────────────────────────────┘    │
-│                                                                       │
-└───────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph input["INPUT"]
+        COMP["COMPUTATION<br/>'I know x such that f(x) = y'"]
+    end
+
+    subgraph arith["ARITHMETIZATION"]
+        POLY["POLYNOMIAL CONSTRAINTS<br/>R1CS, PLONK gates, AIR, etc."]
+    end
+
+    subgraph layer1["LAYER 1: Interactive Oracle Proof (IOP)"]
+        IOP1["• Prover sends polynomials (abstractly)"]
+        IOP2["• Verifier queries evaluations at random points"]
+        IOP3["• Protocol logic: what to check, how to challenge"]
+        IOP4["Examples: Sum-check, PLONK IOP, GKR"]
+    end
+
+    subgraph layer2["LAYER 2: Polynomial Commitment Scheme (PCS)"]
+        PCS1["• Commit: polynomial → short commitment"]
+        PCS2["• Open: prove evaluation at a point"]
+        PCS3["• Binding: can't change polynomial after commit"]
+        PCS4["Options: KZG (trusted), IPA (transparent), FRI (post-quantum)"]
+    end
+
+    subgraph layer3["LAYER 3: Fiat-Shamir Transformation"]
+        FS1["• Replace verifier randomness with hash outputs"]
+        FS2["• Challenge = Hash(transcript so far)"]
+        FS3["• Interactive → Non-interactive"]
+        FS4["Security: Random Oracle Model"]
+    end
+
+    subgraph output["RESULT"]
+        SNARK["NON-INTERACTIVE ZERO-KNOWLEDGE ARGUMENT (SNARK)<br/>• Proof: ~100 bytes to ~100 KB<br/>• Verification: milliseconds<br/>• Properties: succinct, sound, (optionally) zero-knowledge"]
+    end
+
+    COMP --> POLY
+    POLY --> layer1
+    layer1 --> layer2
+    layer2 --> layer3
+    layer3 --> SNARK
 ```
 
 **Layer 1** operates in an idealized model where the verifier has *oracle access* to polynomials (they can query evaluations at arbitrary points without seeing the polynomial's full description). The protocol's logic is defined here: what polynomials the prover sends, what checks the verifier performs, how challenges and responses interleave.

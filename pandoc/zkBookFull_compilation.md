@@ -7981,7 +7981,8 @@ $$Q(X) = \frac{C(X)}{Z_{H'}(X)}$$
 
 is a polynomial of known degree. If $C(X)$ doesn't vanish on $H'$ (if the trace violates the transition constraint somewhere) then $Q(X)$ isn't a polynomial. It's a rational function with poles at the violation points.
 
-> [!note] Why Constraint Degree Matters
+> **Why Constraint Degree Matters**
+>
 > The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.
 >
 > This creates a fundamental trade-off. Higher-degree constraints let you express more complex transitions in a single step, but they blow up the prover's work. A degree-8 constraint over a million-step trace produces a composition polynomial of degree ~8 million, requiring proportionally more commitment and FRI work. Most practical AIR systems keep constraint degree between 2 and 4, accepting more trace columns (more registers) to avoid high-degree terms. The art of AIR design is balancing expressiveness against this degree bottleneck.
@@ -8093,7 +8094,8 @@ Why does this work? The prover committed to the trace *before* learning the quer
 
 The AIR-FRI link is where the abstract (FRI proves low-degree) meets the concrete (this specific polynomial encodes this specific computation).
 
-> [!note] DEEP-FRI vs. Standard FRI
+> **DEEP-FRI vs. Standard FRI**
+>
 > The protocol described here uses the **DEEP method** (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree *on $D$* but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ *outside* $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The "domain extension" refers to this expansion beyond $D$; "eliminating pretenders" refers to catching cheaters whose polynomials only *pretend* to be correct within the original domain.
 
 
@@ -8292,9 +8294,10 @@ StarkWare's Stwo prover implements Circle STARKs over Mersenne-31. Polygon's res
 
 
 
+
 \newpage
 
-# Chapter 16: $\Sigma$-Protocols: The Simplest Zero-Knowledge Proofs
+# Chapter 16: Sigma-Protocols: The Simplest Zero-Knowledge Proofs
 
 In 1989, a Belgian cryptographer named Jean-Jacques Quisquater faced an unusual challenge: explaining zero-knowledge proofs to his children.
 
@@ -8302,7 +8305,8 @@ The mathematics was forbidding. Goldwasser, Micali, and Rackoff had formalized t
 
 So he invented a cave.
 
-> [!note] The Children's Story
+> **The Children's Story**
+>
 > In Quisquater's tale, Peggy (the Prover) wants to prove to Victor (the Verifier) that she knows the magic word to open a door deep inside a cave. The cave splits into two paths (Left and Right) that reconnect at the magic door.
 >
 > Peggy enters the cave and takes a random path while Victor waits outside. Victor then walks to the fork and shouts: "Come out the Left path!"
@@ -8357,9 +8361,11 @@ Claus Schnorr discovered the canonical solution in 1989. The protocol is three m
 
 4. **Verification.** The verifier checks whether $g^z = a \cdot h^e$. Accept if yes, reject otherwise.
 
+
 That's the entire protocol. Let's understand why it works.
 
-> [!note] The Equation of a Line
+> **The Equation of a Line**
+>
 > Schnorr's protocol is secretly proving you know the equation of a line. In $z = r + w \cdot e$, think of $w$ as the slope and $r$ as the y-intercept. The prover commits to the intercept ($r$, hidden as $a = g^r$). The verifier picks an x-coordinate ($e$). The prover reveals the y-coordinate ($z$). One point on a line doesn't reveal the slope, but two points would. That's why the protocol must be run once per challenge: a single $(e, z)$ pair is consistent with infinitely many slopes, but two pairs with the same intercept uniquely determine $w$.
 
 **Completeness.** An honest prover with the correct $w$ always passes verification:
@@ -8380,7 +8386,8 @@ $$w = \frac{z_1 - z_2}{e_1 - e_2} \mod q$$
 
 A cheater who could answer two challenges *must* know $w$. This is **special soundness**: two accepting transcripts with different challenges allow extracting the witness.
 
-> [!note] The Rewinding Lemma
+> **The Rewinding Lemma**
+>
 > How do we get two transcripts with the same commitment $a$ but different challenges? In real life, we cannot. The prover sends $a$ only once, receives one challenge, and responds.
 >
 > But in a thought experiment, we can *rewind time*. We let the prover send $a$, we send challenge $e_1$, and receive response $z_1$. Then we press "rewind," return to the moment after they sent $a$, and send a *different* challenge $e_2$. If the prover can answer both, we solve the system of equations to extract $w$.
@@ -8393,7 +8400,8 @@ A cheater who could answer two challenges *must* know $w$. This is **special sou
 2. Sample $z \leftarrow \mathbb{Z}_q$ (the response, uniform and independent)
 3. Compute $a = g^z \cdot h^{-e}$ (the commitment that *makes* the equation hold)
 
-> [!note] The Simulator's Time Machine
+> **The Simulator's Time Machine**
+>
 > In real execution, events unfold: Commitment → Challenge → Response. The simulator cheats time. It picks the answer first ($z$), invents a question that fits ($e$), then back-calculates what the commitment "must have been" ($a = g^z h^{-e}$). This temporal reversal is invisible in the final transcript. Anyone looking at $(a, e, z)$ cannot tell whether it was produced forward (by someone who knows $w$) or backward (by someone who cheated time). This is the heart of zero-knowledge: if a transcript can be faked without the secret, then having the secret cannot be what makes the transcript convincing. The transcript itself carries no information about $w$.
 
 Check: $g^z = a \cdot h^e = g^z h^{-e} \cdot h^e = g^z$.
@@ -8597,7 +8605,8 @@ If the prover knows both witnesses, they can respond to any challenge. If they l
 
 **OR composition.** To prove "I know $w_1$ OR $w_2$" (without revealing which):
 
-> [!note] The Card Trick Analogy
+> **The Card Trick Analogy**
+>
 > Imagine a magician holding two decks of cards. They claim: "I know the order of Deck A OR the order of Deck B." You shuffle one deck and ask them to name the top card.
 >
 > If the magician knows that deck's order, they answer instantly. If they don't, they use sleight of hand: they "force" the right card to the top, making it look like they predicted it all along.
@@ -8691,6 +8700,7 @@ The mathematics is identical. The notation change reflects the underlying group 
 
 
 
+
 \newpage
 
 # Chapter 17: The Zero-Knowledge Property
@@ -8699,7 +8709,8 @@ Imagine a child's puzzle book: *Where's Waldo?*, with its massive, crowded scene
 
 How?
 
-> [!note] The Where's Waldo Proof
+> **The Where's Waldo Proof**
+>
 > You take a large sheet of cardboard with a small hole cut in the middle. You place the puzzle page behind the cardboard, sliding it around until Waldo is visible through the hole. You invite your friend to look.
 >
 > They see Waldo. They are convinced you know where he is. But because the cardboard blocks the context (the trees, the crowd, the hot dog stands), they have no idea where on the page he is located. The surrounding scene, which would reveal the coordinates, is hidden.
@@ -8858,7 +8869,8 @@ Rewinding is a proof technique, not a real capability. It demonstrates that the 
 
 Students encountering zero-knowledge often stumble on this point: *if the simulator can produce valid transcripts without the witness, what stops a cheater from doing the same?*
 
-> [!note] The Green Screen Analogy
+> **The Green Screen Analogy**
+>
 > Think of a ZK proof as a video of someone walking on the moon.
 >
 > **Real Interaction**: The astronaut actually flew to the moon, filmed in real time.
@@ -8906,7 +8918,8 @@ The way forward is to relax both soundness and zero-knowledge:
 
 Modern SNARKs take both paths. They are *arguments* (computationally sound) with *computational zero-knowledge*. This combination enables practical ZK proofs for arbitrary computations, including NP-complete problems and beyond.
 
-> [!note] Witness Indistinguishability
+> **Witness Indistinguishability**
+>
 > Sometimes, full zero-knowledge is too expensive or impossible to achieve. A weaker but often sufficient property is **Witness Indistinguishability (WI)**. This guarantees that if there are multiple valid witnesses (e.g., two different private keys that both sign the same message, or two different paths through a maze), the verifier cannot tell which one the prover used.
 >
 > WI doesn't promise that the verifier learns *nothing*; it only promises they can't distinguish *which* witness was used. For many privacy applications (anonymous credentials, ring signatures), WI suffices and is easier to achieve than full ZK.
@@ -8993,6 +9006,7 @@ Auxiliary-input ZK is essential for security in complex systems where many proof
 
 
 
+
 \newpage
 
 # Chapter 18: Making Proofs Zero-Knowledge
@@ -9003,7 +9017,8 @@ Zero-knowledge inverts this. The proof convinces by *concealing* structure: by s
 
 This sounds impossible. It isn't, but it requires care.
 
-> [!note] The Retrofit Problem
+> **The Retrofit Problem**
+>
 > Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?
 
 We've defined zero-knowledge in Chapter 17. We've seen it in $\Sigma$-protocols. But proof systems aren't born zero-knowledge; they're made that way. Strip the blinding from Groth16 and you still have a valid SNARK: sound, succinct, verifiable. But the proof elements would leak information about the witness. The random values $r, s$ we saw in Chapter 12 exist precisely to prevent this. Similarly, PLONK without its blinding polynomials $(b_1 X + b_2) Z_H(X)$ would verify correctly but expose witness-dependent evaluations.
@@ -9428,7 +9443,8 @@ The pattern: find the "null space" of the verification procedure (transformation
 | **Post-quantum** | No (relies on discrete log) | Yes (with hash-based PCS) |
 | **Complexity** | Conceptually straightforward | Requires algebraic design |
 
-> [!note] A Dimensionality Distinction
+> **A Dimensionality Distinction**
+>
 > These two techniques operate at different levels of abstraction. Commit-and-prove works on *scalars*: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on *functions*: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.
 
 **When to use commit-and-prove:**
@@ -9500,6 +9516,7 @@ The distributions are the same. Zero-knowledge holds.
 9. **Simulation is the proof that ZK works.** A simulator without the witness produces transcripts indistinguishable from real executions. For masked protocols, the simulator just picks random polynomials; the masking makes them look identical to honest transcripts.
 
 10. **Production systems blend both approaches.** Masking handles the core polynomial protocol efficiently. Commit-and-prove handles auxiliary statements (range proofs, equality of committed values) that don't fit the polynomial structure.
+
 
 
 
@@ -9609,7 +9626,8 @@ The total prover work is $O(2^n)$, down from the naive $O(n \cdot 2^n)$ analysis
 
 *Folding approach*: Evaluate once at the start, storing results in a table. Then, after each challenge $r_i$, *update* the table rather than re-evaluate. The update is cheap: just a linear combination of adjacent entries. No re-evaluation from scratch, ever. The table shrinks by half each round, and we touch each entry exactly once.
 
-> [!note] The Origami Analogy
+> **The Origami Analogy**
+>
 > Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.
 >
 > *Naive approach*: Walk down the strip, reading numbers and adding them up. For the next round, walk down the strip again.
@@ -11078,7 +11096,8 @@ The prover's dominant costs: sum-check field operations, PCS opening proofs.
 | **Interaction** | 1 round (after commitment) | $n$ rounds (sum-check) |
 | **Sparsity handling** | Quotient typically dense | Natural via prefix-suffix |
 
-> [!note] Signal Processing vs. Statistics
+> **Signal Processing vs. Statistics**
+>
 > The two paradigms embody different engineering mindsets.
 >
 > **Quotienting is signal processing.** It treats data like a sound wave. To check constraints, it runs a Fourier Transform (FFT) to convert the signal into a frequency domain where errors stick out like a sour note. Divisibility by $Z_H$ is the test: a clean signal has no energy at the forbidden frequencies.
@@ -11580,7 +11599,8 @@ If $|V| = 10,000$ gates and $|F| = 1,000$ gates, verification dominates. The pro
 
 Instead of *fully verifying* $\pi_{i-1}$ at step $i$, we **fold** the claim about step $i-1$ with the claim about step $i$. Folding combines two claims into one claim of the same structure, without verifying either.
 
-> [!note] The Debt Analogy
+> **The Debt Analogy**
+>
 > Imagine you owe the bank money every day (you must verify a proof).
 >
 > **Traditional recursion:** You pay off the debt in full every single day. Expensive and slow.
@@ -12456,7 +12476,8 @@ Addition and scalar multiplication are free. The cost of MPC concentrates entire
 
 Multiplication breaks the easy pattern. The product of two shares is *not* a valid share of the product. Shamir sharing uses polynomials of degree $t-1$. If parties locally multiply their shares $P_a(j) \cdot P_b(j)$, they get evaluations of the product polynomial $P_a \cdot P_b$, which has degree $2(t-1)$. This polynomial does encode $ab$ at zero, but the threshold has effectively doubled: now $2t-1$ parties are needed to reconstruct, not $t$. Repeated multiplications would make the degree explode.
 
-> [!note] The Paint Analogy
+> **The Paint Analogy**
+>
 > Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.
 >
 > Multiplying is like mixing colors: Red times Blue makes Purple. You can't un-mix paint to recover the original colors. Worse, the "shade" of your result depends on both inputs in a non-linear way.
@@ -12874,7 +12895,8 @@ This isn't merely inelegant; it's expensive. Field multiplications dominate prov
 
 **Binius** takes a radical approach: work over binary fields $\mathbb{F}_{2^k}$ where field elements are actual $k$-bit strings. A boolean is a 1-bit field element. A byte is an 8-bit field element. No padding, no waste.
 
-> [!note] The Native Language Analogy
+> **The Native Language Analogy**
+>
 > Imagine a Spanish speaker forced to express every thought in German, even when talking to other Spanish speakers. Every sentence requires mental translation. Simple ideas become laborious.
 >
 > This is what traditional SNARKs do. They force computer data (bits and bytes) into prime fields (large numbers). A single bit becomes a 256-bit integer. The computer "thinks" in binary, but the proof system demands a foreign representation.
@@ -13099,7 +13121,8 @@ Aggregation addresses the question of how to combine proofs after they exist. Bu
 
 Discussions of prover efficiency focus on the cryptographic work: computing commitments, running sum-check, evaluating polynomials. But there's a step before that. The witness includes not just the prover's secret input but all intermediate values in the computation. For a circuit with $n$ gates, the witness has $O(n)$ elements. Computing these elements (executing the circuit) can take longer than the proving step itself.
 
-> [!note] The Hidden Iceberg
+> **The Hidden Iceberg**
+>
 > Academic papers report "prover time" as the time spent on cryptographic operations: MSMs, FFTs, hashes. But the full cost of generating a proof includes witness generation, and this is often the larger piece.
 >
 > Think of an iceberg. The cryptographic prover is the visible tip above water. Witness generation is the massive bulk beneath the surface. A paper might report "proving takes 10 seconds" while silently omitting that witness generation took 60 seconds. The total time to produce a proof is 70 seconds, not 10.
@@ -13192,6 +13215,7 @@ But ZK proofs are not the only approach to computing on secrets. They're the fir
 
 
 
+
 \newpage
 
 # Chapter 26: ZK in the Cryptographic Landscape
@@ -13237,7 +13261,8 @@ Craig Gentry's 2009 thesis changed everything.
 
 Modern FHE rests on a problem called **Learning With Errors (LWE)**. The intuition is simple: linear equations are easy to solve, but linear equations with noise are hard.
 
-> [!note] The Radio Noise Analogy
+> **The Radio Noise Analogy**
+>
 > Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.
 >
 > LWE works the same way. The "signal" is a linear equation. Without noise, anyone can solve it. But add a small random error to each equation, and the system becomes unsolvable. The legitimate receiver has a "filter" (the secret key) that strips away the static. Everyone else hears only noise.
@@ -13332,7 +13357,8 @@ For narrow applications (simple queries on encrypted databases, basic encrypted 
 
 **Will it ever be practical?** Unknown. The optimists point to the trajectory: million-fold → thousand-fold in 15 years. Another 15 years might bring another few orders of magnitude. Hardware acceleration (custom FPGAs, ASICs) could help. The pessimists note that the overhead may be fundamental: noise management and ciphertext expansion might have irreducible costs. ZK proofs found clever ways around their bottlenecks; FHE might not.
 
-> [!note] Why Hardware Acceleration Matters
+> **Why Hardware Acceleration Matters**
+>
 > FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.
 >
 > Custom hardware (FPGAs, ASICs) can exploit this parallelism directly. Where a CPU computes one multiplication, a dedicated chip computes thousands in the same clock cycle. Companies like Intel, DARPA, and several startups are building FHE accelerators that promise 100-1000× speedups over software implementations.
@@ -13439,7 +13465,8 @@ This means you can take Program B, obfuscate it, and publish the result. The sec
 
 $$\text{WE.Enc}(\text{statement}, m) \to c \qquad \text{WE.Dec}(c, \text{witness}) \to m$$
 
-> [!note] The Time Capsule Analogy: Witness Encryption vs ZK
+> **The Time Capsule Analogy: Witness Encryption vs ZK**
+>
 > Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know *who* will solve it, or *when*. The lock itself enforces the access rule.
 >
 > Zero-knowledge works in the opposite direction. Instead of "prove you can solve this to read the secret," ZK says "prove you already solved this without showing your solution." WE grants access based on future knowledge. ZK demonstrates existing knowledge.
@@ -13529,6 +13556,7 @@ But the trajectory is clear. ZK proofs were impractical in 2010, expensive in 20
 You've learned the part of the story that's already been written. The rest is still being discovered.
 
 
+
 \newpage
 
 \part*{Appendices}
@@ -13551,9 +13579,9 @@ A **finite field** $\mathbb{F}_p$ (for prime $p$) is the set $\{0, 1, \ldots, p-
 
 **Key properties**:
 
-- The multiplicative group $\mathbb{F}_p^*$ has order $p - 1$
+- The multiplicative group $\mathbb{F}_p^\ast$ has order $p - 1$
 - **Fermat's Little Theorem**: For $a \neq 0$, $a^{p-1} = 1$. Thus $a^{-1} = a^{p-2}$.
-- **Primitive roots**: There exists $g \in \mathbb{F}_p^*$ such that $\{g^0, g^1, \ldots, g^{p-2}\} = \mathbb{F}_p^*$
+- **Primitive roots**: There exists $g \in \mathbb{F}_p^\ast$ such that $\lbrace g^0, g^1, \ldots, g^{p-2} \rbrace = \mathbb{F}_p^\ast$
 
 **Extension fields** $\mathbb{F}_{p^k}$ arise by adjoining roots of irreducible polynomials. Elements are degree-$(k-1)$ polynomials over $\mathbb{F}_p$, with multiplication modulo the irreducible polynomial. SNARK-friendly fields often have $p \approx 2^{254}$ for 128-bit security.
 
@@ -13827,7 +13855,8 @@ Standard modular multiplication: compute $a \cdot b$, then divide by $p$ and tak
 
 Montgomery product: $\bar{c} = \bar{a} \cdot \bar{b} \cdot R^{-1} \mod p$
 
-> [!note] The Shift Analogy
+> **The Shift Analogy**
+>
 > Think of Montgomery form as shifting the decimal point. We multiply numbers in a "shifted space" where division by $R$ is just "deleting the last $k$ digits" (a bit shift), which is essentially free in hardware. We only shift back at the end.
 >
 > It's like computing $1.5 \times 2.5$ by working with $15 \times 25 = 375$, then remembering to put two decimal places back: $3.75$. The multiplication happens in the "scaled up" space where the arithmetic is simpler.
@@ -13930,7 +13959,8 @@ A **curve cycle** pairs two curves where each curve's base field equals the othe
 
 Prove over Pallas, verify in a Vesta circuit; prove over Vesta, verify in a Pallas circuit. The cycle enables indefinite recursion.
 
-> [!note] The BN254/Grumpkin Cycle
+> **The BN254/Grumpkin Cycle**
+>
 > While Pallas/Vesta is the most famous cycle (used in Halo 2), the BN254/Grumpkin cycle is crucial for Ethereum developers. Since BN254 is precompiled on Ethereum, systems like Aztec use this cycle to verify recursive proofs on-chain cheaply. Grumpkin is a curve whose base field matches BN254's scalar field, enabling the same recursive trick while staying compatible with Ethereum's existing infrastructure.
 
 ## Group Operations
@@ -13953,7 +13983,8 @@ Represent $(x, y)$ as $(X : Y : Z)$ where $x = X/Z$, $y = Y/Z$.
 
 Point addition and doubling use only multiplication, avoiding inversion until final conversion.
 
-> [!note] The No-Division Rule
+> **The No-Division Rule**
+>
 > In computer hardware, division is expensive (like doing long division by hand). Multiplication is cheap.
 >
 > Projective coordinates let us represent points as ratios $(X:Y:Z)$ so we can do all our math using only multiplication. We only perform the expensive division once at the very end to convert back. It's like working with fractions: to compute $\frac{1}{3} + \frac{1}{4}$, you do $\frac{4+3}{12}$ and delay the actual division as long as possible.
@@ -14004,6 +14035,7 @@ MSM dominates KZG commitment time. Parallelization and GPU implementation are es
 13. **Projective coordinates**: Avoid field inversions by representing points as ratios. Essential for efficient elliptic curve operations.
 
 14. **MSM optimization**: Multi-scalar multiplication dominates KZG commitment time. Pippenger's algorithm and GPU parallelization are critical for practical provers.
+
 
 
 \newpage

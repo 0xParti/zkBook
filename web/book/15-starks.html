@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -244,8 +260,8 @@
 <p>$$Q(X) = \frac{C(X)}{Z_{H'}(X)}$$</p>
 <p>is a polynomial of known degree. If $C(X)$ doesn't vanish on $H'$ (if the trace violates the transition constraint somewhere) then $Q(X)$ isn't a polynomial. It's a rational function with poles at the violation points.</p>
 <blockquote>
-<p>[!note] Why Constraint Degree Matters
-The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.</p>
+<p><strong>Why Constraint Degree Matters</strong></p>
+<p>The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If a transition constraint involves $P_0(X)^3$, that term has degree $3(T-1)$ (since $P_0$ has degree $T-1$). The composition polynomial inherits this: $\deg(\text{Comp}) \approx \deg(\text{constraint}) \times T$. The prover must commit to this polynomial over the LDE domain, and FRI must prove its degree bound.</p>
 <p>This creates a fundamental trade-off. Higher-degree constraints let you express more complex transitions in a single step, but they blow up the prover's work. A degree-8 constraint over a million-step trace produces a composition polynomial of degree ~8 million, requiring proportionally more commitment and FRI work. Most practical AIR systems keep constraint degree between 2 and 4, accepting more trace columns (more registers) to avoid high-degree terms. The art of AIR design is balancing expressiveness against this degree bottleneck.</p>
 </blockquote>
 <p><strong>Boundary constraints</strong> pin down the inputs and outputs. Transition constraints say &quot;each step follows the rules&quot;; boundary constraints say &quot;we started here and ended there.&quot; In our $3^8$ example:</p>
@@ -342,8 +358,8 @@ The degree of the constraint polynomial $C(X)$ directly impacts prover cost. If 
 <p>Why does this work? The prover committed to the trace <em>before</em> learning the query points (Fiat-Shamir). If the trace violates any constraint, the composition &quot;polynomial&quot; isn't actually low-degree; it has poles. FRI catches this. If the trace is valid but the prover committed to a <em>different</em> composition, the two disagree at most points (Schwartz-Zippel). The random queries catch this.</p>
 <p>The AIR-FRI link is where the abstract (FRI proves low-degree) meets the concrete (this specific polynomial encodes this specific computation).</p>
 <blockquote>
-<p>[!note] DEEP-FRI vs. Standard FRI
-The protocol described here uses the <strong>DEEP method</strong> (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree <em>on $D$</em> but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ <em>outside</em> $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The &quot;domain extension&quot; refers to this expansion beyond $D$; &quot;eliminating pretenders&quot; refers to catching cheaters whose polynomials only <em>pretend</em> to be correct within the original domain.</p>
+<p><strong>DEEP-FRI vs. Standard FRI</strong></p>
+<p>The protocol described here uses the <strong>DEEP method</strong> (Domain Extension for Eliminating Pretenders). In standard FRI, the verifier queries the composition polynomial only at points in the LDE domain $D$. A subtle attack exists: a cheating prover could commit to a function that's low-degree <em>on $D$</em> but encodes the wrong trace values. DEEP closes this gap by having the verifier sample a random point $z$ <em>outside</em> $D$ and requiring the prover to open trace polynomials there. Since honest trace polynomials are globally low-degree, they can be evaluated anywhere; a cheater who faked values only on $D$ cannot consistently answer queries at $z$. The &quot;domain extension&quot; refers to this expansion beyond $D$; &quot;eliminating pretenders&quot; refers to catching cheaters whose polynomials only <em>pretend</em> to be correct within the original domain.</p>
 </blockquote>
 <h2 id="a-concrete-example-fibonacci"><a class="header" href="#a-concrete-example-fibonacci">A Concrete Example: Fibonacci</a></h2>
 <p>Let's trace the protocol on a minimal computation: proving knowledge of the 7th Fibonacci number.</p>

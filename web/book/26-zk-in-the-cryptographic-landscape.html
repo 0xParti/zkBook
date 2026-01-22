@@ -25,6 +25,22 @@
         };
         </script>
         <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+        <script type="module">
+          import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+          mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        
+          document.addEventListener('DOMContentLoaded', function() {
+            // Transform mdBook's code blocks into Mermaid-compatible format
+            document.querySelectorAll('pre code.language-mermaid').forEach(function(codeBlock) {
+              const pre = codeBlock.parentElement;
+              const div = document.createElement('div');
+              div.className = 'mermaid';
+              div.textContent = codeBlock.textContent;
+              pre.parentElement.replaceChild(div, pre);
+            });
+            mermaid.run();
+          });
+        </script>
 
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="The Architecture of Verifiable Secrets - A comprehensive guide to Zero-Knowledge Proofs">
@@ -187,8 +203,8 @@
 <h3 id="the-core-idea-learning-with-errors"><a class="header" href="#the-core-idea-learning-with-errors">The Core Idea: Learning With Errors</a></h3>
 <p>Modern FHE rests on a problem called <strong>Learning With Errors (LWE)</strong>. The intuition is simple: linear equations are easy to solve, but linear equations with noise are hard.</p>
 <blockquote>
-<p>[!note] The Radio Noise Analogy
-Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.</p>
+<p><strong>The Radio Noise Analogy</strong></p>
+<p>Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.</p>
 <p>LWE works the same way. The &quot;signal&quot; is a linear equation. Without noise, anyone can solve it. But add a small random error to each equation, and the system becomes unsolvable. The legitimate receiver has a &quot;filter&quot; (the secret key) that strips away the static. Everyone else hears only noise.</p>
 </blockquote>
 <p><strong>The easy problem.</strong> Suppose I give you equations like $3x + 2y = 17$ and $5x + y = 19$. You solve for $x$ and $y$ immediately. This is high school algebra. Even with hundreds of variables, Gaussian elimination solves it in polynomial time.</p>
@@ -254,8 +270,8 @@ Imagine you're trying to tune into a radio station. If the signal comes through 
 <p>For narrow applications (simple queries on encrypted databases, basic encrypted analytics), FHE is starting to see deployment. But for general computation, the overhead remains prohibitive. Nobody is running encrypted video processing or encrypted large-language-model inference.</p>
 <p><strong>Will it ever be practical?</strong> Unknown. The optimists point to the trajectory: million-fold → thousand-fold in 15 years. Another 15 years might bring another few orders of magnitude. Hardware acceleration (custom FPGAs, ASICs) could help. The pessimists note that the overhead may be fundamental: noise management and ciphertext expansion might have irreducible costs. ZK proofs found clever ways around their bottlenecks; FHE might not.</p>
 <blockquote>
-<p>[!note] Why Hardware Acceleration Matters
-FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.</p>
+<p><strong>Why Hardware Acceleration Matters</strong></p>
+<p>FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.</p>
 <p>Custom hardware (FPGAs, ASICs) can exploit this parallelism directly. Where a CPU computes one multiplication, a dedicated chip computes thousands in the same clock cycle. Companies like Intel, DARPA, and several startups are building FHE accelerators that promise 100-1000× speedups over software implementations.</p>
 <p>If these accelerators deliver, FHE's effective overhead drops from 1000× to 1-10×. That's the difference between &quot;research curiosity&quot; and &quot;production deployment.&quot;</p>
 </blockquote>
@@ -322,8 +338,8 @@ Program B:
 <p><strong>The utopia iO promises.</strong> With efficient iO, you could build almost any cryptographic primitive imaginable. The most striking is <em>witness encryption</em>: encrypt a message so that only someone who knows a solution to a puzzle can decrypt it. Not a specific person with a specific key, but <em>anyone</em> who can solve the puzzle. &quot;This message can be read by whoever proves P ≠ NP.&quot; &quot;This inheritance unlocks for whoever finds my will.&quot; The decryption key doesn't exist until someone produces the witness.</p>
 <p>$$\text{WE.Enc}(\text{statement}, m) \to c \qquad \text{WE.Dec}(c, \text{witness}) \to m$$</p>
 <blockquote>
-<p>[!note] The Time Capsule Analogy: Witness Encryption vs ZK
-Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know <em>who</em> will solve it, or <em>when</em>. The lock itself enforces the access rule.</p>
+<p><strong>The Time Capsule Analogy: Witness Encryption vs ZK</strong></p>
+<p>Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know <em>who</em> will solve it, or <em>when</em>. The lock itself enforces the access rule.</p>
 <p>Zero-knowledge works in the opposite direction. Instead of &quot;prove you can solve this to read the secret,&quot; ZK says &quot;prove you already solved this without showing your solution.&quot; WE grants access based on future knowledge. ZK demonstrates existing knowledge.</p>
 <p>The duality is precise: both are parameterized by an NP statement. WE encrypts <em>to</em> the statement (anyone with a witness can decrypt). ZK proves <em>about</em> the statement (I have a witness, but you won't learn it).</p>
 </blockquote>

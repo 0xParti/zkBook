@@ -180,7 +180,8 @@ The prover's dominant costs: sum-check field operations, PCS opening proofs.
 | **Interaction** | 1 round (after commitment) | $n$ rounds (sum-check) |
 | **Sparsity handling** | Quotient typically dense | Natural via prefix-suffix |
 
-> [!note] Signal Processing vs. Statistics
+> **Signal Processing vs. Statistics**
+>
 > The two paradigms embody different engineering mindsets.
 >
 > **Quotienting is signal processing.** It treats data like a sound wave. To check constraints, it runs a Fourier Transform (FFT) to convert the signal into a frequency domain where errors stick out like a sour note. Divisibility by $Z_H$ is the test: a clean signal has no energy at the forbidden frequencies.

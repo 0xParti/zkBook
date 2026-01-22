@@ -28,14 +28,31 @@ The names **inner** and **outer** describe the nesting:
 
 - The **outer proof** is the wrapper, created second. It proves "I ran the inner verifier and it accepted."
 
-```
-Inner: "I know witness w such that C(w) = y"
-              ↓ produces
-         [Inner Proof π]
-              ↓ becomes witness for
-Outer: "I verified π and it was valid"
-              ↓ produces
-         [Outer Proof π']
+```mermaid
+flowchart TB
+    subgraph inner["INNER PROOF (Fast Prover, Large Proof)"]
+        I1["Statement: 'I know witness w such that C(w) = y'"]
+        I2["Inner Prover (e.g., STARK)"]
+        I3["Inner Proof π<br/>(~100 KB)"]
+        I1 --> I2 --> I3
+    end
+
+    subgraph outer["OUTER PROOF (Slow Prover, Tiny Proof)"]
+        O1["Statement: 'I verified π and it was valid'"]
+        O2["Outer Prover (e.g., Groth16)"]
+        O3["Outer Proof π'<br/>(~128 bytes)"]
+        O1 --> O2 --> O3
+    end
+
+    subgraph delivery["DELIVERY"]
+        D1["Verifier receives only π'"]
+        D2["Verifier checks π' in O(1) time"]
+        D3["✓ Original statement validated"]
+        D1 --> D2 --> D3
+    end
+
+    I3 -->|"becomes witness for"| O1
+    O3 -->|"π discarded"| D1
 ```
 
 The verifier of the outer proof never sees the inner proof or the original witness. They see only $\pi'$ and check that it's valid. If the outer system is zero-knowledge, nothing leaks about $\pi$ or $w$.
@@ -377,7 +394,8 @@ If $|V| = 10,000$ gates and $|F| = 1,000$ gates, verification dominates. The pro
 
 Instead of *fully verifying* $\pi_{i-1}$ at step $i$, we **fold** the claim about step $i-1$ with the claim about step $i$. Folding combines two claims into one claim of the same structure, without verifying either.
 
-> [!note] The Debt Analogy
+> **The Debt Analogy**
+>
 > Imagine you owe the bank money every day (you must verify a proof).
 >
 > **Traditional recursion:** You pay off the debt in full every single day. Expensive and slow.
