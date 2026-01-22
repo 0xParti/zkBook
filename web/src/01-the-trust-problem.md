@@ -8,7 +8,7 @@ Exasperated, Babbage slammed the table and declared: "I wish to God these calcul
 
 That outburst launched the age of mechanical computation. Babbage spent the rest of his life designing engines to generate mathematical tables automatically, removing the human element from execution. If the machine was built correctly, its outputs could be trusted.
 
-Two centuries later, we have fulfilled Babbage's wish. We have steam—now silicon—executing calculations at speeds he couldn't have imagined. But in solving the speed problem, we reintroduced the trust problem in a new form.
+Two centuries later, we have fulfilled Babbage's wish. We have steam, now silicon, executing calculations at speeds he couldn't have imagined. But in solving the speed problem, we reintroduced the trust problem in a new form.
 
 You send your calculation to the cloud. The cloud sends back an answer.
 
