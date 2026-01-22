@@ -14,10 +14,14 @@
             inlineMath: [['$', '$'], ['\\(', '\\)']],
             displayMath: [['$$', '$$'], ['\\[', '\\]']],
             processEscapes: true,
-            processEnvironments: true
+            processEnvironments: true,
+            packages: {'[+]': ['ams']}
           },
           options: {
             skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+          },
+          loader: {
+            load: ['[tex]/ams']
           }
         };
         </script>
@@ -1578,7 +1582,7 @@ $$\tilde{f}(r) = \sum_{w \in {0,1}^n} f(w) \cdot L_w(r)$$</p>
 <p>$T_0$ is just the original table, a function of both variables:
 $$T_0(x_1, x_2) = f(x_1, x_2)$$</p>
 <p>Think of it as four values indexed by $(x_1, x_2) \in {0,1}^2$:
-$$T_0 = \begin{array}{c|cc} &amp; x_2=0 &amp; x_2=1 \ \hline x_1=0 &amp; 3 &amp; 7 \ x_1=1 &amp; 2 &amp; 5 \end{array}$$</p>
+$$T_0 = \begin{array}{c|cc} &amp; x_2=0 &amp; x_2=1 \ x_1=0 &amp; 3 &amp; 7 \ x_1=1 &amp; 2 &amp; 5 \end{array}$$</p>
 <p><strong>Step 1: Compute $T_1$ by &quot;folding in&quot; $r_1 = 0.4$</strong></p>
 <p>The recursion says:
 $$T_1(x_2) = (1 - r_1) \cdot T_0(0, x_2) + r_1 \cdot T_0(1, x_2)$$</p>

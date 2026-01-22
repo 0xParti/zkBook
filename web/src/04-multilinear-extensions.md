@@ -235,7 +235,7 @@ $T_0$ is just the original table, a function of both variables:
 $$T_0(x_1, x_2) = f(x_1, x_2)$$
 
 Think of it as four values indexed by $(x_1, x_2) \in \{0,1\}^2$:
-$$T_0 = \begin{array}{c|cc} & x_2=0 & x_2=1 \\ \hline x_1=0 & 3 & 7 \\ x_1=1 & 2 & 5 \end{array}$$
+$$T_0 = \begin{array}{c|cc} & x_2=0 & x_2=1 \\ x_1=0 & 3 & 7 \\ x_1=1 & 2 & 5 \end{array}$$
 
 **Step 1: Compute $T_1$ by "folding in" $r_1 = 0.4$**
 
