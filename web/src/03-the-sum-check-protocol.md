@@ -271,7 +271,7 @@ Over $\{0,1\}^\nu$, this product equals 1 if all clauses are satisfied and 0 oth
 
 The number of satisfying assignments is:
 
-$$\#SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in \{0,1\}^\nu} g_\phi(b_1, \ldots, b_\nu)$$
+$$\text{\#}SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in \{0,1\}^\nu} g_\phi(b_1, \ldots, b_\nu)$$
 
 This is exactly a sum over the boolean hypercube! The prover can use the sum-check protocol to convince the verifier of this count.
 

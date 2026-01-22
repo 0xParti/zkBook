@@ -339,7 +339,7 @@ For a CNF formula $\phi = C_1 \land C_2 \land \cdots \land C_m$, the formula is 
 <p>Over ${0,1}^\nu$, this product equals 1 if all clauses are satisfied and 0 otherwise.</p>
 <h3 id="the-protocol"><a class="header" href="#the-protocol">The Protocol</a></h3>
 <p>The number of satisfying assignments is:</p>
-<p>$$#SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g_\phi(b_1, \ldots, b_\nu)$$</p>
+<p>$$\text{#}SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g_\phi(b_1, \ldots, b_\nu)$$</p>
 <p>This is exactly a sum over the boolean hypercube! The prover can use the sum-check protocol to convince the verifier of this count.</p>
 <p><strong>Degree analysis</strong>: For a 3-CNF formula, each clause polynomial has degree at most 3. With $m$ clauses, the product $g_\phi$ has total degree at most $3m$. The degree in any single variable is at most $3m$ as well (though often much smaller due to variable sharing).</p>
 <p><strong>Verifier's work</strong>: The verifier performs $\nu$ rounds of sum-check, checking polynomials of degree at most $3m$. The final check requires evaluating $g_\phi$ at a random point; this takes $O(m)$ time since $g_\phi$ is a product of $m$ clause polynomials.</p>
@@ -563,22 +563,6 @@ $$H = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g(b_1, \ldots, b_\nu)$$</p>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
-            const socket = new WebSocket(wsAddress);
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
 
 
 
