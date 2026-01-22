@@ -181,6 +181,7 @@
 <p>$$\widetilde{\text{eq}}(X, Y) = \prod_{i=1}^{n} \left( X_i Y_i + (1 - X_i)(1 - Y_i) \right)$$</p>
 <p><strong>Property</strong>: $\widetilde{\text{eq}}(a, b) = 1$ if $a = b$, else $0$ (on hypercube).</p>
 <h2 id="sum-check-protocol"><a class="header" href="#sum-check-protocol">Sum-Check Protocol</a></h2>
+<p><em>Dimensions: Vector size $N = 2^n$; protocol runs $n$ rounds.</em></p>
 <h3 id="the-claim"><a class="header" href="#the-claim">The Claim</a></h3>
 <p>Prove:
 $$H = \sum_{b \in {0,1}^n} g(b_1, \ldots, b_n)$$</p>
@@ -207,6 +208,7 @@ $$s_i(X_i) = \sum_{b_{i+1}, \ldots, b_n \in {0,1}} g(r_1, \ldots, r_{i-1}, X_i, 
 <p>applied variable by variable in multilinear settings.</p>
 <h2 id="r1cs-and-qap"><a class="header" href="#r1cs-and-qap">R1CS and QAP</a></h2>
 <h3 id="r1cs-constraint"><a class="header" href="#r1cs-constraint">R1CS Constraint</a></h3>
+<p><em>Dimensions: Matrices $A, B, C$ are $m \times n$; witness $z$ is $n \times 1$; result is $m \times 1$.</em></p>
 <p>For witness vector $z = (1, x, w)$:</p>
 <p>$$(A \cdot z) \circ (B \cdot z) = C \cdot z$$</p>
 <p>where $\circ$ is entry-wise multiplication.</p>
@@ -216,13 +218,14 @@ $$s_i(X_i) = \sum_{b_{i+1}, \ldots, b_n \in {0,1}} g(r_1, \ldots, r_{i-1}, X_i, 
 <p>$$A(X) \cdot B(X) - C(X) = H(X) \cdot Z_H(X)$$</p>
 <p>where $Z_H(X) = \prod_{\alpha \in H}(X - \alpha)$ is the vanishing polynomial.</p>
 <h2 id="kzg-polynomial-commitments"><a class="header" href="#kzg-polynomial-commitments">KZG Polynomial Commitments</a></h2>
+<p><em>Dimensions: Polynomial degree $&lt; D$; SRS size $D+1$ elements.</em></p>
 <h3 id="structured-reference-string-srs"><a class="header" href="#structured-reference-string-srs">Structured Reference String (SRS)</a></h3>
 <p>Secret $\tau$; public: $(g, g^\tau, g^{\tau^2}, \ldots, g^{\tau^D})$</p>
 <h3 id="commitment"><a class="header" href="#commitment">Commitment</a></h3>
 <p>For $f(X) = \sum_i c_i X^i$:</p>
 <p>$$C = g^{f(\tau)} = \prod_i (g^{\tau^i})^{c_i}$$</p>
 <h3 id="evaluation-proof"><a class="header" href="#evaluation-proof">Evaluation Proof</a></h3>
-<p>To prove $f(z) = v$:</p>
+<p>To prove $f(z) = v$: <em>(Prover knows $f(X)$; Verifier knows $C$, $z$, $v$)</em></p>
 <ol>
 <li>Compute quotient: $w(X) = \frac{f(X) - v}{X - z}$</li>
 <li>Proof: $\pi = g^{w(\tau)}$</li>
@@ -295,8 +298,10 @@ $$s_i(X_i) = \sum_{b_{i+1}, \ldots, b_n \in {0,1}} g(r_1, \ldots, r_{i-1}, X_i, 
 <p>For lookups $f = {f_1, \ldots, f_n}$ into table $t = {t_1, \ldots, t_d}$ with multiplicities $m_j$:</p>
 <p>$$\sum_{i=1}^{n} \frac{1}{\gamma + f_i} = \sum_{j=1}^{d} \frac{m_j}{\gamma + t_j}$$</p>
 <p><strong>Property</strong>: Equality holds iff each $f_i \in t$ and $m_j$ counts occurrences correctly.</p>
+<p><strong>Soundness</strong>: By Schwartz-Zippel, equality holds with probability $\geq 1 - (n+d)/|\mathbb{F}|$ over random $\gamma$.</p>
 <p><strong>Advantage</strong>: No sorting required; additive structure enables multi-table batching.</p>
 <h2 id="gkr-protocol"><a class="header" href="#gkr-protocol">GKR Protocol</a></h2>
+<p><em>Dimensions: Layer $i$ has $S_i$ gates; layer $i+1$ (inputs) has $S_{i+1}$ gates; $k = \log_2 S_i$.</em></p>
 <h3 id="layer-reduction"><a class="header" href="#layer-reduction">Layer Reduction</a></h3>
 <p>For layered circuit with values $V^{(i)}$ at layer $i$:</p>
 <p>$$\tilde{V}^{(i)}(r) = \sum_{p,q \in {0,1}^k} \widetilde{\text{add}}^{(i)}(r, p, q) \cdot (\tilde{V}^{(i+1)}(p) + \tilde{V}^{(i+1)}(q))$$
@@ -348,14 +353,15 @@ $$z = z_1 + r \cdot z_2$$</p>
 </tbody></table>
 </div>
 <h2 id="field-sizes-common-choices"><a class="header" href="#field-sizes-common-choices">Field Sizes (Common Choices)</a></h2>
-<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Size</th><th>Use Case</th></tr></thead><tbody>
-<tr><td>BN254 scalar</td><td>$\approx 2^{254}$</td><td>Ethereum, Groth16, PLONK</td></tr>
-<tr><td>BLS12-381 scalar</td><td>$\approx 2^{255}$</td><td>Zcash, many SNARKs</td></tr>
-<tr><td>Goldilocks</td><td>$2^{64} - 2^{32} + 1$</td><td>Plonky2, fast arithmetic</td></tr>
-<tr><td>Baby Bear</td><td>$2^{31} - 2^{27} + 1$</td><td>RISC Zero</td></tr>
-<tr><td>Mersenne-31</td><td>$2^{31} - 1$</td><td>Circle STARKs</td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Field</th><th>Size</th><th>Security</th><th>Use Case</th></tr></thead><tbody>
+<tr><td>BN254 scalar</td><td>$\approx 2^{254}$</td><td>~100 bits</td><td>Ethereum, Groth16, PLONK</td></tr>
+<tr><td>BLS12-381 scalar</td><td>$\approx 2^{255}$</td><td>~128 bits</td><td>Zcash, many SNARKs</td></tr>
+<tr><td>Goldilocks</td><td>$2^{64} - 2^{32} + 1$</td><td>~100 bits*</td><td>Plonky2, fast arithmetic</td></tr>
+<tr><td>Baby Bear</td><td>$2^{31} - 2^{27} + 1$</td><td>~100 bits*</td><td>RISC Zero</td></tr>
+<tr><td>Mersenne-31</td><td>$2^{31} - 1$</td><td>~100 bits*</td><td>Circle STARKs</td></tr>
 </tbody></table>
 </div>
+<p>*Small fields require extension fields for cryptographic security; base field security refers to the overall system design.</p>
 <h2 id="quick-reference-what-to-use-when"><a class="header" href="#quick-reference-what-to-use-when">Quick Reference: What to Use When</a></h2>
 <p><strong>Proving a sum over hypercube</strong>: Sum-check protocol</p>
 <p><strong>Encoding data as polynomial</strong>: Multilinear extension (hypercube) or Lagrange interpolation (roots of unity)</p>
@@ -389,6 +395,22 @@ $$z = z_1 + r \cdot z_2$$</p>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

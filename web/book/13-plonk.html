@@ -163,9 +163,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-13-plonk-universal-snarks-and-the-permutation-argument"><a class="header" href="#chapter-13-plonk-universal-snarks-and-the-permutation-argument">Chapter 13: PLONK: Universal SNARKs and the Permutation Argument</a></h1>
-<p>By 2018, SNARKs had a deployment problem.</p>
-<p>Groth16 gave you the smallest possible proofs (128 bytes, verified in milliseconds). But every circuit required its own trusted setup ceremony. For Zcash, this meant coordinating dozens of participants, generating gigabytes of parameters, and carefully destroying secrets. Change one constraint and the entire process repeated. For production systems deploying many circuits, or circuits that evolve, this constraint became untenable.</p>
-<p>Ariel Gabizon, Zachary Williamson, and Oana Ciobotaru found a different path. Their insight was <em>permutations</em>: instead of encoding circuit structure directly into the setup, separate two concerns: what each gate computes (local) and how gates connect (global). The wiring could be encoded as a permutation, checked with a polynomial argument that worked identically for any circuit.</p>
+<p>By 2018, Zcash had proven SNARKs worked, but at a terrible logistical cost.</p>
+<p>Every time they wanted to upgrade the protocol, they had to run a new Trusted Setup Ceremony. This meant renting secure facilities, coordinating participants across continents, and asking each one to generate randomness, contribute to a multi-party computation, then physically destroy their hardware. The &quot;Powers of Tau&quot; ceremony for the Sapling upgrade involved 87 participants over 10 months. One participant literally put his laptop in a blender. The process worked, but it didn't scale. The cryptographic world needed a setup you could perform once and use forever.</p>
+<p>Ariel Gabizon, Zachary Williamson, and Oana Ciobotaru found the path. Their insight was <em>permutations</em>: instead of encoding circuit structure directly into the setup, separate two concerns: what each gate computes (local) and how gates connect (global). The wiring could be encoded as a permutation, checked with a polynomial argument that worked identically for any circuit.</p>
 <p>The result was PLONK (2019): <strong>P</strong>ermutations over <strong>L</strong>agrange-bases for <strong>O</strong>ecumenical <strong>N</strong>oninteractive arguments of <strong>K</strong>nowledge. &quot;Oecumenical&quot; signals universality: one ceremony suffices for all circuits up to a maximum size. The setup is also <strong>updatable</strong>: new participants can strengthen its security at any time, without coordination with previous contributors.</p>
 <p>PLONK's modularity extends to the commitment scheme. The core is a <strong>Polynomial IOP</strong>: an interactive protocol where the prover sends polynomials and the verifier queries evaluations. Compile it with KZG for constant-size proofs with trusted setup. Compile with FRI for larger proofs without trust assumptions. The IOP is unchanged; only the cryptographic layer differs.</p>
 <p>The cost of universality is larger proofs (~400-500 bytes versus 128) and more verification work (~10 pairings versus 3). For most applications, this is an acceptable trade. The ecosystem has voted: PLONK and its descendants dominate production deployments.</p>
@@ -239,8 +239,14 @@
 <p>The wiring requires $c_1 = a_2$ (Gate 1's output feeds Gate 2's left input) and $b_1 = b_2$ (variable $z$ feeds both gates).</p>
 <p>Because PLONK's witness consists of three separate vectors $(a, b, c)$, nothing in the gate equation relates $c_1$ to $a_2$; they're independent entries. A cheating prover could satisfy all gate equations with disconnected, inconsistent values. The circuit would &quot;verify&quot; despite computing garbage.</p>
 <p><strong>Copy constraints</strong> are the explicit assertions: wire $i$ equals wire $j$. The challenge is proving all copy constraints efficiently (potentially thousands of equality assertions) without enumerating them individually.</p>
+<p><strong>A note on terminology</strong>: The name &quot;copy constraint&quot; is slightly misleading. We aren't copying data from one location to another. We are enforcing <em>equality</em>: two wire slots that happen to hold the same logical variable must contain identical values. Think of it as a wormhole connecting two distant parts of the circuit instantaneously. The value at $c_1$ doesn't &quot;flow&quot; to $a_2$; rather, they are the same point in the circuit's logical topology, temporarily given different addresses for bookkeeping. The permutation argument detects whether these &quot;same points&quot; actually hold the same value.</p>
 <h2 id="the-permutation-argument"><a class="header" href="#the-permutation-argument">The Permutation Argument</a></h2>
 <p>PLONK's central innovation is reducing all copy constraints to a single polynomial identity via a <strong>permutation argument</strong>, building on techniques from Bayer and Groth (Eurocrypt 2012).</p>
+<h3 id="from-gates-to-cycles-the-conceptual-shift"><a class="header" href="#from-gates-to-cycles-the-conceptual-shift">From Gates to Cycles: The Conceptual Shift</a></h3>
+<p>Before diving into the mechanism, understand the key mental shift. So far, we've thought of circuits as <em>gates</em>: local computational units that take inputs and produce outputs. Copy constraints seem like <em>connections between gates</em>: wire $c_1$ connects to wire $a_2$.</p>
+<p>The permutation argument reframes this. Instead of &quot;connections,&quot; think of <em>equivalence classes</em>. All wires that should hold the same value belong to the same class. Within each class, the wires form a <em>cycle</em> under a permutation: $c_1 \to a_2 \to c_1$ (a 2-cycle), or longer chains like $a_1 \to b_3 \to c_5 \to a_1$ (a 3-cycle). Wires with no copy constraints form trivial 1-cycles (fixed points).</p>
+<p>The grand product argument then asks: if we traverse each cycle, do all the values match? If wire $c_1$ maps to wire $a_2$ and they share the same value, their contributions to the product cancel. If every cycle closes properly (all values match within the equivalence class), the entire product equals 1.</p>
+<p>This shift from &quot;gates and wires&quot; to &quot;values and cycles&quot; is why the permutation argument works. We're not checking connections one by one; we're verifying that the entire wiring topology is consistent in one algebraic stroke.</p>
 <h3 id="representing-wiring-as-a-permutation"><a class="header" href="#representing-wiring-as-a-permutation">Representing Wiring as a Permutation</a></h3>
 <p>Give each wire slot a unique identity (think of it as an &quot;index&quot; or &quot;address&quot;):</p>
 <ul>
@@ -263,6 +269,7 @@
 <h3 id="binding-values-to-locations"><a class="header" href="#binding-values-to-locations">Binding Values to Locations</a></h3>
 <p>The multiset check has a flaw. A cheating prover could satisfy copy constraints on some wires by <em>violating</em> them on others, as long as they swap equal amounts. The overall multiset remains unchanged even though specific equalities fail.</p>
 <p><strong>Example</strong>: Circuit requires $c_1 = a_2$. Honest values: $c_1 = 5$, $a_2 = 5$. Cheating prover sets $c_1 = 5$, $a_2 = 99$, but compensates by swapping some other wire that should be $99$ to $5$. The multiset of all values is preserved.</p>
+<p><strong>The ID Badge Analogy.</strong> Imagine a room full of people (values) wearing ID badges (locations). You want to check that everyone is present after they swap seats according to a seating chart (the permutation). If you only check names, people could swap identities. But if each person's badge is permanently fused to their chair number, any swap becomes detectable. The value &quot;5&quot; at position $c_1$ wears a badge reading &quot;5 at $c_1$&quot;; after permutation, it should match &quot;5 at $a_2$.&quot; If the values differ, the badges don't match, and the product check fails.</p>
 <p>The fix: bind each value to its <strong>location</strong> using a second challenge $\beta$:</p>
 <p>$$\text{randomized value} = v_i + \beta \cdot \text{id}_i + \gamma$$</p>
 <p>where $\text{id}_i$ is the wire's identity (its domain point).</p>
@@ -555,6 +562,9 @@ $$e([Z]_1 - [Z(\zeta\omega)]_1, [\tau]<em>2) \stackrel{?}{=} e([W</em>{\zeta\ome
 <p>More wires mean fewer gates for complex operations.</p>
 <h3 id="higher-degree-terms"><a class="header" href="#higher-degree-terms">Higher-Degree Terms</a></h3>
 <p>The Poseidon hash uses $x^5$ in its S-box. A custom gate term $Q_{\text{pow5}} \cdot a^5$ computes this in one gate rather than five multiplications.</p>
+<h3 id="non-native-arithmetic"><a class="header" href="#non-native-arithmetic">Non-Native Arithmetic</a></h3>
+<p>A major driver for custom gates is <em>non-native arithmetic</em>: computing over a field different from the proof system's native field. PLONK (with BN254) operates over a ~254-bit prime field. But many applications require arithmetic over other fields: Bitcoin uses secp256k1's scalar field, Ethereum signatures use different curve parameters, and recursive proof verification requires operating over the &quot;inner&quot; proof's field.</p>
+<p>Without custom gates, non-native field multiplication requires decomposing elements into limbs, performing schoolbook multiplication with carries, and range-checking intermediate results. A single non-native multiplication can cost 50+ native gates. Custom gates can batch these operations, reducing the cost by 5-10×. This is why efficient ECDSA verification (for Ethereum account abstraction or Bitcoin bridge verification) demands sophisticated custom gate design.</p>
 <h3 id="boolean-constraints"><a class="header" href="#boolean-constraints">Boolean Constraints</a></h3>
 <p>Enforcing $x \in {0, 1}$ requires $x(x-1) = 0$, equivalently $x^2 - x = 0$. With selector $Q_{\text{bool}}$:</p>
 <p>$$Q_{\text{bool}} \cdot (a^2 - a) = 0$$</p>
@@ -678,6 +688,22 @@ Wires $b_1$ and $b_2$ form a cycle. Wires $a_2$ and $b_3$ form a cycle. Wires $c
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

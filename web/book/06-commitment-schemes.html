@@ -163,12 +163,13 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-6-commitment-schemes-cryptographic-binding"><a class="header" href="#chapter-6-commitment-schemes-cryptographic-binding">Chapter 6: Commitment Schemes: Cryptographic Binding</a></h1>
-<p>Imagine a game. I write down a number, seal it in an envelope, and hand you the sealed envelope. Later, after you've made some decisions based on knowing I'm committed to <em>something</em>, I open the envelope and reveal the number.</p>
-<p>This simple ritual, commit first, reveal later, is one of the oldest ideas in cryptography. Children play it when they choose rock-paper-scissors by committing to their choice before revealing. Auctions use it when bidders submit sealed bids. The envelope enforces two properties: I can't change my mind after sealing (binding), and you can't peek before opening (hiding).</p>
-<p>But how do you build a digital envelope? Bits can be copied. There's no physical seal to break. This is where mathematics enters, and where the story of commitment schemes begins.</p>
-<p>You've designed a protocol. The prover claims a polynomial evaluates to some value, and you, the verifier, want to check this with just a few random queries. There's one problem: the prover sends their response <em>after</em> seeing your challenge. What stops them from constructing a fake polynomial that happens to pass your spot-checks?</p>
-<p>This is the <strong>binding problem</strong>. In an interactive proof, the verifier's randomness is meant to catch a cheating prover off-guard. But if the prover can choose their answers <em>after</em> seeing the challenge, they can simply tailor their responses to pass. The polynomial identity testing that underlies our protocols becomes meaningless.</p>
-<p>We need a mechanism that forces the prover to fix their polynomial before the verification begins: a cryptographic primitive that makes changing one's mind computationally infeasible.</p>
+<p>In 1981, Manuel Blum posed a simple question: can two people play a fair game of coin-flipping over the telephone?</p>
+<p>Blum was working on what cryptographers called <strong>Mental Poker</strong>: how can two people play a card game over the phone without a trusted dealer? How do I know you didn't shuffle the Aces to the top of the deck? The coin flip was the atomic unit of this problem. Get that right, and you could build up to full card games.</p>
+<p>The problem seems impossible. Alice flips a coin and announces &quot;heads.&quot; Bob has no way to verify she actually flipped anything. She might have waited to hear his guess first. Or she might change her answer after hearing his response. Without shared physical reality, without a coin both parties can see, how can either trust the outcome?</p>
+<p>Blum's solution introduced one of the most fundamental primitives in cryptography. Alice doesn't announce her flip directly. Instead, she first sends a <em>commitment</em>: a cryptographic object that locks in her choice without revealing it. Only after Bob makes his guess does Alice <em>open</em> the commitment, proving what she had chosen all along. The commitment is binding (Alice cannot change her answer after sending it) and hiding (Bob learns nothing until the reveal).</p>
+<p>This two-phase structure, commit then reveal, turns out to be exactly what our proof systems need. You've designed a protocol where the prover claims a polynomial evaluates to some value, and you want to check this with random queries. But the prover responds <em>after</em> seeing your challenge. What stops them from constructing a fake polynomial that happens to pass your spot-checks?</p>
+<p>This is the <strong>binding problem</strong>. The verifier's randomness is meant to catch a cheating prover off-guard. But if the prover can adapt their answers after seeing the challenge, they can tailor responses to pass. The polynomial identity testing that underlies our protocols becomes meaningless.</p>
+<p>We need a mechanism that forces the prover to fix their polynomial before verification begins.</p>
 <h2 id="the-trust-problem-revisited"><a class="header" href="#the-trust-problem-revisited">The Trust Problem Revisited</a></h2>
 <p>Consider the sum-check protocol from Chapter 3. The verifier sends random challenges $r_1, r_2, \ldots$, and the prover responds with univariate polynomials. At the end, the verifier must check that some claimed evaluation matches the actual polynomial. But how does the verifier know the prover didn't just fabricate a polynomial that happens to satisfy the final check?</p>
 <p>The issue is subtle. Our soundness proofs assumed the prover is committed to <em>some</em> polynomial before the interaction begins. But in a raw interactive protocol, nothing enforces this. A dishonest prover could:</p>
@@ -218,13 +219,14 @@ $$\log_g h = \frac{m - m'}{r' - r}$$</p>
 <li>$\text{Commitment to } m_2 \sim \text{Uniform}(G)$</li>
 </ul>
 <p>The two distributions are identical: not just computationally indistinguishable, but <em>statistically</em> identical. Even an unbounded adversary cannot determine the committed value from the commitment alone.</p>
+<p><strong>The Paint Analogy.</strong> Think of $g^m$ as a specific color of paint (say, blue for $m = 10$). Think of $h^r$ as a random bucket of paint mixed in. Because $h^r$ can be <em>any</em> color depending on $r$, adding it to blue produces a mixture that looks essentially random. If you see purple, it could be blue + red, or yellow + violet. Without knowing the exact shade of the random mixer ($r$), the original color ($m$) is completely masked.</p>
 <h3 id="the-independence-requirement"><a class="header" href="#the-independence-requirement">The Independence Requirement</a></h3>
 <p>There's a critical subtlety: the generators $g$ and $h$ must be <em>independently chosen</em> such that nobody knows $\log_g h$.</p>
 <p>If Alice knows that $h = g^x$ for some $x$, she can break binding:
 $$C = g^m h^r = g^m (g^x)^r = g^{m + xr}$$</p>
 <p>She can open this as $(m', r')$ for any $m'$ by computing $r' = r + (m - m')/x$. The verification passes because:
 $$g^{m'} h^{r'} = g^{m'} g^{x(r + (m - m')/x)} = g^{m' + xr + m - m'} = g^{m + xr} = C$$</p>
-<p>In practice, $g$ and $h$ are generated using &quot;nothing-up-my-sleeve&quot; constructions, for instance hashing different strings to curve points, ensuring nobody could have engineered a known relationship between them.</p>
+<p>If Alice knows this relationship $h = g^x$, she holds a <strong>trapdoor</strong>. It allows her to open the commitment to <em>any</em> value she wants. This is why trusted setups in SNARKs are so sensitive: if the creator knows the &quot;toxic waste&quot; (the secret exponents used to generate the parameters), they can forge proofs. We prevent this by generating $g$ and $h$ from &quot;nothing-up-my-sleeve&quot; numbers like the digits of $\pi$ or by hashing different strings to curve points, ensuring nobody knows the discrete log relationship.</p>
 <h2 id="worked-example-pedersen-commitment-in-mathbbz_23"><a class="header" href="#worked-example-pedersen-commitment-in-mathbbz_23">Worked Example: Pedersen Commitment in $\mathbb{Z}_{23}^*$</a></h2>
 <p>Let's trace through a concrete example using the multiplicative group modulo 23.</p>
 <p><strong>Setup</strong>: Work in $\mathbb{Z}_{23}^*$, which has order $\phi(23) = 22$. Take generators $g = 5$ and $h = 7$. We assume nobody knows $\log_5 7$.</p>
@@ -385,13 +387,13 @@ $$T \cdot C^e = (g^d h^s) \cdot (g^m h^r)^e = g^{d + em} h^{s + er} = g^{z_1} h^
 <p><strong>The resolution</strong>: Relax one property to <em>computational</em> rather than <em>information-theoretic</em>:</p>
 <ul>
 <li>
-<p><strong>Computationally binding, perfectly hiding</strong>: Hash-based commitments. Finding two values with the same hash is computationally hard, but any commitment could theoretically open to multiple values.</p>
+<p><strong>Perfectly hiding, computationally binding</strong>: Pedersen commitments. As we proved earlier, for any message $m$ there exists an $r$ that produces any given commitment, so an unbounded adversary cannot determine which value is inside. But finding two openings requires solving discrete log, so binding holds against efficient adversaries. Even an all-powerful being cannot tell which value is committed (perfect hiding), but a quantum computer could eventually break the lock (computational binding).</p>
 </li>
 <li>
-<p><strong>Perfectly binding, computationally hiding</strong>: Pedersen commitments with known discrete log relation. Each commitment has exactly one opening, but determining the value requires solving discrete log.</p>
+<p><strong>Perfectly binding, computationally hiding</strong>: Hash-based commitments $C = H(m | r)$. A hash function is deterministic: each $(m, r)$ pair maps to exactly one commitment, and collision resistance means you cannot find two pairs that collide. The value is locked in tight (perfect binding). But an unbounded adversary could brute-force all possible inputs to find $(m, r)$ (computational hiding).</p>
 </li>
 </ul>
-<p>This tradeoff shapes the design space. For ZK proofs, we typically want hiding (don't reveal the witness) and accept computational binding (secure against poly-time adversaries). The choice affects which hardness assumptions the scheme rests on.</p>
+<p>This tradeoff shapes the design space. For ZK proofs, we typically want hiding (don't reveal the witness) and accept computational binding (secure against poly-time adversaries). Pedersen commitments are the natural choice: the witness stays perfectly hidden, and binding holds as long as discrete log is hard.</p>
 <h2 id="looking-ahead"><a class="header" href="#looking-ahead">Looking Ahead</a></h2>
 <p>We've established the cryptographic primitive that makes succinct proofs possible. Commitments transform interactive protocols, where timing and ordering are honor-system, into cryptographically enforced games where cheating is computationally infeasible.</p>
 <p>In Chapter 9, we'll see how polynomial commitment schemes (KZG, IPA, and FRI) extend these ideas to commit to polynomials and prove evaluations. These are the engines that power modern SNARKs.</p>
@@ -459,6 +461,22 @@ $$T \cdot C^e = (g^d h^s) \cdot (g^m h^r)^e = g^{d + em} h^{s + er} = g^{z_1} h^
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

@@ -163,8 +163,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-26-zk-in-the-cryptographic-landscape"><a class="header" href="#chapter-26-zk-in-the-cryptographic-landscape">Chapter 26: ZK in the Cryptographic Landscape</a></h1>
-<p>Traditional cryptography is about locks.</p>
-<p>Encrypt, transmit, decrypt. The data is either hidden or visible, nothing in between. A message is sealed or opened, a secret stored or revealed. For most of cryptographic history, this binary was sufficient. But as computation became ubiquitous, a new question emerged: what if we could compute on secrets without exposing them?</p>
+<p>In 1943, a resistance fighter in occupied France needs to send a message to London. She writes it in cipher, slips it into a dead letter drop, and waits. A courier retrieves it, carries it across the Channel, and a cryptographer at Bletchley Park decrypts it. The message travels safely because no one who intercepts it can read it.</p>
+<p>For the next fifty years, this was cryptography's entire mission: move secrets from A to B without anyone in between learning them. Telegraph, radio, internet. The medium changed; the problem stayed the same. Encrypt, transmit, decrypt. A message sealed or opened, a secret stored or revealed.</p>
+<p>Then computers stopped being message carriers and became <em>thinkers</em>. The question changed. It was no longer enough to ask &quot;can I send a secret?&quot; Now we needed to ask: &quot;can I <em>use</em> a secret without exposing it?&quot;</p>
 <p>This is the dream of <strong>programmable cryptography</strong>: not just secure storage and transmission, but secure <em>computation</em>. Mathematics that thinks while blindfolded.</p>
 <p>The dream took many forms. &quot;Can I prove I know a secret without revealing it?&quot; led to zero-knowledge proofs. &quot;Can we compute together while keeping our inputs private?&quot; led to secure multiparty computation. &quot;Can I encrypt data so someone else can compute on it?&quot; led to fully homomorphic encryption. &quot;Can I publish a program that reveals nothing about how it works?&quot; led to program obfuscation.</p>
 <p>These aren't just different techniques; they're different philosophies about who computes, who learns, and what trust means. For decades they developed in parallel, each with its own community, its own breakthroughs, its own brick walls.</p>
@@ -181,6 +182,11 @@
 <p>Craig Gentry's 2009 thesis changed everything.</p>
 <h3 id="the-core-idea-learning-with-errors"><a class="header" href="#the-core-idea-learning-with-errors">The Core Idea: Learning With Errors</a></h3>
 <p>Modern FHE rests on a problem called <strong>Learning With Errors (LWE)</strong>. The intuition is simple: linear equations are easy to solve, but linear equations with noise are hard.</p>
+<blockquote>
+<p>[!note] The Radio Noise Analogy
+Imagine you're trying to tune into a radio station. If the signal comes through perfectly clear, you hear every word. But add static, and suddenly comprehension becomes difficult. Add enough static, and the voice becomes indistinguishable from random noise.</p>
+<p>LWE works the same way. The &quot;signal&quot; is a linear equation. Without noise, anyone can solve it. But add a small random error to each equation, and the system becomes unsolvable. The legitimate receiver has a &quot;filter&quot; (the secret key) that strips away the static. Everyone else hears only noise.</p>
+</blockquote>
 <p><strong>The easy problem.</strong> Suppose I give you equations like $3x + 2y = 17$ and $5x + y = 19$. You solve for $x$ and $y$ immediately. This is high school algebra. Even with hundreds of variables, Gaussian elimination solves it in polynomial time.</p>
 <p><strong>The hard problem.</strong> Now suppose each equation has a small random error: $3x + 2y \approx 17$ and $5x + y \approx 19$, where &quot;$\approx$&quot; means &quot;equals, plus or minus a little noise.&quot; Suddenly the problem becomes believed to be intractable. The errors compound; you can't tell whether a near-solution is wrong or just obscured by noise. This is LWE: given noisy linear equations, recover the unknowns.</p>
 <p><strong>Why this enables encryption.</strong> The secret key is a vector $\vec{s}$ (the &quot;unknowns&quot; in our linear system). The modulus $q$ is a public parameter. To encrypt a single bit $m \in {0, 1}$:</p>
@@ -243,6 +249,12 @@
 <p><strong>The honest assessment.</strong> Current overhead sits at roughly $10^3$ to $10^4$ times native computation. Early implementations were a million times slower; today's best are &quot;only&quot; a thousand times slower. This is genuine progress, but a thousand-fold slowdown is still brutal. A computation that takes 1 second in the clear takes 15 minutes encrypted. A 1-minute computation becomes a full day.</p>
 <p>For narrow applications (simple queries on encrypted databases, basic encrypted analytics), FHE is starting to see deployment. But for general computation, the overhead remains prohibitive. Nobody is running encrypted video processing or encrypted large-language-model inference.</p>
 <p><strong>Will it ever be practical?</strong> Unknown. The optimists point to the trajectory: million-fold → thousand-fold in 15 years. Another 15 years might bring another few orders of magnitude. Hardware acceleration (custom FPGAs, ASICs) could help. The pessimists note that the overhead may be fundamental: noise management and ciphertext expansion might have irreducible costs. ZK proofs found clever ways around their bottlenecks; FHE might not.</p>
+<blockquote>
+<p>[!note] Why Hardware Acceleration Matters
+FHE's core operations are polynomial arithmetic and Number Theoretic Transforms (NTTs) over large integers. CPUs execute these operations sequentially, one instruction at a time. But NTTs are massively parallelizable: the same operation applied to thousands of coefficients simultaneously.</p>
+<p>Custom hardware (FPGAs, ASICs) can exploit this parallelism directly. Where a CPU computes one multiplication, a dedicated chip computes thousands in the same clock cycle. Companies like Intel, DARPA, and several startups are building FHE accelerators that promise 100-1000× speedups over software implementations.</p>
+<p>If these accelerators deliver, FHE's effective overhead drops from 1000× to 1-10×. That's the difference between &quot;research curiosity&quot; and &quot;production deployment.&quot;</p>
+</blockquote>
 <p>Libraries like Microsoft SEAL, OpenFHE, and Zama's Concrete have made FHE accessible to researchers and adventurous practitioners. But &quot;accessible&quot; doesn't mean &quot;deployable at scale.&quot;</p>
 <h2 id="the-holy-grail-that-wasnt"><a class="header" href="#the-holy-grail-that-wasnt">The Holy Grail That Wasn't</a></h2>
 <p>Program obfuscation is the most ambitious dream of all. Not just computing on secrets, but making <em>programs themselves</em> into secrets.</p>
@@ -305,6 +317,12 @@ Program B:
 <p>This means you can take Program B, obfuscate it, and publish the result. The secret key is <em>in the code</em>, but no one can extract it. The obfuscated program is indistinguishable from an obfuscation of the trivial Program A, which contains no secrets at all. The key is hidden in plain sight.</p>
 <p><strong>The utopia iO promises.</strong> With efficient iO, you could build almost any cryptographic primitive imaginable. The most striking is <em>witness encryption</em>: encrypt a message so that only someone who knows a solution to a puzzle can decrypt it. Not a specific person with a specific key, but <em>anyone</em> who can solve the puzzle. &quot;This message can be read by whoever proves P ≠ NP.&quot; &quot;This inheritance unlocks for whoever finds my will.&quot; The decryption key doesn't exist until someone produces the witness.</p>
 <p>$$\text{WE.Enc}(\text{statement}, m) \to c \qquad \text{WE.Dec}(c, \text{witness}) \to m$$</p>
+<blockquote>
+<p>[!note] The Time Capsule Analogy: Witness Encryption vs ZK
+Think of witness encryption as a time capsule with a puzzle lock. You seal a message inside and inscribe a mathematical challenge on the outside. Anyone who solves the puzzle can open the capsule and read the message. You don't need to know <em>who</em> will solve it, or <em>when</em>. The lock itself enforces the access rule.</p>
+<p>Zero-knowledge works in the opposite direction. Instead of &quot;prove you can solve this to read the secret,&quot; ZK says &quot;prove you already solved this without showing your solution.&quot; WE grants access based on future knowledge. ZK demonstrates existing knowledge.</p>
+<p>The duality is precise: both are parameterized by an NP statement. WE encrypts <em>to</em> the statement (anyone with a witness can decrypt). ZK proves <em>about</em> the statement (I have a witness, but you won't learn it).</p>
+</blockquote>
 <p>Witness encryption reveals a beautiful duality with zero-knowledge. A ZK proof says &quot;I know a witness for statement $x$&quot; without revealing it. Witness encryption says &quot;only someone who knows a witness can read this&quot; without specifying who. One proves knowledge; the other grants access based on knowledge. They're two sides of the same coin, formalized through the same NP relation.</p>
 <p>The applications cascade from there. <em>Functional encryption</em> lets you give someone a key that computes $f(m)$ from an encryption of $m$, without learning $m$ itself. A hospital holds encrypted patient records; a researcher gets a key that computes &quot;average age of diabetic patients&quot; but reveals nothing else. Not &quot;decrypt or don't,&quot; but fine-grained access to computations on secrets. <em>Deniable encryption</em> lets you encrypt a message, then later produce fake randomness that makes it look like you encrypted something completely different. Under coercion, you reveal the fake randomness; the adversary decrypts and sees an innocent message. True plausible deniability, mathematically guaranteed. You could even build <em>self-destructing programs</em>: code that works for a while, then stops, not because of a flag you can patch out, but because the cryptographic structure makes continued execution impossible after a deadline.</p>
 <p>iO is the &quot;master tool&quot; of cryptography. Given iO, you can build almost anything. The constraint isn't imagination; it's efficiency.</p>
@@ -393,6 +411,22 @@ Program B:
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

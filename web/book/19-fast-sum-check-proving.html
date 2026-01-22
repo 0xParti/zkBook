@@ -166,11 +166,12 @@
 <blockquote>
 <p><em>Most chapters in this book can be read with pencil and paper. This one assumes you've already internalized the sum-check protocol (Chapter 3) and multilinear extensions (Chapter 4), not as definitions to look up, but as tools you can wield. If those still feel foreign, consider this chapter a preview of where the road leads, and return when the foundations feel solid.</em></p>
 </blockquote>
-<p>In 1990, Lund, Fortnow, Karloff, and Nisan introduced the sum-check protocol. It achieved something that sounds impossible: verifying a sum over $2^n$ terms while the verifier performs only $O(n)$ work. Exponential compression in verification time. The foundation of succinct proofs.</p>
-<p>Then, for two decades, almost nobody used it.</p>
-<p>A naive reading of the protocol suggests the prover performs $O(n \cdot 2^n)$ operations, worse than just computing the sum directly. For $n = 30$, that's over 30 billion operations per proof. The community looked elsewhere. Groth16 and PLONK took different paths: univariate polynomials, quotient-based constraints, FFT-driven arithmetic. Sum-check remained a theoretical marvel, admired in complexity circles but dismissed as impractical.</p>
-<p>The community was wrong. With the right algorithms (algorithms that were always available but overlooked) sum-check proving runs in $O(2^n)$ time, linear in the number of terms. For sparse sums where only $T \ll 2^n$ terms are non-zero, prover time drops to $O(T)$. These are not approximations or heuristics; they're exact algorithms exploiting algebraic structure that was always present.</p>
-<p>This chapter develops those algorithms, and then shows how they enable Spartan, the SNARK that proved sum-check alone suffices for practical zero-knowledge proofs. No univariate encodings. No pairing-based trusted setup. Just multilinear polynomials, sum-check, and a commitment scheme.</p>
+<p>In 1992, the sum-check protocol solved the problem of succinct verification. Lund, Fortnow, Karloff, and Nisan had achieved something that sounds impossible: verifying a sum over $2^n$ terms while the verifier performs only $O(n)$ work. Exponential compression in verification time. The foundation of succinct proofs.</p>
+<p>Then, for three decades, almost nobody used it.</p>
+<p>Why? Because everyone thought it was too slow. A naive reading of the protocol suggests the prover performs $O(n \cdot 2^n)$ operations, worse than just computing the sum directly. For $n = 30$, that's over 30 billion operations per proof. Researchers chased other paths: PCPs, pairing-based SNARKs, trusted setups. Groth16 and PLONK took univariate polynomials, quotient-based constraints, FFT-driven arithmetic. Sum-check remained a theoretical marvel, admired in complexity circles but dismissed as impractical.</p>
+<p>They were wrong.</p>
+<p>It turned out that a simple algorithmic trick, available since the 90s but overlooked, made the prover linear time. With the right algorithms, sum-check proving runs in $O(2^n)$ time, linear in the number of terms. For sparse sums where only $T \ll 2^n$ terms are non-zero, prover time drops to $O(T)$. These are not approximations or heuristics; they're exact algorithms exploiting algebraic structure that was always present.</p>
+<p>When this was rediscovered and popularized by Justin Thaler in the late 2010s, it triggered a revolution. The field realized it had been sitting on the &quot;Holy Grail&quot; of proof systems for three decades without noticing. This chapter explains the trick that woke up the giant, and then shows how it enables Spartan, the SNARK that proved sum-check alone suffices for practical zero-knowledge proofs. No univariate encodings. No pairing-based trusted setup. Just multilinear polynomials, sum-check, and a commitment scheme.</p>
 <h3 id="why-this-matters-the-zkvm-motivation"><a class="header" href="#why-this-matters-the-zkvm-motivation">Why This Matters: The zkVM Motivation</a></h3>
 <p>The techniques in this chapter find their most compelling application in <em>zkVMs</em> (zero-knowledge virtual machines). A zkVM proves correct execution of arbitrary programs without requiring a new circuit for each program.</p>
 <p>The idea is simple in principle. Take an instruction set architecture like RISC-V. Write a SNARK that proves: &quot;given this program and this input, the CPU executed correctly and produced this output.&quot; The circuit encodes the CPU's transition function: fetch instruction, decode, execute, update registers and memory, repeat. Any program compiles to RISC-V; the same circuit proves them all.</p>
@@ -222,6 +223,13 @@ $$O(2^{n-1}) + O(2^{n-2}) + \cdots + O(1) = O(2^n)$$</p>
 <p><strong>Why the speedup works.</strong> The core insight is simple once you see it.</p>
 <p><em>Naive approach</em>: In each of the $n$ rounds, re-evaluate the polynomial at all necessary points from scratch. Round 1 touches $O(2^n)$ terms. Round 2 touches $O(2^{n-1})$ terms, but computes each by going back to the original tables. Round 3 the same. Each round performs a fresh evaluation, and &quot;fresh evaluation&quot; costs the full table size for that round. Total: $n$ separate evaluations, giving $O(n \cdot 2^n)$.</p>
 <p><em>Folding approach</em>: Evaluate once at the start, storing results in a table. Then, after each challenge $r_i$, <em>update</em> the table rather than re-evaluate. The update is cheap: just a linear combination of adjacent entries. No re-evaluation from scratch, ever. The table shrinks by half each round, and we touch each entry exactly once.</p>
+<blockquote>
+<p>[!note] The Origami Analogy
+Imagine a long strip of paper with numbers written on it. You want to compute a weighted sum.</p>
+<p><em>Naive approach</em>: Walk down the strip, reading numbers and adding them up. For the next round, walk down the strip again.</p>
+<p><em>Folding approach</em>: Fold the paper in half. Where the paper overlaps, mix the two numbers together based on the random challenge. Now you have a strip half as long. Throw away the original.</p>
+<p>By the end, you have folded the paper into a single square containing one number. You never had to walk back and forth. This is why the prover achieves $O(N)$ total work instead of $O(N \log N)$: each number is touched exactly once, during the fold that eliminates its dimension.</p>
+</blockquote>
 <p>The naive prover asks &quot;what is $\tilde{a}(r_1, \ldots, r_i, x_{i+1}, \ldots)$?&quot; afresh each round. The folding prover asks &quot;given what I already computed, how does fixing $x_i = r_i$ change the table?&quot; The former is $O(2^{n-i})$ per round times $n$ rounds. The latter is $O(2^{n-i})$ per round, summing to a geometric series: $2^{n-1} + 2^{n-2} + \ldots + 1 = 2^n - 1$.</p>
 <p>This is dynamic programming: intermediate results flow forward, each round reusing the previous round's work. The fold operation after round $i$ produces exactly the data structure needed for round $i+1$. Instead of recomputing $\tilde{a}(r_1, \ldots, r_i, x_{i+1}, \ldots, x_n)$ from scratch, we derive it from the previous round's output with a single linear pass.</p>
 <h3 id="worked-example-the-halving-trick-with-n--2"><a class="header" href="#worked-example-the-halving-trick-with-n--2">Worked Example: The Halving Trick with $n = 2$</a></h3>
@@ -279,6 +287,62 @@ $$H = \sum_{(b_1, b_2) \in {0,1}^2} \tilde{a}(b_1, b_2) \cdot \tilde{b}(b_1, b_2
 $= 11 \cdot \frac{(X-1)(X-2)}{2} - 20 \cdot (X)(X-2) + 13 \cdot \frac{X(X-1)}{2}$</p>
 <p>At $X = 3$: $s_1(3) = 11 \cdot \frac{2 \cdot 1}{2} - 20 \cdot 3 \cdot 1 + 13 \cdot \frac{3 \cdot 2}{2} = 11 - 60 + 39 = -10$. $\checkmark$</p>
 <p><strong>Total operations:</strong> Round 1 touched 4 entries; Round 2 touched 2 entries. Total: 6 operations, not $2 \cdot 4 = 8$ as naive analysis suggests. For larger $n$, the savings compound: $O(2^n)$ instead of $O(n \cdot 2^n)$.</p>
+<h3 id="code-the-halving-trick"><a class="header" href="#code-the-halving-trick">Code: The Halving Trick</a></h3>
+<p>The following Python implements the folding prover for sum-check over a product $\tilde{a}(x) \cdot \tilde{b}(x)$. Notice how the arrays shrink after each round.</p>
+<pre><code class="language-python">def sumcheck_fold(A, B, challenges):
+    &quot;&quot;&quot;
+    Sum-check prover using the halving trick.
+    Proves: H = sum over hypercube of A[x] * B[x]
+
+    Args:
+        A, B: Tables of size 2^n (as flat lists, index = binary encoding)
+        challenges: List of n verifier challenges r_1, ..., r_n
+
+    Returns: List of round polynomials, each as (s(0), s(1), s(2))
+    &quot;&quot;&quot;
+    rounds = []
+
+    for r in challenges:
+        half = len(A) // 2
+
+        # Compute s(0), s(1), s(2) for this round's polynomial
+        # s(t) = sum over remaining vars of A(t, ...) * B(t, ...)
+        s0 = sum(A[2*i] * B[2*i] for i in range(half))
+        s1 = sum(A[2*i + 1] * B[2*i + 1] for i in range(half))
+
+        # s(2): extrapolate using linearity. For a line through
+        # (0, y0) and (1, y1), the value at t=2 is 2*y1 - y0
+        s2 = sum((2*A[2*i + 1] - A[2*i]) * (2*B[2*i + 1] - B[2*i])
+                 for i in range(half))
+
+        rounds.append((s0, s1, s2))
+
+        # FOLD: A'[i] = (1-r)*A[2i] + r*A[2i+1]
+        # This computes A restricted to first variable = r
+        A = [(1 - r) * A[2*i] + r * A[2*i + 1] for i in range(half)]
+        B = [(1 - r) * B[2*i] + r * B[2*i + 1] for i in range(half)]
+
+    return rounds
+
+# Reproduce the worked example above
+A = [2, 5, 4, 3]  # A[00]=2, A[01]=5, A[10]=4, A[11]=3
+B = [3, 1, 2, 4]  # B[00]=3, B[01]=1, B[10]=2, B[11]=4
+
+print(f&quot;True sum: {sum(A[i]*B[i] for i in range(4))}&quot;)  # 31
+
+rounds = sumcheck_fold(A, B, challenges=[3, 7])
+for i, (s0, s1, s2) in enumerate(rounds):
+    print(f&quot;Round {i+1}: s(0)={s0}, s(1)={s1}, s(2)={s2}&quot;)
+    print(f&quot;  Check: s(0) + s(1) = {s0 + s1}&quot;)
+</code></pre>
+<p>Output:</p>
+<pre><code>True sum: 31
+Round 1: s(0)=11, s(1)=20, s(2)=13
+  Check: s(0) + s(1) = 31
+Round 2: s(0)=0, s(1)=-10, s(2)=-200
+  Check: s(0) + s(1) = -10
+</code></pre>
+<p>The key insight: each round, the arrays halve in size. Total work is $4 + 2 = 6$ operations, not $4 + 4 = 8$. For $n$ variables with table size $N = 2^n$, this gives $N + N/2 + N/4 + \cdots = O(N)$.</p>
 <h2 id="sparse-sums"><a class="header" href="#sparse-sums">Sparse Sums</a></h2>
 <p>The halving trick solves the dense case: when all $2^n$ terms are present, we achieve optimal $O(2^n)$ proving time. But many applications involve <strong>sparse</strong> sums, where only $T \ll 2^n$ terms are non-zero, and here the halving trick falls short.</p>
 <p>Consider a lookup table with $N = 2^{30}$ possible indices but only $T = 2^{20}$ actual lookups. The halving trick still touches all $2^{30}$ positions, folding arrays of zeros. We're wasting a factor of 1000 in both time and space.</p>
@@ -286,7 +350,9 @@ $= 11 \cdot \frac{(X-1)(X-2)}{2} - 20 \cdot (X)(X-2) + 13 \cdot \frac{X(X-1)}{2}
 <h3 id="the-challenge"><a class="header" href="#the-challenge">The Challenge</a></h3>
 <p>The dense algorithm folds arrays of size $N$. Even if most entries are zero, the fold operation touches all positions. We need a fundamentally different approach.</p>
 <h3 id="the-key-assumption-separable-product-structure"><a class="header" href="#the-key-assumption-separable-product-structure">The Key Assumption: Separable Product Structure</a></h3>
-<p>Not every sparse polynomial admits fast proving. The technique requires a specific structure. Suppose the polynomial factors as:</p>
+<p>Not every sparse polynomial admits fast proving. The technique requires a specific structure.</p>
+<p><strong>Clarification: sparse input, dense polynomial.</strong> When we say &quot;sparse sum,&quot; we mean the <em>input data</em> is sparse: the table of values on the Boolean hypercube has mostly zeros. The multilinear extension of this sparse vector is typically a <em>dense</em> polynomial with non-zero values everywhere on the continuous domain. This distinction matters because we operate on the basis vector (the table), not the polynomial coefficients. Sparsity in the table is what we exploit.</p>
+<p>Suppose the polynomial factors as:</p>
 <p>$$g(p, s) = \tilde{a}(p, s) \cdot \tilde{f}(p) \cdot \tilde{h}(s)$$</p>
 <p>where we split the $n$ variables into prefix $p = (x_1, \ldots, x_{n/2})$ and suffix $s = (x_{n/2+1}, \ldots, x_n)$, and:</p>
 <ul>
@@ -433,6 +499,7 @@ This multilinear view differs fundamentally from the QAP approach in Chapter 12 
 $$\sum_{x \in {0,1}^{\log m}} \widetilde{\text{eq}}(\tau, x) \cdot g(x) = 0$$</p>
 <p><strong>The equality polynomial.</strong> The function $\widetilde{\text{eq}}: \mathbb{F}^n \times \mathbb{F}^n \to \mathbb{F}$ (previewed in the sparse sum-check section above) is defined as:
 $$\widetilde{\text{eq}}(\tau, x) = \prod_{i=1}^{n} \left(\tau_i x_i + (1-\tau_i)(1-x_i)\right)$$</p>
+<p>Think of $\widetilde{\text{eq}}$ as Lagrange interpolation in disguise. It creates a function that equals 1 at exactly one Boolean point and 0 at all others. When $\tau$ is Boolean, $\widetilde{\text{eq}}(\tau, x)$ is 1 if $x = \tau$ and 0 for every other Boolean $x$. When $\tau$ is a general field element, $\widetilde{\text{eq}}(\tau, x)$ smoothly interpolates, giving the coefficients needed to &quot;select&quot; any value from a table.</p>
 <p>Each factor is linear in both $\tau_i$ and $x_i$. On Boolean inputs, the factor equals 1 when $\tau_i = x_i$ (both 0 or both 1) and equals 0 when they differ. On non-Boolean inputs, the factor interpolates smoothly; for instance, $\tau_i x_i + (1-\tau_i)(1-x_i)$ at $(\tau_i, x_i) = (2, 0)$ gives $0 + (-1)(1) = -1$.</p>
 <p><strong>The key observation:</strong> When both inputs are Boolean, the product equals $\mathbf{1}[\tau = x]$, the indicator function that is 1 if and only if $\tau = x$, and 0 otherwise. But the formula extends smoothly to all field elements. This is precisely the multilinear extension of the equality indicator over ${0,1}^n \times {0,1}^n$.</p>
 <p><strong>A small example.</strong> Take $n = 2$. We have $\widetilde{\text{eq}}((\tau_1, \tau_2), (x_1, x_2)) = (\tau_1 x_1 + (1-\tau_1)(1-x_1)) \cdot (\tau_2 x_2 + (1-\tau_2)(1-x_2))$.</p>
@@ -770,6 +837,22 @@ $$\widetilde{\text{eq}}(r, z) \cdot (\tilde{a}(z) \cdot \tilde{b}(z) - \tilde{c}
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

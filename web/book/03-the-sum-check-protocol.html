@@ -163,11 +163,12 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-3-the-sum-check-protocol"><a class="header" href="#chapter-3-the-sum-check-protocol">Chapter 3: The Sum-Check Protocol</a></h1>
-<p>In 1990, four researchers at the University of Chicago were wrestling with a question that seemed absurd.</p>
-<p>Carsten Lund, Lance Fortnow, Howard Karloff, and Noam Nisan wanted to verify a sum: not a small sum, but a sum over $2^n$ terms, where $n$ could be in the hundreds. Computing such a sum directly would take longer than the lifetime of the universe. And yet, they wondered: could you <em>check</em> such a sum without computing it?</p>
-<p>The obvious answer was no. How can you verify an answer without doing the work yourself? It would be like confirming that someone correctly counted every grain of sand on a beach without counting any grains yourself.</p>
-<p>But the four researchers discovered something strange. They didn't need to look at every term. By asking the prover a series of clever questions, each answered with a simple polynomial, they could catch any cheater with overwhelming probability. The key was randomness: by challenging the prover at unpredictable points, any lie would propagate through the protocol until it became a simple falsehood that the verifier could catch.</p>
-<p>They called it the <strong>sum-check protocol</strong>. It would become, arguably, the most important protocol in all of interactive proof theory.</p>
+<p>In late 1989, the field of complexity theory was stuck.</p>
+<p>Researchers believed that Interactive Proofs were a relatively weak tool, capable of verifying only a handful of graph problems. The idea that they could verify hard counting problems like &quot;how many assignments satisfy this formula&quot; seemed laughable. The consensus was clear: interaction helped, but not by much.</p>
+<p>Then came the email.</p>
+<p>Noam Nisan, a master's student at Hebrew University, sent a draft to Lance Fortnow at the University of Chicago. It contained a protocol that used polynomials to verify something thought impossible: the permanent of a matrix. Fortnow showed it to his colleagues Howard Karloff and Carsten Lund. They realized the technique didn't just apply to matrices. It applied to <em>everything</em> in the polynomial hierarchy.</p>
+<p>When the paper was released, it didn't just solve a problem. It caused a crisis. The result implied that &quot;proofs&quot; were far more powerful than anyone had imagined. Within weeks, Adi Shamir (the &quot;S&quot; in RSA) used the same technique to prove IP = PSPACE: interactive proofs could verify any problem solvable with polynomial memory, even if finding the solution took eons.</p>
+<p>The engine powering this revolution was the protocol they discovered. They called it the <strong>sum-check protocol</strong>.</p>
 <p>Here's the paradox it resolves:</p>
 <blockquote>
 <p>Verify a sum of $2^n$ terms by checking $O(n)$ values? Impossible. The prover claims the sum is $H$, but computing it yourself requires evaluating a function at every point of an exponentially large domain. Even if each evaluation takes constant time, you'd need $2^{100}$ operations for a 100-variable polynomial. Centuries of computation, just to check someone's arithmetic.</p>
@@ -183,12 +184,14 @@
 <p>The sum-check protocol solves this problem. It allows a verifier to check the claimed value of $H$ with high probability, in time that is only linear in $\nu$ and the time it takes to evaluate $g$ at a <em>single</em> random point. This represents an exponential speedup.</p>
 <p>But how can you verify a sum without computing it? The answer lies in a beautiful idea: <strong>claim reduction via deferred evaluation</strong>. Instead of computing the sum directly, the verifier engages in a multi-round dialogue with the prover. In each round, the prover makes a smaller, more specific claim, and the verifier uses randomness to drill down on a single point. An initial lie, no matter how cleverly constructed, gets amplified at each step until it becomes a simple falsehood about a single evaluation, which the verifier catches at the end.</p>
 <h2 id="the-compression-game"><a class="header" href="#the-compression-game">The Compression Game</a></h2>
-<p>Think of the sum-check protocol as a game of progressive compression.</p>
-<p>The prover holds an enormous object: a table of $2^\nu$ values. The verifier wants to know their sum but cannot afford to examine the table. So instead, the prover compresses the table (not into a hash, but into a <em>polynomial</em>).</p>
-<p>In round 1, the prover compresses a table of $2^\nu$ values into a univariate polynomial of degree $d$. The verifier can't check the compression directly, but she can probe it: she picks a random point $r_1$ and asks &quot;what does your polynomial say here?&quot; That answer becomes the new target, a compressed representation of a table half the size.</p>
+<p>Think of the sum-check protocol as a game of progressive compression, or better yet, as a police interrogation.</p>
+<p>The suspect (prover) claims to have an alibi for every minute of a 24-hour day ($2^\nu$ moments). The detective (verifier) cannot review surveillance footage for the entire day. Instead, the detective asks for a summary: &quot;Tell me the sum of your activities.&quot;</p>
+<p>The suspect provides a summary polynomial.</p>
+<p>The detective picks one random second ($r_1$) and asks: &quot;Explain this specific moment in detail.&quot; To answer, the suspect must provide a new summary for that specific timeframe. If the suspect lied about the total day, they must now lie about that specific second to make the math add up. The detective drills down again: &quot;Okay, explain this millisecond.&quot;</p>
+<p>The lie has to move. It has to hide in smaller and smaller gaps. Eventually, the detective asks about a single instant that can be fact-checked directly. If the suspect's story at that final instant doesn't match the evidence, the whole alibi crumbles.</p>
+<p>More precisely: the prover holds an enormous object, a table of $2^\nu$ values. The verifier wants to know their sum but cannot afford to examine the table. In round 1, the prover compresses the table into a univariate polynomial. The verifier probes it at a random point $r_1$, and that answer becomes the new target: a compressed representation of a table half the size.</p>
 <p>Each round, the table shrinks by half while the verifier accumulates random coordinates. After $\nu$ rounds, the &quot;table&quot; has size 1: a single value. The verifier can compute that value herself.</p>
-<p>Here's the key insight: <strong>honest compression is consistent, but lies leave fingerprints</strong>. If the prover's initial polynomial doesn't actually represent the true sum, it must differ from the honest polynomial somewhere. The random probes find these differences with overwhelming probability. A cheating prover would need to predict all $\nu$ random challenges in advance to construct a lie that survives; and against cryptographic randomness, that's impossible.</p>
-<p>The protocol converts an exponential verification problem into a linear-round dialogue where randomness does the heavy lifting.</p>
+<p><strong>Honest compression is consistent, but lies leave fingerprints.</strong> If the prover's initial polynomial doesn't represent the true sum, it must differ from the honest polynomial somewhere. The random probes find these differences with overwhelming probability. A cheating prover would need to predict all $\nu$ random challenges in advance; against cryptographic randomness, that's impossible.</p>
 <h2 id="the-protocol-specification"><a class="header" href="#the-protocol-specification">The Protocol Specification</a></h2>
 <p>Let's make this precise. The sum-check protocol verifies a claim of the form:</p>
 <p>$$H = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g(b_1, \ldots, b_\nu)$$</p>
@@ -208,8 +211,8 @@
 </ol>
 <p><strong>Why the degree check matters</strong>: The soundness argument relies on Schwartz-Zippel: two <em>distinct</em> degree-$d$ polynomials agree on at most $d$ points, so a random evaluation catches the difference with probability $\geq 1 - d/|\mathbb{F}|$. But what if the prover sends a high-degree polynomial instead?</p>
 <p><em>Attack without degree check</em>: Suppose the true sum is $H^* = 6$ but the prover claims $H = 100$. The honest polynomial is $s_1(X) = 2X + 2$, with $s_1(0) + s_1(1) = 6$. The prover needs a polynomial passing through $(0, a)$ and $(1, b)$ where $a + b = 100$.</p>
-<p>With no degree bound, the prover can use Lagrange interpolation to construct a polynomial that passes through <em>any</em> set of points, including $(0, 50)$, $(1, 50)$, <em>and</em> agreeing with $s_1$ at every other point in the field! A degree-$(|\mathbb{F}| - 1)$ polynomial can match $s_1$ everywhere except at 0 and 1, making it indistinguishable from the honest polynomial at any random challenge $r_1 \notin {0, 1}$.</p>
-<p>The degree bound closes this attack. If the prover must send a degree-$d$ polynomial, Lagrange interpolation on $d+1$ points fully determines it. The prover cannot simultaneously satisfy $g_1(0) + g_1(1) = H$ and have $g_1$ agree with $s_1$ at more than $d$ points (unless $g_1 = s_1$, which requires $H = H^*$).</p>
+<p>Without a degree bound, the prover is a wizard. He can conjure a polynomial that passes through the lie at $x = 0$ and $x = 1$, yet looks exactly like the honest polynomial everywhere else. A degree-$(|\mathbb{F}| - 1)$ polynomial can match $s_1$ at every point except 0 and 1, making it indistinguishable from the honest polynomial at any random challenge $r_1 \notin {0, 1}$.</p>
+<p>The degree bound is the handcuffs. It forces the polynomial to be <em>stiff</em>. If it must pass through the wrong sum, its stiffness forces it to miss the honest polynomial almost everywhere else. Specifically: if the prover must send a degree-$d$ polynomial, Lagrange interpolation on $d+1$ points fully determines it. The prover cannot simultaneously satisfy $g_1(0) + g_1(1) = H$ and have $g_1$ agree with $s_1$ at more than $d$ points (unless $g_1 = s_1$, which requires $H = H^*$).</p>
 <p>If either check fails, the verifier rejects. Otherwise, she samples a random challenge $r_1 \leftarrow \mathbb{F}$ and sends it to the prover.</p>
 <p><strong>The implicit claim</strong>: After sampling $r_1$, the verifier holds the value $V_1 = g_1(r_1)$. This value represents what the prover is <em>implicitly</em> asserting about the reduced sum. The verifier doesn't compute this sum herself; she simply records what the prover's polynomial claims it to be. This $V_1$ becomes the target for round 2: the prover must now justify that the sum over $2^{\nu-1}$ points, with the first variable fixed to $r_1$, actually equals $V_1$.</p>
 <p>The key observation: the verifier has now <em>reduced</em> the original claim about a sum over $2^\nu$ points to a new claim about a sum over $2^{\nu-1}$ points. Specifically, the prover is now implicitly claiming that:</p>
@@ -233,15 +236,17 @@
 <p>The verifier now evaluates $g$ at the single point $(r_1, \ldots, r_\nu)$, using her &quot;oracle access&quot; to $g$, and checks whether this equals $g_\nu(r_\nu)$.</p>
 <p>If the values match, she accepts. Otherwise, she rejects.</p>
 <h3 id="a-note-on-oracle-access"><a class="header" href="#a-note-on-oracle-access">A Note on Oracle Access</a></h3>
-<p>In the theoretical model, we say the verifier has <strong>oracle access</strong> to $g$. This means she can evaluate $g$ at any point efficiently, even though the full evaluation table has exponential size. In practice, this works because the verifier understands the <em>structure</em> of $g$ (perhaps it arises from the arithmetization of a circuit or formula) and can compute $g(r)$ for any specific $r$ in polynomial time.</p>
+<p>In complexity theory, we say the verifier has &quot;oracle access&quot; to $g$. In practical SNARKs, this simply means the verifier knows the formula for $g$.</p>
+<p>For example, if $g$ encodes a multiplication gate, the verifier knows that $g(a, b) = a \cdot b$. She doesn't need a magical black box; she just plugs the random values $r_1, \ldots, r_\nu$ into that equation at the end of the protocol. The &quot;magic&quot; is that she does this only once, at a single point, regardless of how many variables are in the sum or how large the hypercube is.</p>
 <h2 id="why-does-this-work"><a class="header" href="#why-does-this-work">Why Does This Work?</a></h2>
 <h3 id="completeness"><a class="header" href="#completeness">Completeness</a></h3>
 <p>If the prover is honest, all checks pass trivially. The polynomials $g_j$ are computed exactly as specified, so the consistency checks hold by construction. The verifier accepts.</p>
 <h3 id="soundness"><a class="header" href="#soundness">Soundness</a></h3>
-<p>The soundness argument is more subtle and relies on the <strong>Schwartz-Zippel lemma</strong> we developed in Chapter 2.</p>
+<p>The soundness argument is more subtle and relies on the <strong>polynomial rigidity</strong> we developed in Chapter 2.</p>
 <p>Suppose the prover's initial claim is false: the true sum is $H^* \neq H$. For the first consistency check to pass, the prover must send some polynomial $g_1(X_1)$ such that $g_1(0) + g_1(1) = H$.</p>
 <p>Let $s_1(X_1)$ be the <em>true</em> polynomial: the one computed by honestly summing $g$ over the hypercube. By assumption, $s_1(0) + s_1(1) = H^* \neq H$. So the prover's polynomial $g_1$ must be different from $s_1$.</p>
-<p>Here's where Schwartz-Zippel enters. Both $g_1$ and $s_1$ are univariate polynomials of degree at most $d$. If they're different, they can agree on at most $d$ points. When the verifier samples a random $r_1$ from $\mathbb{F}$, the probability that $g_1(r_1) = s_1(r_1)$ is at most $d/|\mathbb{F}|$.</p>
+<p>This is exactly where rigidity traps the cheater. The prover wants to send a polynomial that passes through the lie ($H$) but behaves like the truth ($H^*$) everywhere else. Rigidity makes this impossible. The polynomial is too stiff: if $g_1 \neq s_1$, they can agree on at most $d$ points.</p>
+<p>By the Schwartz-Zippel lemma, when the verifier samples a random $r_1$ from $\mathbb{F}$, the probability that $g_1(r_1) = s_1(r_1)$ is at most $d/|\mathbb{F}|$.</p>
 <p>With overwhelming probability, $g_1(r_1) \neq s_1(r_1)$. The prover has &quot;gotten lucky&quot; only if the random challenge happened to land on one of the few points where the two polynomials agree.</p>
 <p>But what does $g_1(r_1) \neq s_1(r_1)$ mean? It means the prover is now committed to defending a <em>false</em> claim in round 2: he must convince the verifier that the sum $\sum_{b_2, \ldots} g(r_1, b_2, \ldots)$ equals $g_1(r_1)$, when in fact it equals $s_1(r_1)$.</p>
 <p>The same logic cascades through all $\nu$ rounds. In each round, either the prover gets lucky (probability $\leq d/|\mathbb{F}|$) or he's forced to defend a new false claim. By the final round, the prover must convince the verifier that $g_\nu(r_\nu) = g(r_1, \ldots, r_\nu)$, but the verifier checks this directly.</p>
@@ -314,7 +319,7 @@ For a CNF formula $\phi = C_1 \land C_2 \land \cdots \land C_m$, the formula is 
 <p>Over ${0,1}^\nu$, this product equals 1 if all clauses are satisfied and 0 otherwise.</p>
 <h3 id="the-protocol"><a class="header" href="#the-protocol">The Protocol</a></h3>
 <p>The number of satisfying assignments is:</p>
-<p>$$\#SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g_\phi(b_1, \ldots, b_\nu)$$</p>
+<p>$$#SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g_\phi(b_1, \ldots, b_\nu)$$</p>
 <p>This is exactly a sum over the boolean hypercube! The prover can use the sum-check protocol to convince the verifier of this count.</p>
 <p><strong>Degree analysis</strong>: For a 3-CNF formula, each clause polynomial has degree at most 3. With $m$ clauses, the product $g_\phi$ has total degree at most $3m$. The degree in any single variable is at most $3m$ as well (though often much smaller due to variable sharing).</p>
 <p><strong>Verifier's work</strong>: The verifier performs $\nu$ rounds of sum-check, checking polynomials of degree at most $3m$. The final check requires evaluating $g_\phi$ at a random point; this takes $O(m)$ time since $g_\phi$ is a product of $m$ clause polynomials.</p>
@@ -334,7 +339,7 @@ For a CNF formula $\phi = C_1 \land C_2 \land \cdots \land C_m$, the formula is 
 </tbody></table>
 </div>
 <p><strong>Step 3: Count.</strong></p>
-<p>$$\#SAT(\phi) = \sum_{(b_1, b_2) \in {0,1}^2} g_\phi(b_1, b_2) = 0 + 1 + 0 + 1 = 2$$</p>
+<p>$$#SAT(\phi) = \sum_{(b_1, b_2) \in {0,1}^2} g_\phi(b_1, b_2) = 0 + 1 + 0 + 1 = 2$$</p>
 <p>The formula has exactly 2 satisfying assignments: $(0,1)$ and $(1,1)$ (both require $x_2 = 1$).</p>
 <p>The prover uses sum-check to convince the verifier of this count. The polynomial $g_\phi$ has degree 2 in each variable (degree 4 total), so each round polynomial has degree at most 2, requiring 3 field elements per round.</p>
 <h2 id="the-protocol-flow-a-visual-guide"><a class="header" href="#the-protocol-flow-a-visual-guide">The Protocol Flow: A Visual Guide</a></h2>
@@ -536,6 +541,22 @@ $$H = \sum_{(b_1, \ldots, b_\nu) \in {0,1}^\nu} g(b_1, \ldots, b_\nu)$$</p>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

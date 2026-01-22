@@ -163,9 +163,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-25-frontiers-and-open-problems"><a class="header" href="#chapter-25-frontiers-and-open-problems">Chapter 25: Frontiers and Open Problems</a></h1>
-<p>How much trust can we actually remove?</p>
-<p>This book has traced a progression: from interactive proofs that required back-and-forth dialogue, to non-interactive systems that need only a single message; from trusted setups where a coordinator could forge proofs, to transparent systems where security rests on public randomness alone; from proofs that scale linearly with computation, to ones logarithmic or even constant in size. Each advance eliminated a form of trust. Each made verification more accessible, more universal, more credible.</p>
-<p>But we are not done. Today's proof systems still demand trust in places we would prefer to eliminate. They rely on cryptographic assumptions that quantum computers may shatter. They waste enormous computational resources proving that small integers satisfy constraints designed for 256-bit fields. They require setup ceremonies that, while transparent, still involve coordination and complexity. The frontier of research is the frontier of trust removal: finding what remains assumed, and engineering it away.</p>
+<p>In 1894, physicist Albert Michelson declared that &quot;the more important fundamental laws and facts of physical science have all been discovered.&quot; Physics was done; all that remained was measuring constants to more decimal places. Eleven years later, Einstein published Special Relativity. Then came quantum mechanics. Michelson had mistaken a plateau for a summit.</p>
+<p>In 2020, SNARKs felt similarly settled. We had Groth16 for minimal proofs and PLONK for universal setups. The trade-offs seemed fixed, the design space mapped. Then came the Lookup Revolution (2020), Folding (2021), and Binary Fields (2023). Each reshaped what we thought possible.</p>
+<p>This chapter is a reminder that we are not at the end of history. The &quot;fundamental laws&quot; of ZK are still being written. The techniques described here are the Special Relativity moments of our decade: advances that didn't refine existing theory but rewrote it.</p>
+<p>The frontiers span a remarkable range: from the algebraic structure of binary fields to the engineering of GPU kernels, from quantum threat models to the economics of decentralized proving markets. What unites them is a common goal: making proofs smaller, faster, and more trustworthy.</p>
 <p>This chapter surveys those frontiers. Some involve hardness assumptions we cannot yet prove. Others involve efficiency gaps between what theory permits and what practice achieves. A few touch questions so deep that resolving them would reshape our understanding of computation itself. Think of what follows as a map of the territory we have not yet conquered.</p>
 <h2 id="small-field-snarks-and-binius"><a class="header" href="#small-field-snarks-and-binius">Small-Field SNARKs and Binius</a></h2>
 <h3 id="the-overhead-problem"><a class="header" href="#the-overhead-problem">The Overhead Problem</a></h3>
@@ -173,6 +174,12 @@
 <p>This isn't merely inelegant; it's expensive. Field multiplications dominate prover time. Each multiplication operates on the full 256 bits even when the &quot;meaningful&quot; data is tiny. For bit-level operations (hashing, AES, bitwise logic) the overhead is a factor of 256×.</p>
 <h3 id="binary-fields-the-natural-solution"><a class="header" href="#binary-fields-the-natural-solution">Binary Fields: The Natural Solution</a></h3>
 <p><strong>Binius</strong> takes a radical approach: work over binary fields $\mathbb{F}_{2^k}$ where field elements are actual $k$-bit strings. A boolean is a 1-bit field element. A byte is an 8-bit field element. No padding, no waste.</p>
+<blockquote>
+<p>[!note] The Native Language Analogy
+Imagine a Spanish speaker forced to express every thought in German, even when talking to other Spanish speakers. Every sentence requires mental translation. Simple ideas become laborious.</p>
+<p>This is what traditional SNARKs do. They force computer data (bits and bytes) into prime fields (large numbers). A single bit becomes a 256-bit integer. The computer &quot;thinks&quot; in binary, but the proof system demands a foreign representation.</p>
+<p>Binius speaks the computer's native language. It treats bits as bits. It doesn't translate &quot;0&quot; into a 256-bit representation of zero; it keeps it as a single bit. No translation, no overhead.</p>
+</blockquote>
 <p>The arithmetic of binary fields differs from prime fields. Addition is XOR (free in hardware). Multiplication uses polynomial arithmetic over $\mathbb{F}_2$. There are no &quot;negative&quot; elements; the field characteristic is 2. This seems like a step backward; binary fields lack the convenient structure of prime-order groups. But Binius recovers efficiency through clever protocol design.</p>
 <h3 id="the-binius-architecture"><a class="header" href="#the-binius-architecture">The Binius Architecture</a></h3>
 <p>Binius combines several innovations:</p>
@@ -229,7 +236,8 @@
 <p>The zkVM landscape has stratified into distinct architectural approaches, each with different tradeoffs.</p>
 <p><strong>Jolt (a16z).</strong> The sum-check purist. Built entirely on multilinear polynomials and the Lasso lookup argument from Chapter 20. The philosophy: &quot;Just One Lookup Table.&quot; Implement CPU instructions via lookups into structured tables rather than hand-crafted constraint systems. As of mid-2025, achieves over 1 million RISC-V cycles per second on a 32-core CPU, with ~50KB proof sizes (an order of magnitude smaller than STARK-based alternatives). The lookup-centric architecture sidesteps quotient polynomials and grand products. A streaming prover is under development that will prove arbitrarily long executions in under 2GB RAM, enabling mobile proving with minimal recursion overhead.</p>
 <p><strong>RISC Zero.</strong> The production workhorse. STARK-based with FRI commitments over the Baby Bear field, targeting RISC-V. Uses continuations to split large computations into bounded segments (~$10^6$ cycles), proves each with STARK, then aggregates via recursion. Final proofs wrap in Groth16 for cheap on-chain verification. The Bonsai network provides prover-as-a-service infrastructure, abstracting away proof generation entirely. R0VM 2.0 (April 2025) reduced Ethereum block proving from 35 minutes to 44 seconds. The &quot;dual-engine&quot; strategy: Bonsai for hosted enterprise proving, Boundless for a decentralized proof marketplace.</p>
-<p><strong>SP1 (Succinct).</strong> The precompile optimizer. Cross-table lookup architecture with a flexible precompile system that accelerates common operations (signature verification, hashing) by 5-10× over raw RISC-V. SP1 Hypercube (2025) moved from STARKs to multilinear polynomials, achieving real-time Ethereum proving: 99.7% of L1 blocks proven in under 12 seconds on 16 GPUs. First general-purpose zkVM to eliminate proximity gap conjectures. The team estimates a real-time prover cluster could be built for ~$100K in hardware.</p>
+<p><em>Note on continuations:</em> Continuations are a specific flavor of recursion. Instead of proving the entire computation history at each step, you prove only the current segment plus a commitment to the previous segment's final state (a memory root or hash). This lets you pause and resume computation at arbitrary points, which is critical for programs that run longer than a single proof cycle allows. Think of it as a checkpoint system: each segment proves &quot;I started from this checkpoint and reached that checkpoint,&quot; rather than &quot;I verified everything that came before me.&quot;</p>
+<p><strong>SP1 (Succinct).</strong> The precompile optimizer. Cross-table lookup architecture with a flexible precompile system that accelerates common operations (signature verification, hashing) by 5-10× over raw RISC-V. A <em>precompile</em> is essentially a &quot;cheat code&quot; for the VM: instead of executing a SHA-256 hash step-by-step through thousands of RISC-V instructions, the VM recognizes the operation and delegates it to a specialized, hand-optimized sub-circuit. Think of it as a GPU inside the CPU specifically for heavy cryptographic math. SP1 Hypercube (2025) moved from STARKs to multilinear polynomials, achieving real-time Ethereum proving: 99.7% of L1 blocks proven in under 12 seconds on 16 GPUs. First general-purpose zkVM to eliminate proximity gap conjectures. The team estimates a real-time prover cluster could be built for ~$100K in hardware.</p>
 <p><strong>Zisk (Polygon spinoff).</strong> The latency minimizer. Spun out of Polygon's zkEVM team (led by co-founder Jordi Baylina) in June 2025, with all Polygon zkEVM IP transferred to the new entity. Built on RISC-V 64, designed from the ground up for low-latency distributed proving. Features a 1.5GHz zkVM execution engine, highly parallelized proof generation, GPU-optimized code, and advanced aggregation circuits. The architecture targets real-time Ethereum block proving via massive parallelization across prover clusters.</p>
 <p><strong>zkWASM and others.</strong> Target WebAssembly, enabling proofs of browser-compatible code. Useful when the goal is proving execution of existing web applications rather than purpose-built programs.</p>
 <p>The competition is fierce and productive. Notice the convergence: multiple teams moving toward multilinear polynomials (away from univariate STARKs), real-time proving as the target, and precompiles for common operations. Techniques developed for one system often transfer to others.</p>
@@ -286,6 +294,12 @@
 <h2 id="witness-generation"><a class="header" href="#witness-generation">Witness Generation</a></h2>
 <h3 id="the-hidden-cost"><a class="header" href="#the-hidden-cost">The Hidden Cost</a></h3>
 <p>Discussions of prover efficiency focus on the cryptographic work: computing commitments, running sum-check, evaluating polynomials. But there's a step before that. The witness includes not just the prover's secret input but all intermediate values in the computation. For a circuit with $n$ gates, the witness has $O(n)$ elements. Computing these elements (executing the circuit) can take longer than the proving step itself.</p>
+<blockquote>
+<p>[!note] The Hidden Iceberg
+Academic papers report &quot;prover time&quot; as the time spent on cryptographic operations: MSMs, FFTs, hashes. But the full cost of generating a proof includes witness generation, and this is often the larger piece.</p>
+<p>Think of an iceberg. The cryptographic prover is the visible tip above water. Witness generation is the massive bulk beneath the surface. A paper might report &quot;proving takes 10 seconds&quot; while silently omitting that witness generation took 60 seconds. The total time to produce a proof is 70 seconds, not 10.</p>
+<p>This matters because witness generation and proving have different scaling properties. Proving can be parallelized across GPUs; witness generation is often sequential and memory-bound. Optimizing the cryptographic prover by 10× helps less than you'd expect if witness generation dominates.</p>
+</blockquote>
 <p>This hidden cost explains why benchmarks sometimes mislead. A proof system might advertise &quot;10 million constraints per second,&quot; but if witness generation runs at 1 million constraints per second, the advertised speed is unreachable.</p>
 <h3 id="current-approaches-1"><a class="header" href="#current-approaches-1">Current Approaches</a></h3>
 <p>Several techniques help. Parallel witness generation computes independent portions simultaneously. Witness streaming generates values on-demand rather than materializing everything upfront, reducing peak memory. Witness compression stores only a subset of values and recomputes others when needed, trading computation for space.</p>
@@ -358,6 +372,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

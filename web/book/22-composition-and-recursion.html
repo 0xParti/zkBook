@@ -163,9 +163,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-22-composition-and-recursion"><a class="header" href="#chapter-22-composition-and-recursion">Chapter 22: Composition and Recursion</a></h1>
-<p>No single SNARK dominates all others.</p>
-<p>This is the fundamental tension of proof system design. Fast provers tend to produce large proofs. Small proofs come from slower provers. Transparent systems avoid trusted setup but sacrifice verification speed. Post-quantum security demands hash-based constructions that bloat proof size.</p>
-<p>Every deployed system occupies a point in this multi-dimensional trade-off space. Groth16 sits at one extreme: tiny proofs, blazing verification, but trusted setup and slow proving. STARKs occupy another: transparent and plausibly post-quantum, but megabyte proofs and expensive verification. Bulletproofs, PLONK, and their variants scatter across the landscape.</p>
+<p>Could you build a proof system that runs forever? A proof that updates itself every second, attesting to the entire history of a computation, but never growing in size?</p>
+<p>The idea sounds impossible. It requires a proof system to verify its own verification logic, to &quot;eat itself.&quot; For years, this remained a theoretical curiosity, filed under &quot;proof-carrying data&quot; and assumed impractical.</p>
+<p>This chapter traces how the impossible became routine. We start with <strong>composition</strong>: wrapping one proof inside another to combine their strengths. We then reach <strong>recursion</strong>: proofs that verify themselves, enabling unbounded computation with constant-sized attestations. Finally, we arrive at <strong>folding</strong>: a recent revolution that makes recursion cheap by deferring verification entirely. The destination is IVC (incrementally verifiable computation), where proofs grow with time but stay constant-sized. Today's zkEVMs and app-chains are built on this foundation.</p>
+<p>No single SNARK dominates all others. Fast provers tend to produce large proofs. Small proofs come from slower provers. Transparent systems avoid trusted setup but sacrifice verification speed. Post-quantum security demands hash-based constructions that bloat proof size. Every deployed system occupies a point in this multi-dimensional trade-off space.</p>
 <p>But here's a thought: what if we could <em>combine</em> systems? Use a fast prover for the heavy computational lifting, then wrap its output in a small-proof system for efficient delivery to verifiers. Or chain proofs together, where each proof attests to the validity of the previous, enabling unlimited computation with constant verification.</p>
 <p>These ideas, <strong>composition</strong> and <strong>recursion</strong>, transform SNARKs from isolated verification tools into composable building blocks. The result is proof systems that achieve properties no single construction could reach alone.</p>
 <h2 id="composition-proving-a-proof-is-valid"><a class="header" href="#composition-proving-a-proof-is-valid">Composition: Proving a Proof Is Valid</a></h2>
@@ -348,6 +349,7 @@ Outer: &quot;I verified π and it was valid&quot;
 </ul>
 <p><strong>Why this creates a problem for recursion.</strong> To verify a Groth16 proof inside a circuit, you must express the verifier's computation as constraints. The verifier computes pairings and point operations, which are $\mathbb{F}_q$ arithmetic. But your circuit constraints are over $\mathbb{F}_p$.</p>
 <p>To do $\mathbb{F}_q$ arithmetic inside an $\mathbb{F}_p$ circuit, you must <em>emulate</em> it: represent each $\mathbb{F}_q$ element as multiple $\mathbb{F}_p$ elements and implement multiplication/addition using many $\mathbb{F}_p$ operations. A single $\mathbb{F}_q$ multiplication might expand to hundreds of $\mathbb{F}_p$ constraints. The verifier circuit explodes from a few thousand operations to hundreds of thousands.</p>
+<p><strong>Terminology: &quot;native&quot; vs. &quot;emulated&quot; arithmetic.</strong> When we say arithmetic is <em>native</em>, we mean it's cheap inside the circuit: one field operation becomes one constraint. A circuit over $\mathbb{F}_p$ can do $\mathbb{F}_p$ arithmetic natively. It must <em>emulate</em> $\mathbb{F}_q$ arithmetic, paying 100+ constraints per operation. The curve cycle trick ensures we're always doing native arithmetic by switching fields at every recursive step.</p>
 <h3 id="cycles-of-curves"><a class="header" href="#cycles-of-curves">Cycles of Curves</a></h3>
 <p><strong>For single composition</strong>, the fix is straightforward: choose an outer curve whose scalar field matches the inner curve's base field. If the inner verifier does $\mathbb{F}_q$ arithmetic, use an outer system over $\mathbb{F}_q$. One wrap, native arithmetic, done.</p>
 <p><strong>For deep recursion</strong>, this isn't enough. After wrapping once, you have a new proof whose verifier does arithmetic in some <em>other</em> field. To wrap again natively, you need yet another matching curve. The solution is a <strong>cycle of elliptic curves</strong> $(E_1, E_2)$:</p>
@@ -412,7 +414,13 @@ Outer: &quot;I verified π and it was valid&quot;
 <p><strong>Folding schemes</strong> address this by replacing verification with something cheaper.</p>
 <h3 id="the-key-insight"><a class="header" href="#the-key-insight">The Key Insight</a></h3>
 <p>Instead of <em>fully verifying</em> $\pi_{i-1}$ at step $i$, we <strong>fold</strong> the claim about step $i-1$ with the claim about step $i$. Folding combines two claims into one claim of the same structure, without verifying either.</p>
-<p>Think of it this way: instead of settling each step's debt immediately (full verification), we accumulate an IOU (folded claim). After $T$ steps, we have one large IOU. Only this final accumulated claim needs full SNARK verification.</p>
+<blockquote>
+<p>[!note] The Debt Analogy
+Imagine you owe the bank money every day (you must verify a proof).</p>
+<p><strong>Traditional recursion:</strong> You pay off the debt in full every single day. Expensive and slow.</p>
+<p><strong>Folding:</strong> You go to the bank and say, &quot;Can I combine yesterday's debt with today's debt into one IOU?&quot; The bank agrees, using a random challenge to prevent fraud. You do this for a million days. You never pay a cent. On the very last day, you pay off the single accumulated IOU.</p>
+<p>Because &quot;combining debts&quot; is far cheaper than &quot;paying them off,&quot; you save enormous work. The cost of combining is a few group operations; the cost of paying is a full SNARK proof.</p>
+</blockquote>
 <p>The cost of folding is drastically cheaper than the cost of verification, typically just a handful of group operations.</p>
 <h3 id="novas-approach"><a class="header" href="#novas-approach">Nova's Approach</a></h3>
 <p>Nova, the pioneering folding scheme (Kothapalli, Setty, Tzialla, 2021), introduced a modified constraint system: <strong>relaxed R1CS</strong>. The relaxation is precisely what enables folding.</p>
@@ -422,6 +430,7 @@ $$(A \cdot z) \circ (B \cdot z) = C \cdot z$$</p>
 $$(A \cdot z) \circ (B \cdot z) = u \cdot (C \cdot z) + E$$</p>
 <p>where $u$ is a scalar and $E$ is an &quot;error vector.&quot; A standard R1CS instance has $u = 1$ and $E = 0$. Relaxed instances can have $u \neq 1$ and $E \neq 0$, but satisfying a relaxed instance still proves something about the underlying computation.</p>
 <h3 id="why-relaxation-enables-folding"><a class="header" href="#why-relaxation-enables-folding">Why Relaxation Enables Folding</a></h3>
+<p>Think of the error vector $E$ as a &quot;trash can&quot; for the cross-terms. When we fold two instances, the algebra gets messy: products of sums produce interaction terms that don't belong to either original constraint. Standard R1CS has nowhere to put this mess, so folding breaks the equation. Relaxed R1CS adds a variable ($E$) specifically to hold that mess, keeping the equation valid despite the extra terms.</p>
 <p>The key insight is that relaxed R1CS instances can be <em>linearly combined</em>. Suppose we want to fold two instances by taking a random linear combination with challenge $r$:</p>
 <p>$$z = z_1 + r \cdot z_2$$</p>
 <p>This is the core of folding: two separate witnesses $z_1$ and $z_2$ become a single witness $z$. The folded witness has the same dimension as the originals; we're not concatenating, we're combining. Think of it geometrically: $z_1$ and $z_2$ are points in $\mathbb{F}^n$; the fold $z$ is another point on the line through them, selected by the random challenge $r$.</p>
@@ -779,6 +788,22 @@ $$= (Az_1 \circ Bz_1) + r \cdot (Az_1 \circ Bz_2 + Az_2 \circ Bz_1) + r^2 \cdot 
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

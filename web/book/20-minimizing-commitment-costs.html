@@ -186,6 +186,7 @@
 </ol>
 <p>Multiplication and comparison are simpler than division. The extra commitments enable simpler constraints: a net win.</p>
 <p>This is &quot;untrusted advice,&quot; where the prover volunteers additional information that (if verified correct) accelerates the overall proof. The verifier doesn't trust this advice blindly; the constraints ensure it's valid.</p>
+<p>The trade-off is specific: we pay for Commitments (cryptography) to save on Degree (arithmetic). Extra committed values mean extra MSM cost, but the constraints that check them can be lower-degree. Since high-degree constraints are expensive to prove via sum-check, the exchange often favors more commitments and simpler constraints.</p>
 <p>The pattern generalizes. Any computation with an efficient verification shortcut benefits:</p>
 <p><strong>Square roots.</strong> To prove $y = \sqrt{x}$, the prover commits to $y$ and proves $y^2 = x$ and $y \geq 0$. One multiplication plus a range check, rather than implementing the square root algorithm in constraints.</p>
 <p><strong>Sorting.</strong> To prove a list is sorted, the prover commits to the sorted output and proves: (1) it's a permutation of the input (via permutation argument), and (2) adjacent elements satisfy $a_i \leq a_{i+1}$. Linear comparisons rather than $O(n \log n)$ sorting constraints.</p>
@@ -416,7 +417,7 @@ Value: a₀  a₁  a₂  b₀  b₁  c₀  c₁  c₂  c₃
 <p>$$\tilde{p}(z_r, z_c) = \sum_{i \in {0,1}^m} q(i) \cdot \widetilde{\text{eq}}(\text{row}(i), z_r) \cdot \widetilde{\text{eq}}(\text{col}(i), z_c)$$</p>
 <p>Read this as follows: for each dense index $i$, include $q(i)$ if index $i$ corresponds to the requested (row, column) pair. The $\widetilde{\text{eq}}$ terms act as selectors, where $\widetilde{\text{eq}}(\text{col}(i), z_c)$ picks out entries from the right table and $\widetilde{\text{eq}}(\text{row}(i), z_r)$ picks out entries from the right row.</p>
 <p>This is a sum over $M$ terms and exactly the sum-check form we've used throughout the chapter. The prover runs sum-check; at the end, the verifier needs $\tilde{q}(r)$ at a random point (handled by the underlying PCS) and the selector function evaluated at that point.</p>
-<p>The selector function (despite involving $\text{row}(i)$ and $\text{col}(i)$) is efficiently computable, since it's a simple comparison of $i$ against the cumulative heights, which can be done by a small read-once branching program. This means its multilinear extension evaluates in $O(m \cdot 2^k)$ field operations.</p>
+<p>The selector function (despite involving $\text{row}(i)$ and $\text{col}(i)$) is efficiently computable, since it's a simple comparison of $i$ against the cumulative heights. This comparison can be done by a small read-once branching program (essentially a specialized circuit that checks if an index falls within a specific range using very few operations). This means its multilinear extension evaluates in $O(m \cdot 2^k)$ field operations.</p>
 <h3 id="the-payoff"><a class="header" href="#the-payoff">The Payoff</a></h3>
 <p>The prover performs roughly $5M$ field multiplications, or five per actual trace element, regardless of how elements are distributed across tables. No padding and no wasted commitment.</p>
 <p>For the verifier, something remarkable happens. The verification circuit depends only on $m = \log_2(M)$ (the log of total trace area), not on the individual table heights $h_y$. Whether the trace has 100 tables of equal size or 100 tables of wildly varying sizes, the verifier does the same work.</p>
@@ -497,6 +498,22 @@ A zkVM with $2^{32}$ addressable memory, dozens of instruction types, and millio
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

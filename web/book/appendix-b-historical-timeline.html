@@ -181,6 +181,10 @@ Shamir proves that interactive proofs can verify exactly the problems solvable i
 Arora and Safra (AS) prove NP $\subseteq$ PCP[log n, polylog n]; Arora, Lund, Motwani, Sudan, and Szegedy (ALMSS) strengthen this to NP = PCP[log n, O(1)]. Every NP statement has a proof where the verifier reads only a constant number of bits. The theoretical foundation for succinct arguments.</p>
 <p><strong>1992: Kilian's Succinct Arguments</strong>
 Kilian shows how to compile PCPs using Merkle trees and collision-resistant hashing. The prover commits to the PCP, the verifier queries random bits, and the prover opens with authentication paths. This is the first succinct argument for NP—proof size polylogarithmic in the computation.</p>
+<h2 id="the-zk-winter-1992-2008"><a class="header" href="#the-zk-winter-1992-2008">The ZK Winter (1992-2008)</a></h2>
+<p>For sixteen years, zero-knowledge proofs remained a theoretical curiosity. The PCP theorem promised succinct proofs, but the constructions had astronomical overhead ($O(n^{10})$ blowup in early versions). Computers were too slow. The algorithms were too heavy. Cryptographers knew ZK was possible but not practical.</p>
+<p>The field didn't stop entirely. Researchers refined PCP constructions, developed new proof composition techniques, and explored connections to coding theory. But there were no implementations, no applications, no urgency.</p>
+<p>Two events ended the winter. In 2008, Goldwasser, Kalai, and Rothblum published GKR, showing that sum-check could verify arithmetic circuits with manageable overhead. Then in 2009, Bitcoin launched. Suddenly there was a financial ecosystem that desperately needed what ZK could provide: privacy, scalability, trustless verification. Theoretical possibility met practical demand. The spring began.</p>
 <h2 id="the-path-to-practical-systems-2008-2016"><a class="header" href="#the-path-to-practical-systems-2008-2016">The Path to Practical Systems (2008-2016)</a></h2>
 <p><strong>2008: GKR (Efficient Verification of Arithmetic Circuits)</strong>
 Goldwasser, Kalai, and Rothblum develop a protocol for verifying layered arithmetic circuits using sum-check. The prover does polynomial work; the verifier does polylogarithmic work. Later refinements by Cormode, Mitzenmacher, and Thaler make it truly practical.</p>
@@ -194,6 +198,8 @@ Parno, Howell, Gentry, and Raykova build the first complete, implemented SNARK f
 The Zerocoin team, building on Pinocchio, starts developing what becomes Zcash, the first major deployment of zkSNARKs for cryptocurrency privacy.</p>
 <p><strong>2016: Groth16 (The Speed King)</strong>
 Groth publishes an optimized SNARK with the smallest known proofs (3 group elements) and fastest verification (3 pairings). Despite requiring per-circuit trusted setup, Groth16 becomes the de facto standard for production systems.</p>
+<p><strong>2016: ZKBoo (MPC-in-the-Head)</strong>
+Giacomelli, Madsen, and Orlandi publish ZKBoo, the first practical implementation of &quot;MPC-in-the-head.&quot; The prover simulates a multiparty computation internally, then lets the verifier audit random subsets. ZKBoo proves that zero-knowledge could be built entirely from symmetric primitives (hashes), offering a third path distinct from pairings (Groth16) and polynomial commitments (STARKs).</p>
 <h2 id="the-scaling-era-2017-2020"><a class="header" href="#the-scaling-era-2017-2020">The Scaling Era (2017-2020)</a></h2>
 <p><strong>2017: STARKs (Transparent Scalable Arguments)</strong>
 Ben-Sasson, Bentov, Horesh, and Riabzev introduce STARKs (Scalable Transparent ARguments of Knowledge). Based on FRI and hash functions, STARKs require no trusted setup and resist quantum attacks. Proofs are larger but prover time is quasi-linear.</p>
@@ -207,6 +213,25 @@ Gabizon, Williamson, and Ciobotaru introduce PLONK (Permutations over Lagrange-b
 Bowe, Grigg, and Hopwood demonstrate recursion using inner-product arguments over elliptic curves, avoiding the pairing bottleneck. Proofs verify proofs verify proofs, with unlimited depth.</p>
 <p><strong>2019-2020: zk-Rollups Emerge</strong>
 Teams including Loopring, zkSync, and StarkWare deploy zk-rollups on Ethereum. Transaction data lives on-chain; execution validity is proven off-chain. Throughput increases 100-1000×.</p>
+<h3 id="the-phylogenetic-tree"><a class="header" href="#the-phylogenetic-tree">The Phylogenetic Tree</a></h3>
+<p>By the end of this era, three distinct &quot;species&quot; of zero-knowledge proofs had evolved from a common ancestor:</p>
+<pre><code>                    Interactive Proofs (1985)
+                              │
+            ┌─────────────────┼─────────────────┐
+            │                 │                 │
+            ▼                 ▼                 ▼
+    PAIRING LINEAGE     HASH LINEAGE     SUM-CHECK LINEAGE
+            │                 │                 │
+            ▼                 ▼                 ▼
+     Pinocchio (2013)    FRI (2017)        GKR (2008)
+            │                 │                 │
+            ▼                 ▼                 ▼
+     Groth16 (2016)    STARKs (2017)    Spartan (2019)
+            │                 │                 │
+            ▼                 ▼                 ▼
+      PLONK (2019)    Circle STARKs      Jolt (2023)
+</code></pre>
+<p><em>The three main species of zero-knowledge proofs, each with distinct cryptographic foundations: pairings, hashes, and sum-check.</em></p>
 <h2 id="the-modern-era-2020-present"><a class="header" href="#the-modern-era-2020-present">The Modern Era (2020-Present)</a></h2>
 <p><strong>2020-2022: Lookup Arguments Mature</strong>
 Plookup (Gabizon, Williamson, and Maller, 2020), cq, and other lookup protocols become standard. Table-based constraint checking replaces expensive algebraic encoding for range checks, bitwise operations, and memory access.</p>
@@ -224,6 +249,26 @@ Succinct Labs releases SP1, a RISC-V zkVM emphasizing developer experience. Comp
 StarkWare and others explore STARKs over small fields (Mersenne primes, binary towers), trading field size for faster arithmetic. Proof sizes shrink; prover speeds increase.</p>
 <p><strong>2024-Present: Folding and IVC Proliferate</strong>
 Nova variants (SuperNova, HyperNova, ProtoStar) extend folding to handle complex constraint types. Incrementally verifiable computation becomes practical for long-running programs.</p>
+<h3 id="the-convergence"><a class="header" href="#the-convergence">The Convergence</a></h3>
+<p>Modern zkVMs are not new inventions. They are the confluence of three decades of distinct research streams:</p>
+<pre><code>    SUM-CHECK              LOOKUPS              FOLDING
+    (1990)                 (2020)               (2021)
+        │                     │                    │
+        │   LFKN, GKR         │   Plookup, Lasso   │   Nova, HyperNova
+        │   Spartan           │   cq, Jolt         │   ProtoStar
+        │                     │                    │
+        └─────────────────────┼────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │     zkVMs       │
+                    │                 │
+                    │  Jolt, SP1,     │
+                    │  RISC Zero,     │
+                    │  Zisk           │
+                    └─────────────────┘
+</code></pre>
+<p><em>Modern systems like Jolt and SP1 combine sum-check's linear proving, lookup arguments' efficient table access, and folding's cheap recursion. The zkVM is where three rivers meet.</em></p>
 <h2 id="visual-timeline"><a class="header" href="#visual-timeline">Visual Timeline</a></h2>
 <pre><code>1985 ─────── GMR: Interactive Proofs, Zero-Knowledge
 1986 ─────── Fiat-Shamir Transform, GMW begins
@@ -296,6 +341,22 @@ Nova variants (SuperNova, HyperNova, ProtoStar) extend folding to handle complex
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

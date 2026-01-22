@@ -166,6 +166,10 @@
 <p>A proof convinces by revealing structure. The verifier sees patterns, checks relationships, follows chains of reasoning. Each step makes the conclusion more certain. This is the nature of proof: to show is to know.</p>
 <p>Zero-knowledge inverts this. The proof convinces by <em>concealing</em> structure: by showing that patterns exist without showing what they are, that relationships hold without revealing the terms, that chains of reasoning connect without exposing the links. The verifier becomes certain of one bit (the statement is true) while learning nothing else.</p>
 <p>This sounds impossible. It isn't, but it requires care.</p>
+<blockquote>
+<p>[!note] The Retrofit Problem
+Most proof systems were designed for a different era. The early interactive proofs of the 1980s and 1990s were built for one purpose: making verification cheap. Researchers like Goldwasser, Micali, Babai, and Lund asked how a weak verifier could check claims made by a powerful prover. Privacy was an afterthought, when it was a thought at all. The sum-check protocol, GKR, and the algebraic machinery underlying modern SNARKs all emerged from complexity theory, where the goal was efficient verification, not confidential computation. Only later, as these tools migrated from theory to practice, did privacy become essential. Blockchain applications, private credentials, and confidential transactions all demand that proofs reveal nothing beyond validity. So the field faced a retrofit problem: how do you take elegant machinery built for transparency and make it opaque?</p>
+</blockquote>
 <p>We've defined zero-knowledge in Chapter 17. We've seen it in $\Sigma$-protocols. But proof systems aren't born zero-knowledge; they're made that way. Strip the blinding from Groth16 and you still have a valid SNARK: sound, succinct, verifiable. But the proof elements would leak information about the witness. The random values $r, s$ we saw in Chapter 12 exist precisely to prevent this. Similarly, PLONK without its blinding polynomials $(b_1 X + b_2) Z_H(X)$ would verify correctly but expose witness-dependent evaluations.</p>
 <p>The same is true everywhere. Sum-check sends univariate polynomials derived from the witness (information leaks). GKR reveals layer values computed from the witness (information leaks). Raw STARKs expose trace polynomial evaluations (information leaks). Without deliberate masking, every proof system betrays its secrets.</p>
 <p>This chapter develops the general theory behind what we already saw applied in Groth16 and PLONK. How do we take a working proof system, one designed for succinctness and soundness, and add the layer that makes it reveal nothing?</p>
@@ -186,6 +190,7 @@
 <p>The first round polynomial is:
 $$g_1(X_1) = g(X_1, 0) + g(X_1, 1) = w_1 X_1 + (w_1 X_1 + w_2 + w_3 X_1) = (2w_1 + w_3) X_1 + w_2$$</p>
 <p>The prover sends this polynomial to the verifier. The constant term is exactly $w_2$. The coefficient of $X_1$ is $2w_1 + w_3$. The verifier learns linear combinations of the secrets directly from the protocol message.</p>
+<p><strong>Why this matters.</strong> The algebra might seem abstract, so consider what these witness values could represent. Suppose you're proving eligibility for a loan without revealing your finances. Your witness might encode: $w_1$ = your salary, $w_2$ = your social security number, $w_3$ = your total debt. The computation verifies that your debt-to-income ratio meets some threshold. But from that single round polynomial, the verifier learns your SSN directly (it's the constant term) and a linear combination of your salary and debt. They didn't need to learn any of this to verify your eligibility. The protocol leaked it anyway.</p>
 <p>This isn't zero-knowledge. We need to hide these coefficients while still allowing verification.</p>
 <h2 id="technique-1-commit-and-prove"><a class="header" href="#technique-1-commit-and-prove">Technique 1: Commit-and-Prove</a></h2>
 <p>The commit-and-prove approach is conceptually simple: never send a value in the clear. Always send a commitment, then prove the committed values satisfy the required relations.</p>
@@ -369,9 +374,12 @@ where $u, v$ are the prover's claimed next-layer evaluations and the wiring pred
 </ol>
 <p><strong>Why it hides.</strong> The verifier sees the masked polynomial $f(X) = 26 + 9X$. They know $f = g + \rho p$, and they know $\rho = 6$. But they only have a commitment to $p$, not $p$ itself. Without knowing $p(X) = 4 + X$, they cannot compute $g(X) = f(X) - \rho \cdot p(X)$. The commitment is hiding; it reveals nothing about $p$'s coefficients.</p>
 <p>Different masking polynomials produce different $f$. For any degree-1 polynomial the verifier might guess for $g$, there exists a $p$ that would produce the observed $f$. Without the commitment opening, all such guesses are equally plausible.</p>
+<p>This is the polynomial analogue of the one-time pad. In classical cryptography, adding a truly random string to a message produces ciphertext that reveals nothing about the message: every possible plaintext is equally consistent with the observed ciphertext. Here, adding a random polynomial to the witness polynomial produces a masked polynomial that reveals nothing about the witness: every possible witness polynomial is equally consistent with what the verifier sees. The commitment to $p$ ensures the randomness is fixed before it's used, preventing the prover from cheating, while still keeping the actual random values hidden.</p>
 <p><strong>The multivariate case.</strong> In real sum-check with $n$ variables, the same principle applies: the prover commits to a multivariate masking polynomial $p(X_1, \ldots, X_n)$ with the same structure as $g$. Each round polynomial derived from $f = g + \rho p$ is masked, hiding the witness-dependent coefficients. The verifier checks adjusted sums against $H + \rho P$ and remains convinced of the original claim without learning the intermediate structure.</p>
 <p>But there's a catch. At the end of sum-check, the prover must open $g(r_1, \ldots, r_n)$ at the random point (typically via a polynomial commitment). This final evaluation reveals information about the witness polynomial!</p>
 <h3 id="masking-the-final-evaluation"><a class="header" href="#masking-the-final-evaluation">Masking the Final Evaluation</a></h3>
+<p>Think of invisible ink that appears only under certain conditions. You write a message that's visible in normal light, then add invisible ink marks that show up only under UV light. Anyone reading the paper in normal light sees just the original message. But if they examine it under UV, they see a jumble of the message plus the invisible marks.</p>
+<p>The mathematical version works similarly. The prover adds random terms that are &quot;invisible&quot; on the Boolean hypercube (where the computation actually happens) but become visible when the verifier queries at a random point outside the hypercube.</p>
 <p>The solution is elegant. Instead of committing to the &quot;bare&quot; witness polynomial $W(X)$, the prover commits to a randomized extension:</p>
 <p>$$\tilde{W}(X_1, \ldots, X_n) = W(X_1, \ldots, X_n) + \sum_{i=1}^n c_i \cdot X_i(1 - X_i)$$</p>
 <p>where $c_1, \ldots, c_n$ are random field elements.</p>
@@ -463,6 +471,10 @@ $$\tilde{w}(\omega^i) = w(\omega^i) + (b_1 \omega^i + b_2) \cdot 0 = w(\omega^i)
 <tr><td><strong>Complexity</strong></td><td>Conceptually straightforward</td><td>Requires algebraic design</td></tr>
 </tbody></table>
 </div>
+<blockquote>
+<p>[!note] A Dimensionality Distinction
+These two techniques operate at different levels of abstraction. Commit-and-prove works on <em>scalars</em>: individual field elements like wire values and coefficients. Each value gets its own commitment, and relations between values are proved one at a time. Masking polynomials works on <em>functions</em>: entire polynomials representing the witness. A single random polynomial masks all coefficients at once. This is why their costs differ so dramatically. Hiding $n$ scalars with commit-and-prove requires $n$ commitments; hiding an $n$-coefficient polynomial with masking requires one random polynomial. The jump from scalar to function is what makes masking efficient for polynomial-based protocols.</p>
+</blockquote>
 <p><strong>When to use commit-and-prove:</strong></p>
 <ul>
 <li>The underlying protocol isn't polynomial-based</li>
@@ -564,6 +576,22 @@ $$\tilde{w}(\omega^i) = w(\omega^i) + (b_1 \omega^i + b_2) \cdot 0 = w(\omega^i)
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

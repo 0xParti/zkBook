@@ -167,9 +167,10 @@
 <p>But within this unifying framework, two distinct philosophies have emerged. They use different polynomial types, different domains, different proof strategies. They lead to systems with different performance profiles.</p>
 <p>Understanding when to use which is not academic curiosity; it's essential for SNARK system design.</p>
 <h2 id="the-divide"><a class="header" href="#the-divide">The Divide</a></h2>
-<p>The two paradigms differ in their fundamental approach to constraint verification:</p>
-<p><strong>Quotienting-based PIOPs.</strong> Encode constraints using univariate polynomials over a multiplicative domain (typically roots of unity). Prove constraint satisfaction by demonstrating that the vanishing polynomial divides the error polynomial. The machinery is algebraic: division, remainder, quotient.</p>
-<p><strong>Sum-check-based PIOPs.</strong> Encode constraints using multilinear polynomials over the Boolean hypercube. Prove constraint satisfaction by taking a random linear combination and reducing to sum-check. The machinery is probabilistic: randomization collapses exponentially many constraints into one.</p>
+<p>The two paradigms differ in their fundamental approach to constraint verification. At the deepest level, the split is <em>geometric</em>: where does your data live?</p>
+<p><strong>Quotienting-based PIOPs</strong> (Groth16, PLONK, STARKs) place data on a <strong>circle</strong>. Evaluation points are roots of unity, cycling around the unit circle in the complex plane. Constraints become questions about divisibility: does the error polynomial vanish on this circular domain? The machinery is algebraic (division, remainder, quotient) and the key algorithm is the FFT, which converts between point-values on the circle and polynomial coefficients.</p>
+<p><strong>Sum-check-based PIOPs</strong> (Spartan, HyperPlonk, Jolt) place data on a <strong>hypercube</strong>. Evaluation points are vertices of the $n$-dimensional Boolean cube ${0,1}^n$. Constraints become questions about sums: does the weighted average over all vertices equal zero? The machinery is probabilistic (randomization collapses exponentially many constraints into one) and the key algorithm is the halving trick, which scans data linearly.</p>
+<p>For a decade, the circle dominated because its mathematical tools (pairings, FFTs) matured first. But the hypercube has risen recently because it fits better with how computers actually work: bits, arrays, and linear memory scans.</p>
 <p>Both achieve the same goal: succinct verification of arbitrary computations. Both ultimately reduce to polynomial evaluation queries. But they arrive there by different paths, and those paths have consequences.</p>
 <h2 id="historical-arc"><a class="header" href="#historical-arc">Historical Arc</a></h2>
 <p>The divide between paradigms has a history.</p>
@@ -225,6 +226,7 @@
 <h3 id="cost-analysis"><a class="header" href="#cost-analysis">Cost Analysis</a></h3>
 <p>The quotient polynomial has degree at most $2N - 2 - N = N - 2$. Computing it requires polynomial division, typically done via FFT in $O(N \log N)$ time. Committing to $Q$ costs additional PCS work.</p>
 <p>The prover's dominant costs: FFT for quotient computation, MSM for commitment.</p>
+<p>The hidden cost in univariate systems is not just the $O(N \log N)$ time complexity but the <em>memory access pattern</em>. FFTs require &quot;butterfly&quot; operations that shuffle data across the entire memory space: element $i$ interacts with element $i + N/2$, then $i + N/4$, and so on. These non-local accesses cause massive cache misses on modern CPUs. In contrast, sum-check's halving trick scans data linearly (adjacent pairs combine), which is cache-friendly and easy to parallelize across cores. For large $N$, the memory bottleneck often dominates the arithmetic.</p>
 <h2 id="the-sum-check-path"><a class="header" href="#the-sum-check-path">The Sum-Check Path</a></h2>
 <h3 id="setup-1"><a class="header" href="#setup-1">Setup</a></h3>
 <p>The quotienting approach indexed vectors by roots of unity: $a_i$ at $\omega^i$. Sum-check indexes them by bit-strings instead: $a_w$ for $w \in {0,1}^n$, where $N = 2^n$. For $N = 4$: positions $\omega^0, \omega^1, \omega^2, \omega^3$ become $00, 01, 10, 11$. Same data, different addressing scheme.</p>
@@ -267,6 +269,13 @@
 <tr><td><strong>Sparsity handling</strong></td><td>Quotient typically dense</td><td>Natural via prefix-suffix</td></tr>
 </tbody></table>
 </div>
+<blockquote>
+<p>[!note] Signal Processing vs. Statistics
+The two paradigms embody different engineering mindsets.</p>
+<p><strong>Quotienting is signal processing.</strong> It treats data like a sound wave. To check constraints, it runs a Fourier Transform (FFT) to convert the signal into a frequency domain where errors stick out like a sour note. Divisibility by $Z_H$ is the test: a clean signal has no energy at the forbidden frequencies.</p>
+<p><strong>Sum-check is statistics.</strong> It treats data like a population. To check constraints, it takes a random weighted average (expected value) over the whole population. If the average is zero, the population is healthy. No frequency analysis required, just a linear scan.</p>
+<p>This explains the performance gap. FFTs require &quot;shuffling&quot; data across the entire memory space (butterfly operations), which causes cache misses on modern CPUs. Sum-check scans data linearly, which is cache-friendly and trivially parallelizable.</p>
+</blockquote>
 <p>The quotient polynomial is the key difference. Quotienting requires it; sum-check doesn't. For dense constraints, this may not matter much: the quotient is proportional to the constraint size. But for sparse constraints, the quotient can be far larger than the non-zero terms, wasting commitment effort.</p>
 <h2 id="wiring-constraints-the-second-half"><a class="header" href="#wiring-constraints-the-second-half">Wiring Constraints: The Second Half</a></h2>
 <p>The $a \circ b = c$ constraint checks that gate computations are correct. But a circuit also has <em>wiring</em>: the output of gate $j$ might feed into gates $k$ and $\ell$ as inputs. We must verify that copied values match, that $a_k = c_j$ and $b_\ell = c_j$.</p>
@@ -295,6 +304,7 @@
 <tr><td><strong>Read-write memory</strong></td><td>Requires separate handling</td><td>Unified with wiring</td></tr>
 </tbody></table>
 </div>
+<p>Notice the algebraic shift: permutation arguments use <strong>products</strong> (accumulators that multiply ratios), while memory checking uses <strong>sums</strong> (access counts weighted by values). In finite fields, sums are generally cheaper than products. Sums linearize naturally (the sum of two access patterns is the combined access pattern), while products require careful accumulator bookkeeping. This is why memory checking integrates more cleanly with sum-check's additive structure.</p>
 <p>For circuits with random wiring, both approaches have similar cost. The permutation argument requires an accumulator commitment; memory checking requires access matrices. The difference emerges with structure: repeated reads from the same cell, locality in access patterns, or mixing read-only and read-write data all favor the memory checking view.</p>
 <h2 id="the-pcs-connection"><a class="header" href="#the-pcs-connection">The PCS Connection</a></h2>
 <p>Each PIOP paradigm pairs naturally with a matching polynomial commitment scheme.</p>
@@ -375,6 +385,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

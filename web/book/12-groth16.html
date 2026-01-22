@@ -163,10 +163,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-12-groth16-the-pairing-based-optimal"><a class="header" href="#chapter-12-groth16-the-pairing-based-optimal">Chapter 12: Groth16: The Pairing-Based Optimal</a></h1>
-<p>In 2016, Jens Groth asked a question that had haunted SNARK researchers for years: <em>how small can a proof possibly be?</em></p>
-<p>The existing systems (Pinocchio, BCTV, the growing family of pairing-based SNARKs) all produced proofs of roughly 300-400 bytes. This was already remarkable: a computation taking billions of steps, compressed into something smaller than a tweet. But Groth suspected there was slack. The proofs contained redundancy, cross-checks that could perhaps be eliminated.</p>
-<p>He proved they could. Through careful algebraic manipulation, Groth reduced the proof to exactly three group elements: 128 bytes on standard curves. More strikingly, he proved this was essentially optimal: no pairing-based SNARK could do better without changing the model entirely.</p>
-<p>The paper that resulted, &quot;On the Size of Pairing-based Non-interactive Arguments,&quot; became the most deployed SNARK in history. When Zcash launched its Sapling upgrade in 2018, it used Groth16. When Tornado Cash and dozens of other privacy applications needed succinct proofs, they used Groth16. The answer to &quot;what's the smallest possible proof?&quot; turned out to be the answer the entire field needed.</p>
+<p>In 2016, when Zcash was preparing to launch, they faced a practical problem. Blockchain transactions are expensive. Every byte costs money. The existing SNARKs (Pinocchio and its descendants) required proofs of nearly 300 bytes. It was workable, but clunky.</p>
+<p>Then Jens Groth published a paper that seemed to violate the laws of physics. He shaved the proof down to 128 bytes on BN254. To demonstrate just how small this was, developers realized they could fit an entire zero-knowledge proof, verifying a computation of millions of steps, into a single tweet:</p>
+<p><code>[Proof: 0x1a2b3c...] #Zcash</code></p>
+<p>This was not just optimization. It was perfection. Groth proved mathematically that for pairing-based systems, you literally cannot get smaller than 3 group elements. He had found the floor.</p>
+<p>The paper, &quot;On the Size of Pairing-based Non-interactive Arguments,&quot; became the most deployed SNARK in history. When Zcash launched its Sapling upgrade in 2018, it used Groth16. When Tornado Cash and dozens of other privacy applications needed succinct proofs, they used Groth16. The answer to &quot;what's the smallest possible proof?&quot; turned out to be the answer the entire field needed.</p>
 <hr />
 <p>The SNARKs we've studied follow a common pattern: construct an IOP, compile it with a polynomial commitment scheme, apply Fiat-Shamir. This modular approach yields flexible systems (swap the PCS, change the trust assumptions) but it leaves efficiency on the table.</p>
 <p>Groth16 takes a different path. Rather than instantiating a generic framework, it was designed from first principles to minimize one specific metric: proof size. The result is a proof consisting of exactly three group elements (roughly 128 bytes on standard curves). Verification requires three pairing operations. Nothing smaller exists within the pairing-based paradigm; Groth16 sits at the theoretical minimum for systems of its class.</p>
@@ -217,6 +218,8 @@
 <h3 id="linear-pcps-the-abstraction"><a class="header" href="#linear-pcps-the-abstraction">Linear PCPs: The Abstraction</a></h3>
 <p>Groth16 is best understood through the lens of <strong>Linear PCPs</strong> (Probabilistically Checkable Proofs where the proof is a linear function).</p>
 <p>In a standard PCP, the verifier queries specific positions of a proof string. In a Linear PCP, the &quot;proof&quot; is a linear function $\pi: \mathbb{F}^k \to \mathbb{F}$, and the verifier queries $\pi(q)$ for chosen query vectors $q$.</p>
+<p><strong>The Shadow Puppet Intuition.</strong> Imagine you want to prove your hands are tied in a specific knot, but you cannot show your hands directly (zero-knowledge). In a Linear PCP, the trusted setup is a light source placed at a very specific, secret angle ($\tau$). You hold up your &quot;polynomial&quot; hands. The verifier only sees the shadow on the wall (the group elements).</p>
+<p>Because the light source is fixed and secret, you cannot fake the shadow. If the shadow looks like a knot, your hands must be tied. The linearity comes from the fact that you can move your fingers (add group elements), and the shadow moves exactly in sync. But you cannot create shadows that don't correspond to real hand positions.</p>
 <p>The critical insight: if the prover must respond with $\pi(q)$ for a linear function $\pi$, and the queries are encrypted as $g^q$, then the response $g^{\pi(q)}$ can be computed homomorphically without knowing $q$.</p>
 <p>Groth16's trusted setup embeds carefully chosen query vectors into group elements. The prover computes responses using only scalar multiplication: linear operations on the encrypted queries. The verifier checks a quadratic relation using a single pairing equation.</p>
 <p>This is why the proof has exactly three elements: the protocol is optimized around one pairing check (which is quadratic in its inputs), requiring one element from each source group to achieve non-linearity.</p>
@@ -254,8 +257,8 @@
 <p>Basis polynomial commitments: ${g_1^{A_j(\tau)}}$, ${g_1^{B_j(\tau)}}$, ${g_2^{B_j(\tau)}}$</p>
 </li>
 <li>
-<p>Consistency check elements for private inputs:
-$$\left{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\delta}} \right}_{j \in \text{private}}$$</p>
+<p>Consistency check elements for private inputs:</p>
+<p>$$\left\lbrace g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\delta}} \right\rbrace_{j \in \text{private}}$$</p>
 </li>
 <li>
 <p>Quotient polynomial support: ${g_1^{\tau^i \cdot Z_H(\tau) / \delta}}$</p>
@@ -263,9 +266,13 @@ $$\left{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{
 </ul>
 <p>The <strong>Verification Key</strong> $\text{vk}$ contains:</p>
 <ul>
-<li>Pairing elements: $g_1^{\alpha}$, $g_2^{\beta}$, $g_2^{\gamma}$, $g_2^{\delta}$</li>
-<li>Public input consistency elements:
-$$\left{ g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\gamma}} \right}_{j \in \text{public}}$$</li>
+<li>
+<p>Pairing elements: $g_1^{\alpha}$, $g_2^{\beta}$, $g_2^{\gamma}$, $g_2^{\delta}$</p>
+</li>
+<li>
+<p>Public input consistency elements:</p>
+<p>$$\left\lbrace g_1^{\frac{\beta \cdot A_j(\tau) + \alpha \cdot B_j(\tau) + C_j(\tau)}{\gamma}} \right\rbrace_{j \in \text{public}}$$</p>
+</li>
 </ul>
 <h3 id="prover-algorithm"><a class="header" href="#prover-algorithm">Prover Algorithm</a></h3>
 <p>Given witness $Z = (1, \text{io}, W)$ where $\text{io}$ are public inputs and $W$ is the private witness:</p>
@@ -378,6 +385,7 @@ $$e(\pi_A, \pi_B) \stackrel{?}{=} e(g_1^{\alpha}, g_2^{\beta}) \cdot e(\text{vk}
 <p>These are strong but well-studied assumptions on pairing groups.</p>
 <h3 id="proof-malleability"><a class="header" href="#proof-malleability">Proof Malleability</a></h3>
 <p>Groth16 proofs are <strong>malleable</strong>: given a valid proof $(\pi_A, \pi_B, \pi_C)$, the tuple $(-\pi_A, -\pi_B, \pi_C)$ is also valid for the same statement. This follows from the verification equation; negating both $\pi_A$ and $\pi_B$ preserves the pairing product since $e(-\pi_A, -\pi_B) = e(\pi_A, \pi_B)$.</p>
+<p><strong>Malleability is not forgery.</strong> This distinction is important. Malleability allows an attacker to change the <em>appearance</em> of a valid proof (flipping signs), but not the <em>content</em>. They cannot change the public inputs or the witness. It is like taking a valid check and folding it in half: it is still a valid check for the same amount, but the physical object has changed. This matters for transaction IDs (which often hash the proof), but not for the validity of the statement itself.</p>
 <p>This matters for applications that use proofs as unique identifiers or assume proof uniqueness (e.g., preventing double-spending by rejecting duplicate proofs). Mitigations include hashing the proof into the transaction identifier, or requiring proof elements to lie in a specific half of the group.</p>
 <h2 id="trusted-setup-practical-considerations"><a class="header" href="#trusted-setup-practical-considerations">Trusted Setup: Practical Considerations</a></h2>
 <p>The circuit-specific setup is Groth16's most significant operational constraint.</p>
@@ -407,6 +415,7 @@ $$e(\pi_A, \pi_B) \stackrel{?}{=} e(g_1^{\alpha}, g_2^{\beta}) \cdot e(\text{vk}
 <li>MPC ceremony among willing participants</li>
 <li>Verification that each contribution was correct</li>
 </ul>
+<p><strong>The DNA Mixer.</strong> Think of Phase 2 as mixing the circuit's DNA into the randomness. Every wire in the circuit needs its own specific $\tau$-powered handle so the prover can &quot;grab&quot; it during proof generation. If the circuit has 10,000 wires, the setup must produce 10,000 specific handles: one for each wire's contribution to the $A$, $B$, and $C$ polynomials. This is why the setup grows linearly with circuit size; you are baking the circuit's structure into the cryptographic parameters.</p>
 <p>For a circuit with $n$ wires, Phase 2 generates $O(n)$ group elements. Large circuits require large ceremonies.</p>
 <h3 id="when-circuit-specific-setup-is-acceptable"><a class="header" href="#when-circuit-specific-setup-is-acceptable">When Circuit-Specific Setup Is Acceptable</a></h3>
 <p>Groth16 makes sense when:</p>
@@ -626,6 +635,22 @@ $$e(\pi_A, \pi_B) \stackrel{?}{=} e(g_1^{\alpha}, g_2^{\beta}) \cdot e(\text{vk}
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

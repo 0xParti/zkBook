@@ -163,7 +163,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-23-choosing-a-snark"><a class="header" href="#chapter-23-choosing-a-snark">Chapter 23: Choosing a SNARK</a></h1>
-<p>In 2016, Zcash launched with Groth16. The choice seemed obvious: smallest proofs, fastest verification, mature implementation. But Groth16 required a trusted setup ceremony. Six participants generated randomness, then destroyed their computers. If even one had been compromised, the entire currency would be unsound, and no one would ever know.</p>
+<p>In 2016, Zcash launched with Groth16. The choice seemed obvious: smallest proofs, fastest verification, mature implementation. But Groth16 required a trusted setup ceremony. Six participants generated randomness, then destroyed their computers. The protocol was secure only if at least one participant was honest. If all six had colluded or been compromised, they could reconstruct the secret, mint unlimited currency, and no one would ever know.</p>
 <p>Three years later, the Zcash team switched to Halo 2. No trusted setup. The proofs were larger. The proving was slower. But the existential risk evaporated.</p>
 <p>This is the nature of SNARK selection: every choice trades one virtue for another. There is no universal optimum, no &quot;best&quot; system. There is only the right system for your constraints, your threat model, your willingness to accept which category of failure.</p>
 <p>The preceding chapters developed a complete toolkit: sum-check protocols, polynomial commitments, arithmetization schemes, zero-knowledge techniques, composition and recursion. Each admits multiple instantiations. The combinations number in the dozens. Each combination produces a system with different properties: proof sizes ranging from 128 bytes to 100 kilobytes, proving times from milliseconds to hours, trust assumptions from ceremony-dependent to fully transparent.</p>
@@ -201,6 +201,7 @@
 <li><strong>Superlinear</strong>: Some theoretical constructions (impractical at scale)</li>
 </ul>
 <p>The $\log n$ factor seems innocuous. It determines whether a proof finishes during a coffee break or overnight.</p>
+<p>But asymptotic complexity tells only half the story. FFT-based provers (Groth16, PLONK) jump randomly through memory, thrashing caches and stalling on RAM latency. Sum-check provers scan linearly, keeping data streaming through the cache hierarchy. At billion-constraint scale, the memory access pattern can matter as much as the operation count.</p>
 <h3 id="trust-assumptions"><a class="header" href="#trust-assumptions">Trust Assumptions</a></h3>
 <p>What must you trust for security?</p>
 <p>The Zcash ceremony involved six participants on three continents. Each generated randomness, contributed to the parameters, then destroyed their machines. One participant used a Faraday cage. Another broadcast from an airplane. The paranoia was justified: if <em>all six</em> colluded or were compromised, they could mint unlimited currency, and the counterfeits would be cryptographically indistinguishable from real coins.</p>
@@ -274,7 +275,8 @@
 <p>Groth16 and PLONK produce ZK proofs with modest overhead. The masking techniques are well-understood. But implementation errors can leak information through timing side channels, error messages, or malformed proof handling.</p>
 <p>STARKs require more care. The execution trace is exposed during proving, then masked. The masking must be done correctly. A bug here doesn't crash the system; it silently leaks witnesses. You might never know until the damage is done.</p>
 <p>Tornado Cash used Groth16. Zcash used Groth16, then Halo 2. Aztec uses UltraPlonk and Honk (PLONK variants co-developed by the Aztec team). The pattern: mature implementations with extensive auditing, because privacy failures are catastrophic and silent.</p>
-<p>Aztec's architecture is instructive. Private functions execute client-side, inside a local proving environment. The user's device generates the proof; sensitive data never leaves the machine. Only the proof and minimal public inputs reach the network. This client-side proving model means the proof system must be efficient enough to run on consumer hardware, ruling out anything that requires server-grade resources for reasonable latency.</p>
+<p>The architecture splits into two camps. <strong>Server-side proving</strong> (zkRollups, zkVMs) runs provers on powerful infrastructure. The witness data reaches the server, which generates proofs and posts them on-chain. Privacy comes from the proof hiding witness details from the chain, not from the prover. <strong>Client-side proving</strong> (Aztec, Zcash) runs provers on user devices. Sensitive data never leaves the machine. Only the proof and minimal public inputs reach the network.</p>
+<p>Client-side proving constrains system choice dramatically. A browser or mobile device can't match datacenter hardware. Aztec's architecture is instructive: private functions execute locally, requiring proof systems efficient enough for consumer hardware. This rules out anything demanding server-grade resources for reasonable latency.</p>
 <h3 id="post-quantum-applications"><a class="header" href="#post-quantum-applications">Post-Quantum Applications</a></h3>
 <p>Government identity systems. Land registries. Legal archives. Anything with a 20+ year horizon must consider quantum risk.</p>
 <p>The rule is simple: avoid discrete log and pairings. That eliminates Groth16, PLONK with KZG, Bulletproofs, and most established systems.</p>
@@ -285,6 +287,7 @@
 <p>Transparency is the only option. STARKs for large computations, Bulletproofs for smaller ones.</p>
 <p>The larger proofs are not a bug. They are the manifestation of a theorem: you cannot simultaneously minimize proof size, eliminate trust, and achieve post-quantum security. Something must give. In low-trust environments, you know what to sacrifice.</p>
 <h2 id="the-trade-off-triangle"><a class="header" href="#the-trade-off-triangle">The Trade-Off Triangle</a></h2>
+<p>Project managers know the Iron Triangle: Fast, Good, Cheap. Pick two. SNARKs have their own version: <strong>Succinct, Transparent, Fast Proving</strong>. The physics of cryptography enforces the same brutal constraint.</p>
 <p>Three properties stand in fundamental tension: <strong>proof size, prover time, and trust assumptions</strong>.</p>
 <div class="table-wrapper"><table><thead><tr><th>System</th><th>Proof Size</th><th>Prover Time</th><th>Trust</th></tr></thead><tbody>
 <tr><td>Groth16</td><td>Minimal (128 B)</td><td>Quasilinear</td><td>Maximal (circuit-specific)</td></tr>
@@ -403,6 +406,22 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

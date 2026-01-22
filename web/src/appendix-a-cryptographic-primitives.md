@@ -14,9 +14,9 @@ A **finite field** $\mathbb{F}_p$ (for prime $p$) is the set $\{0, 1, \ldots, p-
 
 **Key properties**:
 
-- The multiplicative group $\mathbb{F}_p^*$ has order $p - 1$
+- The multiplicative group $\mathbb{F}_p^\ast$ has order $p - 1$
 - **Fermat's Little Theorem**: For $a \neq 0$, $a^{p-1} = 1$. Thus $a^{-1} = a^{p-2}$.
-- **Primitive roots**: There exists $g \in \mathbb{F}_p^*$ such that $\{g^0, g^1, \ldots, g^{p-2}\} = \mathbb{F}_p^*$
+- **Primitive roots**: There exists $g \in \mathbb{F}_p^\ast$ such that $\lbrace g^0, g^1, \ldots, g^{p-2} \rbrace = \mathbb{F}_p^\ast$
 
 **Extension fields** $\mathbb{F}_{p^k}$ arise by adjoining roots of irreducible polynomials. Elements are degree-$(k-1)$ polynomials over $\mathbb{F}_p$, with multiplication modulo the irreducible polynomial. SNARK-friendly fields often have $p \approx 2^{254}$ for 128-bit security.
 

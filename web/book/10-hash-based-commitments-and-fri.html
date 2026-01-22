@@ -163,10 +163,10 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chapter-10-hash-based-commitments-and-fri-the-transparent-alternative"><a class="header" href="#chapter-10-hash-based-commitments-and-fri-the-transparent-alternative">Chapter 10: Hash-Based Commitments and FRI: The Transparent Alternative</a></h1>
-<p>By the mid-2010s, pairing-based SNARKs had proven that succinct proofs were practical. Pinocchio (2013) and Groth16 (2016) showed the way. But Eli Ben-Sasson and his collaborators were growing uncomfortable with a fundamental assumption underlying these systems.</p>
-<p>Every efficient proof system relied on trusted setup: a ceremony where someone generated secret parameters and, supposedly, destroyed them. &quot;Supposedly&quot; was the problem. How do you prove the secret was actually deleted? How do you audit the ceremony decades later? For systems meant to underpin public infrastructure, this seemed like building on sand.</p>
-<p>They posed a question that shaped the next decade of research: <em>Can we prove computations using nothing but collision-resistant hash functions?</em></p>
-<p>The answer would become FRI (2017) and STARKs (2018): proof systems where &quot;transparency&quot; isn't marketing, but a technical property. No secrets. No ceremonies. No trapdoors that could compromise the system if they leaked, because no trapdoors exist at all.</p>
+<p>In 2016, the National Institute of Standards and Technology issued a warning that sent cryptographers scrambling. Quantum computers were coming, and they would break everything built on elliptic curves: RSA, Diffie-Hellman, ECDSA. This included every SNARK that existed. Groth16, the darling of the blockchain world, would become worthless the day a sufficiently powerful quantum computer came online.</p>
+<p>The &quot;toxic waste&quot; problem of trusted setups was bad. The &quot;quantum apocalypse&quot; was existential.</p>
+<p>This urgency drove the creation of a new kind of proof system. The goal was not just to remove the trusted setup; it was to build on the only cryptographic foundation that quantum computers cannot break: hash functions. When you use FRI, you are not just verifying a computation. You are future-proofing it against physics itself.</p>
+<p>The answer came from Eli Ben-Sasson and collaborators: FRI (2017) and STARKs (2018). These are proof systems where &quot;transparency&quot; is not marketing but a technical property. No secrets. No ceremonies. No trapdoors that could compromise the system if they leaked, because no trapdoors exist at all.</p>
 <hr />
 <h2 id="the-merkle-tree-committing-to-evaluations"><a class="header" href="#the-merkle-tree-committing-to-evaluations">The Merkle Tree: Committing to Evaluations</a></h2>
 <p>The foundation of hash-based commitments is the <strong>Merkle tree</strong>. It lets us commit to a large dataset with a single hash value, then later prove any element is in the dataset.</p>
@@ -190,6 +190,7 @@
 <p>For polynomial commitments, we commit to the polynomial's evaluations over a domain. The Merkle root becomes the polynomial commitment.</p>
 <h2 id="the-core-problem-low-degree-testing"><a class="header" href="#the-core-problem-low-degree-testing">The Core Problem: Low-Degree Testing</a></h2>
 <p>Suppose the prover commits to a function $f: D \to \mathbb{F}$ by Merkle-committing its evaluations on a domain $D$ of size $n$. The prover claims $f$ is a low-degree polynomial (say degree less than $d$).</p>
+<p><strong>The key mental model: a polynomial evaluation vector IS a Reed-Solomon codeword.</strong> If you have a polynomial $f(X)$ of degree $d-1$ and you evaluate it at $n$ points (where $n &gt; d$), the resulting vector $(f(x_1), f(x_2), \ldots, f(x_n))$ is a codeword of the Reed-Solomon code with parameters $[n, d]$. The polynomial's coefficients are the &quot;message&quot;; its evaluations are the &quot;codeword.&quot; The extra evaluations beyond the $d$ needed to specify the polynomial are the &quot;redundancy&quot; that lets us detect errors. FRI is fundamentally a test that asks: does this committed vector look like a valid codeword, or has it been corrupted?</p>
 <p><strong>Concrete example</strong>: Say $f(X) = 3 + 2X + 5X^2$ over $\mathbb{F}_{17}$, and we choose domain $D = {1, 2, 4, 8}$ (powers of 2 mod 17). The prover evaluates $f$ at each point:</p>
 <div class="table-wrapper"><table><thead><tr><th>$x$</th><th>1</th><th>2</th><th>4</th><th>8</th></tr></thead><tbody>
 <tr><td>$f(x)$</td><td>10</td><td>27 ≡ 10</td><td>91 ≡ 6</td><td>339 ≡ 16</td></tr>
@@ -201,6 +202,8 @@
 <p><strong>The naive approach fails</strong>: Checking random points doesn't help much. A function that agrees with a degree-$d$ polynomial on all but one point would pass most spot-checks but isn't low-degree.</p>
 <p><strong>The Reed-Solomon perspective</strong>: View a degree-$d$ polynomial evaluated on $n \gg d$ points as a codeword. Low-degree polynomials form a sparse subset of all possible functions; they're error-correcting codes with high minimum distance.</p>
 <p>A function that's <em>not</em> a low-degree polynomial must differ from every codeword in many positions. FRI exploits this structure to catch deviations with high probability.</p>
+<p><strong>Proximity, not exactness.</strong> Strictly speaking, FRI does not prove that $f$ <em>is</em> a low-degree polynomial. It proves that $f$ is <em>close</em> to a low-degree polynomial, meaning it differs from some valid codeword in at most a small fraction of positions (say, 10%). This distinction matters because a cheater could take a valid polynomial and change just one evaluation point. FRI might miss that single corrupted point on any given query.</p>
+<p>This is why we rely on the <em>soundness error</em>. We tune the parameters (rate, number of queries) so that being &quot;close&quot; is good enough for our application, or so that the probability of missing the difference is cryptographically negligible (e.g., $2^{-128}$). In practice, the gap between &quot;is low-degree&quot; and &quot;is close to low-degree&quot; vanishes into the security parameter.</p>
 <h2 id="the-fri-insight-split-and-fold"><a class="header" href="#the-fri-insight-split-and-fold">The FRI Insight: Split and Fold</a></h2>
 <p>FRI transforms the low-degree testing problem through a beautiful recursive technique.</p>
 <p><strong>The key observation</strong>: Any polynomial $f(X)$ can be decomposed into even and odd parts:</p>
@@ -359,6 +362,7 @@ Each round: Prover commits via Merkle tree, receives random α
 <li>Each point $y$ in $D_{i+1}$ has two &quot;preimages&quot; in $D_i$: the values $x$ and $-x$ such that $x^2 = y$</li>
 <li>The verifier traces back through all rounds</li>
 </ul>
+<p><strong>Why pairs?</strong> In the domain $D_0$, the points come in pairs ${x, -x}$ that both square to the same value $x^2$. This is a property of multiplicative subgroups: if $\omega$ generates $D_0$, then $-1 = \omega^{n/2}$, so $-x$ is also in the group whenever $x$ is. This means the folding structure is perfectly aligned: we always fold $f(x)$ and $f(-x)$ together to get the value at $x^2$ in the next domain. The pairing is not a coincidence; it is why FRI works over multiplicative subgroups.</p>
 </li>
 <li>
 <p><strong>Query the prover</strong>: Request evaluations at these positions from each committed codeword, with Merkle proofs</p>
@@ -426,6 +430,8 @@ $$\frac{f_1(13) - f_1(4)}{2 \cdot 13} = \frac{16 - 6}{26} = \frac{10}{9} = 10 \c
 <p>If the prover had lied about the constant, say claimed $c = 10$ instead of 15, this final check would fail: $11 + 21 = 32 \equiv 15 \neq 10$.</p>
 <p>The verifier repeats this process at multiple random query points. Each independent query that passes increases confidence that the prover's polynomial truly has low degree.</p>
 <h2 id="why-fri-works-security-intuition"><a class="header" href="#why-fri-works-security-intuition">Why FRI Works: Security Intuition</a></h2>
+<p><strong>The Tuning Fork Analogy.</strong> Imagine you have a metal bar. You want to know if it is pure gold (a valid low-degree polynomial) or gold-plated lead (an invalid function pretending to be low-degree). You cannot drill into it to read all its coefficients directly. But you can <em>strike</em> it with a tuning fork (fold it with a random challenge).</p>
+<p>A pure gold bar will ring with a pure tone (stay low-degree) no matter where you strike it. A plated bar might sound okay at first, but as you keep striking it in random places (random $\alpha$ values), the hidden flaws (high-degree terms) will cause the tone to distort. FRI is essentially striking the polynomial repeatedly. If it keeps &quot;ringing true&quot; after $\log d$ random strikes, it must be pure.</p>
 <p><strong>Honest prover</strong>: Starts with a genuine low-degree polynomial. Every folded polynomial remains low-degree. All consistency checks pass perfectly.</p>
 <p><strong>Dishonest prover</strong> (claiming a non-low-degree function is low-degree):</p>
 <ul>
@@ -597,6 +603,22 @@ The &quot;S&quot; stands for &quot;Scalable&quot;: prover time is quasi-linear, 
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

@@ -227,6 +227,10 @@ $$\phi(x_1, x_2, x_3) = (x_1 \lor \neg x_2 \lor x_3) \land (\neg x_1 \lor x_2 \l
 <p>We'll see exactly how in Chapter 3 when we study the sum-check protocol. But first, we need to understand why polynomials have this magical power.</p>
 <h2 id="pillar-1-representation---from-data-to-polynomials"><a class="header" href="#pillar-1-representation---from-data-to-polynomials">Pillar 1: Representation - From Data to Polynomials</a></h2>
 <p>The first magical property: any finite dataset can be encoded as a polynomial.</p>
+<p>But first, we must define the terrain. Where do these polynomials live? Not in the real numbers. Remember the Patriot missile from Chapter 1: a rounding error of 0.000000095 seconds, accumulated over time, killed 28 soldiers. Real number arithmetic is treacherous. Equality is approximate, errors accumulate, and 0.1 has no exact binary representation.</p>
+<p>Polynomials in ZK proofs live in <em>finite fields</em>, mathematical structures where arithmetic is exact. In a finite field, $1/3$ isn't $0.333...$; it's a precise integer. There's no rounding, no overflow, no approximation. Two values are either exactly equal or they're not. This exactness is what makes polynomial &quot;rigidity&quot; possible: if two polynomials differ, they differ exactly, and we can detect it.</p>
+<p>It is a historical irony that this structure was discovered by someone who knew he was about to die. In May 1832, twenty-year-old Évariste Galois spent his final night frantically writing mathematics. He had been challenged to a duel the next morning and expected to lose. In those desperate hours, he outlined a new theory of algebraic symmetry, describing number systems that behaved like familiar arithmetic—you could add, subtract, multiply, and divide—but were finite. They didn't stretch to infinity; they looped back on themselves, like a clock.</p>
+<p>The next morning, Galois was shot in the abdomen and died the following day. But his &quot;finite fields&quot; turned out to be the perfect environment for computation. Every SNARK, every polynomial commitment, and every error-correcting code in this book lives inside the structure Galois sketched the night before his death.</p>
 <h3 id="two-ways-to-encode-data"><a class="header" href="#two-ways-to-encode-data">Two Ways to Encode Data</a></h3>
 <p>Given a vector $a = (a_1, a_2, \ldots, a_n)$ of field elements, we have two natural polynomial representations:</p>
 <p><strong>Coefficient Encoding:</strong> Treat the values as coefficients:
@@ -238,6 +242,7 @@ $$q_a(0) = a_1, \quad q_a(1) = a_2, \quad \ldots, \quad q_a(n-1) = a_n$$</p>
 <p>Both encodings are useful in different contexts. Coefficient encoding is natural for fingerprinting; evaluation encoding is natural when we want to extend a function defined on a small domain to a larger one.</p>
 <h3 id="lagrange-interpolation-the-existence-guarantee"><a class="header" href="#lagrange-interpolation-the-existence-guarantee">Lagrange Interpolation: The Existence Guarantee</a></h3>
 <p>Why does a polynomial passing through $n$ specified points always exist and why is it unique?</p>
+<p>Picture a flexible curve that you need to pin down at specific points. With one point, infinitely many curves pass through it. With two points, you've constrained the curve more, but many still fit. The remarkable fact: with $n$ points, there's <em>exactly one</em> polynomial of degree at most $n-1$ that passes through all of them. The points completely determine the curve.</p>
 <p><strong>Theorem (Lagrange Interpolation).</strong> Given $n$ distinct points $(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)$ in a field $\mathbb{F}$, there exists a unique polynomial $p(x)$ of degree at most $n-1$ such that $p(x_i) = y_i$ for all $i$.</p>
 <p><strong>Construction:</strong> Define the <em>Lagrange basis polynomials</em>:
 $$L_i(x) = \prod_{j \neq i} \frac{x - x_j}{x_i - x_j}$$</p>
@@ -260,6 +265,9 @@ $$= x^2 + 2x + 2$$</p>
 <p>Verification: $p(0) = 2$, $p(1) = 1 + 2 + 2 = 5$, $p(2) = 4 + 4 + 2 = 10$. All match.</p>
 <p><strong>Uniqueness:</strong> If two degree-$(n-1)$ polynomials $p$ and $q$ agree at $n$ points, their difference $p - q$ is a polynomial of degree at most $n-1$. But $p - q$ vanishes at each of the $n$ points where $p$ and $q$ agree, meaning it has $n$ roots. A nonzero polynomial of degree $n-1$ can have at most $n-1$ roots, so $p - q$ must be the zero polynomial. Therefore $p = q$.</p>
 <h3 id="the-rigidity-of-polynomials"><a class="header" href="#the-rigidity-of-polynomials">The Rigidity of Polynomials</a></h3>
+<p align="center">
+  <img src="images/rigidityPoly.png" alt="Polynomial Rigidity">
+</p>
 <p>Here's the key property that makes verification possible:</p>
 <p><strong>Two different degree-$d$ polynomials can agree on at most $d$ points.</strong></p>
 <p>This seems like a simple algebraic fact, but its consequences are profound. Consider what this means:</p>
@@ -270,6 +278,8 @@ $$= x^2 + 2x + 2$$</p>
 <p>But polynomial rigidity makes this impossible. The cheater cannot choose where to agree and where to disagree. The moment they commit to a polynomial that differs from the honest one, even at a single coefficient, they've committed to disagreeing at almost every point in the field. The lie isn't localized; it's smeared across the entire domain.</p>
 <p>This is why a single random query suffices. The verifier isn't lucky to catch the cheater; the cheater was doomed from the moment they tried to fake a polynomial. The structure doesn't merely make lying <em>detectable</em>; it makes consistent lying <em>impossible</em>. You cannot be the wrong polynomial at one point and the right polynomial everywhere else. Algebra doesn't permit it.</p>
 <h2 id="pillar-2-randomization---the-schwartz-zippel-lemma"><a class="header" href="#pillar-2-randomization---the-schwartz-zippel-lemma">Pillar 2: Randomization - The Schwartz-Zippel Lemma</a></h2>
+<p>In 1976, Gary Miller discovered a fast algorithm to test whether a number is prime. There was one problem: proving it correct required assuming the Riemann Hypothesis, one of the deepest unsolved problems in mathematics. Four years later, Michael Rabin found a way out. He modified Miller's test to use random sampling. The new algorithm couldn't <em>guarantee</em> the right answer, but it could make errors arbitrarily unlikely—say, less likely than a cosmic ray flipping a bit in your computer's memory. By embracing randomness, Rabin traded an unproven conjecture for a proven bound on failure probability.</p>
+<p>This is the paradigm shift: randomness as a <em>resource</em> for verification. A cheating prover might fool a deterministic check, but fooling a random check requires being lucky, and we can make luck arbitrarily improbable.</p>
 <p>The rigidity of polynomials becomes a verification tool through one of the most important theorems in computational complexity:</p>
 <p><strong>Schwartz-Zippel Lemma.</strong> Let $P(x_1, \ldots, x_n)$ be a non-zero polynomial of total degree $d$ over a field $\mathbb{F}$. If we choose $r_1, \ldots, r_n$ uniformly at random from a finite subset $S \subseteq \mathbb{F}$, then:
 $$\Pr[P(r_1, \ldots, r_n) = 0] \leq \frac{d}{|S|}$$</p>
@@ -516,7 +526,7 @@ $$C_1 = 0, \quad C_2 = 0, \quad \ldots, \quad C_n = 0$$</p>
 $$C(x) = 0 \text{ for all } x \in {1, 2, \ldots, n}$$</p>
 <p><strong>Step 3: Use the Factor Theorem.</strong> The polynomial $C(x)$ equals zero at points ${1, 2, \ldots, n}$ if and only if $C(x)$ is divisible by the <em>vanishing polynomial</em>:
 $$Z(x) = (x-1)(x-2)\cdots(x-n)$$</p>
-<p>This is a polynomial of degree $n$ that's zero exactly on our constraint domain.</p>
+<p>Think of $Z(x)$ as a stencil with holes at $x = 1, 2, \ldots, n$. If $C(x)$ truly equals zero at those points, it passes through the holes perfectly: the division $C(x) / Z(x)$ comes out clean with no remainder. If $C(x)$ misses even one hole (nonzero at some constraint point), it hits the stencil, and the division leaves a remainder. The polynomial doesn't fit.</p>
 <p><strong>Step 4: The divisibility test.</strong> The statement &quot;all constraints are satisfied&quot; becomes: there exists a <em>quotient polynomial</em> $H(x)$ such that:
 $$C(x) = H(x) \cdot Z(x)$$</p>
 <p><strong>Step 5: Random verification.</strong> By Schwartz-Zippel, if this identity holds everywhere, it holds at a random point $r$ with high probability. Conversely, if it fails anywhere, it fails at $r$ with probability $1 - d/|\mathbb{F}|$.</p>
@@ -810,6 +820,22 @@ $$p(x) = a_0 + x(a_1 + x(a_2 + \cdots + x(a_{d-1} + x \cdot a_d)\cdots))$$</p>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 

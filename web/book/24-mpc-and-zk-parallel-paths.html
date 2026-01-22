@@ -165,7 +165,8 @@
                         <h1 id="chapter-24-mpc-and-zk-parallel-paths"><a class="header" href="#chapter-24-mpc-and-zk-parallel-paths">Chapter 24: MPC and ZK: Parallel Paths</a></h1>
 <p>In 1982, Andrew Yao posed a puzzle that sounded like a parlor game. Two millionaires meet at a party. Each wants to know who is richer, but neither wants to reveal their actual wealth. Is there a protocol that determines who has more money without either party learning anything else?</p>
 <p>The question seems impossible. To compare two numbers, someone must see both numbers. A trusted third party could collect the figures, announce the winner, and burn the evidence. But what if there is no trusted party? What if the millionaires trust no one, not even each other?</p>
-<p>Yao proved something remarkable: the comparison can be done. Not by clever social arrangements or legal contracts, but by cryptography alone. The protocol he constructed, now called <em>garbled circuits</em>, allows the two parties to jointly compute any function on their private inputs while revealing nothing but the output. Neither party sees the other's input. The trusted third party dissolves into mathematics.</p>
+<p>The stakes extend far beyond money. Satellite operators need to check if their orbits will collide without revealing classified trajectories. Banks need to detect money laundering across institutions without exposing customer data. Nuclear inspectors need to verify warhead counts without learning weapon designs. In each case, the computation requires data that no single party can be trusted to see.</p>
+<p>Yao proved something remarkable: the comparison can be done. Not by clever social arrangements or legal contracts, but by cryptography alone. The protocol he constructed, now called <em>garbled circuits</em>, allows two parties to jointly compute any function on their private inputs while revealing nothing but the output. Neither party sees the other's input. The trusted third party dissolves into mathematics.</p>
 <p>This was the birth of <strong>Secure Multiparty Computation</strong> (MPC). The field expanded rapidly. In 1988, Ben-Or, Goldwasser, and Wigderson showed that with an honest majority of participants, MPC could achieve <em>information-theoretic</em> security: no computational assumption required, just the mathematics of secret sharing. The same year, Chaum, Crépeau, and Damgård proved that with dishonest majorities, MPC remained possible under cryptographic assumptions. By the early 1990s, the core theoretical question was settled: any function computable by a circuit could be computed securely by mutually distrustful parties.</p>
 <p>The philosophical implications are striking. Computation, it turns out, does not require a single trusted processor. It can be <em>distributed</em> across adversaries who share nothing but a communication channel and a willingness to follow a protocol. The output emerges from the collaboration, but the inputs remain private. This is coordination without trust, agreement without revelation.</p>
 <h3 id="why-mpc-belongs-in-this-book"><a class="header" href="#why-mpc-belongs-in-this-book">Why MPC Belongs in This Book</a></h3>
@@ -219,6 +220,12 @@
 <p>Addition and scalar multiplication are free. The cost of MPC concentrates entirely on multiplication.</p>
 <h3 id="multiplication-the-challenge"><a class="header" href="#multiplication-the-challenge">Multiplication: The Challenge</a></h3>
 <p>Multiplication breaks the easy pattern. The product of two shares is <em>not</em> a valid share of the product. Shamir sharing uses polynomials of degree $t-1$. If parties locally multiply their shares $P_a(j) \cdot P_b(j)$, they get evaluations of the product polynomial $P_a \cdot P_b$, which has degree $2(t-1)$. This polynomial does encode $ab$ at zero, but the threshold has effectively doubled: now $2t-1$ parties are needed to reconstruct, not $t$. Repeated multiplications would make the degree explode.</p>
+<blockquote>
+<p>[!note] The Paint Analogy
+Adding secret shares is like adding cups of the same color paint: if I have 1 cup of Red and you have 1 cup of Red, together we have 2 cups of Red. Easy.</p>
+<p>Multiplying is like mixing colors: Red times Blue makes Purple. You can't un-mix paint to recover the original colors. Worse, the &quot;shade&quot; of your result depends on both inputs in a non-linear way.</p>
+<p>Beaver Triples are like pre-mixed paint samples from a store. We don't know the exact shades (the store mixed them secretly), but we know that Sample A mixed with Sample B produces Sample C. When we need to multiply our real secret colors, we use these pre-mixed samples as a reference point, adjusting our result without ever revealing the original colors we started with.</p>
+</blockquote>
 <p>Donald Beaver's solution is elegant. Before the computation begins, distribute shares of random <em>triples</em> $(u, v, w)$ satisfying $w = u \cdot v$. Nobody knows $u$, $v$, or $w$ individually, but everyone holds valid shares of all three.</p>
 <p>To describe the protocol, we use bracket notation: $[a]$ means &quot;the parties collectively hold Shamir shares of $a$,&quot; with each party holding one evaluation $P_a(j)$. To multiply $[a]$ by $[b]$ using a triple:</p>
 <ol>
@@ -402,7 +409,8 @@ $$\text{Dec}_b(\text{Dec}_a(\text{Enc}_b(\text{Enc}_a(x)))) = x$$</p>
 <p>This chapter opened by observing that MPC and ZK developed in parallel, addressing different trust problems. But the connection runs deeper than shared history. MPC protocols can be <em>compiled</em> into zero-knowledge proofs through a transformation called &quot;MPC-in-the-head.&quot;</p>
 <p>The idea exploits a strange symmetry. In MPC, multiple real parties compute on secret-shared inputs, and the security guarantee is that no coalition learns more than the output. In MPC-in-the-head, a single prover <em>simulates</em> an MPC protocol entirely inside their own mind, playing all the parties simultaneously. The security guarantee transforms: instead of protecting inputs from other parties, it protects the witness from the verifier.</p>
 <p>The construction works as follows. The prover secret-shares the witness among $n$ <em>imaginary</em> parties. Then the prover simulates the MPC protocol that would compute $R(x, w)$, playing all $n$ roles simultaneously. Each simulated party has a &quot;view&quot;: the messages it sent and received, its random tape, its share of the witness. The prover commits to all $n$ views.</p>
-<p>The verifier challenges: &quot;Open the views of parties $i$ and $j$.&quot; The prover reveals those two views. The verifier checks consistency: do the messages that party $i$ claims to have sent match what party $j$ claims to have received? Did both parties follow the protocol correctly given their views? Does the MPC output equal 1?</p>
+<p>Think of the prover as a one-person theater troupe performing a conversation between three characters (Alice, Bob, Charlie). The prover writes out the full script: what Alice said to Bob, what Bob said to Charlie, what Charlie said to Alice. Then they seal each character's script in a separate envelope.</p>
+<p>The verifier challenges: &quot;Open the views of parties $i$ and $j$.&quot; (Show me Alice and Bob's envelopes.) The prover reveals those two views. The verifier checks consistency: do the messages that party $i$ claims to have sent match what party $j$ claims to have received? Did both parties follow the protocol correctly given their views? Does the MPC output equal 1? If Alice's script says she sent &quot;7&quot; to Bob, but Bob's script says he received &quot;9&quot; from Alice, the prover is caught lying. By randomly checking different pairs, the verifier catches any inconsistency in the performance.</p>
 <p>Why is this sound? If the witness is invalid, the MPC would output 0. For the prover to fake acceptance, they must forge views where the MPC appears to output 1. But faking a valid MPC execution requires consistency across all parties. If any pair of views is inconsistent—messages don't match, or a party deviated from the protocol—the verifier catches it. A cheating prover can make some pairs consistent, but not all. The random challenge catches an inconsistent pair with constant probability. Repeat to amplify.</p>
 <p>Why is this zero-knowledge? Opening $t-1$ views of a $t$-threshold MPC reveals nothing about the secret (by the MPC privacy guarantee). The verifier sees only a subset of views, not enough to reconstruct the witness.</p>
 <h3 id="instantiations"><a class="header" href="#instantiations">Instantiations</a></h3>
@@ -427,6 +435,7 @@ $$\text{Dec}_b(\text{Dec}_a(\text{Enc}_b(\text{Enc}_a(x)))) = x$$</p>
 <p>The theoretical protocols are complete: given enough time and bandwidth, any function can be computed securely. But theory and practice diverge. What determines whether an MPC deployment actually works?</p>
 <h3 id="communication-patterns"><a class="header" href="#communication-patterns">Communication Patterns</a></h3>
 <p>The network topology shapes everything. MPC protocols differ in how parties communicate, and the choice significantly affects performance. In a star topology, all parties route messages through a central dealer or combiner. This simplifies coordination but creates a bottleneck and a single point of failure. In full connectivity, every party communicates directly with every other party. This eliminates the central bottleneck but requires $O(n^2)$ connections. Broadcast protocols have each message go to all parties simultaneously, useful when the computation requires everyone to see the same values (like reconstructing a shared secret).</p>
+<p>The bottleneck inversion between ZK and MPC deserves emphasis. In ZK, the bottleneck is usually <strong>compute</strong>: the prover performs heavy cryptographic work (MSMs, FFTs, hashes) and sends relatively small proofs. In MPC, the bottleneck is almost always <strong>bandwidth</strong>: many parties do lightweight operations but exchange massive amounts of data. A ZK prover might spend 10 seconds computing and 10 milliseconds sending. An MPC protocol might spend 10 milliseconds computing and 10 seconds sending. This inversion dictates architecture: you can run a ZK prover on a single powerful machine, but you can't run high-speed MPC over a 4G connection.</p>
 <p>Network latency often dominates the cost of MPC. A protocol that requires 100 rounds of communication will be slow even if each round sends only a few bytes. This is why garbled circuits, with their constant round complexity, often outperform secret-sharing MPC for interactive applications despite sending more data. The design choice depends on whether bandwidth or latency is the limiting factor.</p>
 <h3 id="preprocessing-vs-online"><a class="header" href="#preprocessing-vs-online">Preprocessing vs. Online</a></h3>
 <p>A key optimization divides MPC into two phases. The preprocessing phase generates correlated randomness before the actual inputs are known. Beaver triples for multiplication, OT correlations for garbled circuits, and random sharings for masking all fall into this category. The online phase consumes this preprocessed material to compute on the real inputs.</p>
@@ -504,6 +513,22 @@ $$\text{Dec}_b(\text{Dec}_a(\text{Enc}_b(\text{Enc}_a(x)))) = x$$</p>
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
 
 
 
