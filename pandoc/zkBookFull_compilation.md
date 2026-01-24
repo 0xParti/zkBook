@@ -104,11 +104,11 @@ But this seems impossible. How can you verify a computation without understandin
 
 On February 25, 1991, during the Gulf War, a Patriot missile battery in Dhahran, Saudi Arabia, failed to intercept an incoming Iraqi Scud. The missile struck an American barracks, killing 28 soldiers.
 
-The cause was a software bug. The Patriot's tracking system measured time in tenths of a second using a 24-bit register, then multiplied by 0.1 to convert to seconds. But 0.1 has no exact binary representation — it's a repeating fraction, like 1/3 in decimal. The system truncated it, introducing a tiny error of about 0.000000095 seconds per tenth.
+The cause was a software bug. The Patriot's tracking system measured time in tenths of a second using a 24-bit register, then multiplied by 0.1 to convert to seconds. But 0.1 has no exact binary representation; it's a repeating fraction, like 1/3 in decimal. The system truncated it, introducing a tiny error of about 0.000000095 seconds per tenth.
 
 Tiny, but cumulative. The battery had been running for 100 hours. Over that time, the error accumulated to 0.34 seconds. For a Scud traveling at Mach 5, that's a tracking error of over 600 meters. The missile defense system calculated that the incoming Scud was outside its range gate and didn't fire.
 
-The bug had been discovered two weeks earlier. Israeli defense forces, who had noticed the drift, warned the U.S. Army and recommended rebooting the system regularly to reset the clock. A software patch was developed. It arrived in Dhahran on February 26 — one day after the attack.
+The bug had been discovered two weeks earlier. Israeli defense forces, who had noticed the drift, warned the U.S. Army and recommended rebooting the system regularly to reset the clock. A software patch was developed. It arrived in Dhahran on February 26, one day after the attack.
 
 Twenty-eight soldiers died because a computation was trusted without verification. The system worked exactly as programmed; the program was wrong. No one checked.
 
@@ -196,7 +196,7 @@ The class **IP** contains all languages with such protocols where the verifier r
 
 ### Multi-Prover Interactive Proofs (MIP)
 
-IP was powerful—it captured all of PSPACE—but verification still required multiple rounds of back-and-forth, and proofs weren't succinct. What if we could constrain the prover more tightly to gain more verification power?
+IP was powerful (it captured all of PSPACE), but verification still required multiple rounds of back-and-forth, and proofs weren't succinct. What if we could constrain the prover more tightly to gain more verification power?
 
 What if the verifier could interrogate *multiple* provers who cannot communicate with each other?
 
@@ -216,7 +216,7 @@ This idea of forcing commitment before challenge reappears throughout SNARK desi
 
 ### Probabilistically Checkable Proofs (PCP)
 
-MIP was even more powerful—it captured NEXP—but it required *two separate provers*. In practice, we usually have just one prover. Could we get similar power without needing to literally interrogate two parties in separate rooms?
+MIP was even more powerful (it captured NEXP), but it required *two separate provers*. In practice, we usually have just one prover. Could we get similar power without needing to literally interrogate two parties in separate rooms?
 
 Here the model shifts from interaction to *query access*. The prover writes down a static proof string $\pi$ (potentially very long), which is just a sequence of symbols like $\pi = (\pi_1, \pi_2, \pi_3, \ldots, \pi_m)$. The verifier doesn't read the whole string. Instead, they pick a few positions at random and look only at those symbols. For example, the verifier might flip some coins, decide to look at positions 17, 42, and 803, read $\pi_{17}$, $\pi_{42}$, and $\pi_{803}$, and make a decision based only on those three values.
 
@@ -254,7 +254,7 @@ This connection was key to proving MIP = NEXP and to subsequent PCP construction
 
 ### Interactive Oracle Proofs (IOP)
 
-The PCP theorem was a landmark—it showed any NP statement has a proof checkable with constant queries. But PCPs require enormous proof strings, and they're non-interactive (the prover must anticipate all possible verifier randomness). IP had efficient interaction but no query access. Could we combine the best of both?
+The PCP theorem was a landmark: it showed any NP statement has a proof checkable with constant queries. But PCPs require enormous proof strings, and they're non-interactive (the prover must anticipate all possible verifier randomness). IP had efficient interaction but no query access. Could we combine the best of both?
 
 **Interactive Oracle Proofs** do exactly that.
 
@@ -282,7 +282,7 @@ IOPs gave us a clean abstraction, but implementing them required a way to make o
 
 In a standard PCP (as described above), the proof is a string of symbols and the verifier reads a few specific positions: "give me $\pi_{17}$, $\pi_{42}$, and $\pi_{803}$." In a **Linear PCP**, the proof is still a vector of values $\vec{\pi} = (\pi_1, \pi_2, \ldots, \pi_k)$, but the verifier can only ask for linear combinations: "give me $\sum_i q_i \cdot \pi_i$ for my chosen weights $q$."
 
-Think of it as a library where you can't open the books—that would reveal the witness. You can only ask the librarian to weigh books in specific combinations. "Put 2 copies of book 1 on the scale, plus 3 copies of book 3, plus 1 copy of book 7, and tell me the total weight." The librarian answers with a single number. You ask several such questions. From these weighted sums, you try to verify some property of the books without ever seeing their contents.
+Think of it as a library where you can't open the books (that would reveal the witness). You can only ask the librarian to weigh books in specific combinations. "Put 2 copies of book 1 on the scale, plus 3 copies of book 3, plus 1 copy of book 7, and tell me the total weight." The librarian answers with a single number. You ask several such questions. From these weighted sums, you try to verify some property of the books without ever seeing their contents.
 
 The linearity constraint is extraordinarily powerful. If the verifier is restricted to weighted-sum queries, we can use cryptography to *enforce* this restriction. Here's the key insight: **certain cryptographic structures only allow weighted-sum operations, nothing else**.
 
@@ -361,7 +361,7 @@ Each application is a trust assumption eliminated.
 
 **Privacy-preserving credentials** remove trust in identity intermediaries. Prove you're over 21 without revealing your birthdate. Prove you passed a background check without revealing what was checked. The verifier learns exactly one bit: valid or not. No data broker, no identity provider, no linkable trail.
 
-**Computational integrity** removes trust in institutions. Scientific simulations, machine learning inference, financial calculations—any computation can be accompanied by a proof of correctness. The question changes from "do I trust this organization?" to "does this proof verify?"
+**Computational integrity** removes trust in institutions. Scientific simulations, machine learning inference, financial calculations: any computation can be accompanied by a proof of correctness. The question changes from "do I trust this organization?" to "does this proof verify?"
 
 The pattern is consistent: find a trust assumption, replace it with mathematics.
 
@@ -420,6 +420,7 @@ By the end, you'll understand not just what zkSNARKs do, but *how* they work: th
 11. **Zero-knowledge adds privacy.** The proof reveals nothing beyond the statement's truth. Techniques like blinding polynomials and randomized commitments layer on top of the basic SNARK machinery. Privacy is orthogonal to succinctness.
 
 
+
 \newpage
 
 # Chapter 2: The Alchemical Power of Polynomials
@@ -432,25 +433,11 @@ Their solution was startlingly simple. Instead of sending raw data, they evaluat
 
 What Reed and Solomon had discovered, without quite realizing it, was one of the most powerful ideas in all of computer science: **polynomials are rigid**. A low-degree polynomial cannot "cheat locally." If you change even a single coefficient, the polynomial's values change at almost every point. This rigidity, this inability to lie in one place without being caught elsewhere, would turn out to be exactly what cryptographers needed, thirty years later, to build systems where cheating is mathematically impossible.
 
-## Why Polynomials?
-
-If you've read any paper on zero-knowledge proofs, you've noticed something striking: polynomials are *everywhere*. Witnesses become polynomial evaluations. Constraints become polynomial identities. Verification reduces to checking polynomial properties. The entire field seems obsessed with these algebraic objects.
-
-This is not an accident. Polynomials possess a trinity of properties that make them uniquely suited for verifiable computation:
-
-1. **Representation**: Any discrete data can be encoded as a polynomial
-
-2. **Compression**: A million local constraints become one global identity
-
-3. **Randomization**: The entire polynomial can be tested from a single random point
-
-Understanding why this trinity works, and how it works, is essential to understanding everything else in this book.
-
 
 
 ## The Motivating Problem: Beyond NP
 
-Before diving into polynomials, let's understand what problem they solve. In Chapter 1, we saw that some problems have the useful property that their solutions are easy to check: multiply the claimed factors to verify factorization, check each edge to verify graph coloring. These are NP problems; the solution serves as its own certificate.
+Before we explore polynomials, let's understand the problem they solve. In Chapter 1, we saw that some problems have the useful property that their solutions are easy to check: multiply the claimed factors to verify factorization, check each edge to verify graph coloring. These are NP problems; the solution serves as its own certificate.
 
 But what about problems that don't have short certificates?
 
@@ -458,32 +445,24 @@ But what about problems that don't have short certificates?
 
 The **Boolean Satisfiability Problem (SAT)** asks: given a Boolean formula, is there an assignment of True/False values to its variables that makes the formula evaluate to True?
 
-Consider the formula:
+Consider the formula (where $\lor$ means OR, $\land$ means AND, and $\neg$ means NOT):
 $$\phi(x_1, x_2, x_3) = (x_1 \lor \neg x_2 \lor x_3) \land (\neg x_1 \lor x_2 \lor \neg x_3) \land (x_1 \lor x_2 \lor x_3)$$
 
 This is in *Conjunctive Normal Form (CNF)*: an AND of ORs. Each parenthesized group is a *clause*, and each $x_i$ or $\neg x_i$ is a *literal*.
 
-The question: does there exist an assignment $(x_1, x_2, x_3) \in \{\text{True}, \text{False}\}^3$ that satisfies all clauses simultaneously?
+The question: does there exist an assignment $(x_1, x_2, x_3) \in \{\text{True}, \text{False}\}^3$ that satisfies all clauses simultaneously? This is what makes SAT hard: you must determine whether *any* solution exists, not find a specific one. With 3 variables there are $2^3 = 8$ possibilities; with 100 variables there are $2^{100} \approx 10^{30}$. No known algorithm avoids checking exponentially many cases in the worst case.
 
-Let's check $(x_1, x_2, x_3) = (\text{True}, \text{False}, \text{True})$:
+For this toy example, we can reason through it. Clause 2 ($\neg x_1 \lor x_2 \lor \neg x_3$) needs at least one of: $x_1 = \text{False}$, $x_2 = \text{True}$, or $x_3 = \text{False}$. Clause 3 needs at least one variable true. Setting $x_2 = \text{True}$ helps both. With $x_2$ fixed, Clause 1 becomes $(x_1 \lor \text{False} \lor x_3)$, requiring $x_1$ or $x_3$ true. Try $(x_1, x_2, x_3) = (\text{True}, \text{True}, \text{True})$:
 
-- Clause 1: $\text{True} \lor \text{True} \lor \text{True} = \text{True}$ (pass)
+- Clause 1: $\text{True} \lor \text{False} \lor \text{True} = \text{True}$ $\checkmark$
+- Clause 2: $\text{False} \lor \text{True} \lor \text{False} = \text{True}$ $\checkmark$
+- Clause 3: $\text{True} \lor \text{True} \lor \text{True} = \text{True}$ $\checkmark$
 
-- Clause 2: $\text{False} \lor \text{False} \lor \text{False} = \text{False}$ (fail)
-
-So that assignment doesn't work. What about $(\text{True}, \text{True}, \text{True})$?
-
-- Clause 1: $\text{True} \lor \text{False} \lor \text{True} = \text{True}$ (pass)
-
-- Clause 2: $\text{False} \lor \text{True} \lor \text{False} = \text{True}$ (pass)
-
-- Clause 3: $\text{True} \lor \text{True} \lor \text{True} = \text{True}$ (pass)
-
-Yes! The formula is satisfiable, and $(\text{True}, \text{True}, \text{True})$ is a *satisfying assignment*.
+We found a satisfying assignment, so the formula is satisfiable. But notice: finding this solution required insight or luck. If no solution existed, we would have had to check all $2^n$ possibilities to be certain.
 
 **Why SAT matters:** The Cook-Levin theorem (1971) proved that SAT is *NP-complete*: every problem in NP can be efficiently reduced to a SAT instance. If you can solve SAT efficiently, you can solve *any* NP problem efficiently. This makes SAT the canonical "hard" problem.
 
-**The good news for verification:** If someone claims a formula is satisfiable and provides a satisfying assignment, you can check it easily by just plugging in the values and evaluating. The assignment is the certificate.
+**The good news for verification:** Once someone *has* a solution, checking it is easy: just plug in the values. The assignment is a certificate that proves satisfiability. The asymmetry is striking: finding a solution may take exponential time, but verifying one takes linear time.
 
 ### #SAT: When Even Certificates Don't Help
 
@@ -507,6 +486,20 @@ We'll see exactly how in Chapter 3 when we study the sum-check protocol. But fir
 
 
 
+## Why Polynomials?
+
+If you've read any paper on zero-knowledge proofs, you've noticed something striking: polynomials are *everywhere*. Witnesses become polynomial evaluations. Constraints become polynomial identities. Verification reduces to checking polynomial properties. The entire field seems obsessed with these algebraic objects.
+
+This is not an accident. Polynomials possess a trinity of properties that make them uniquely suited for verifiable computation:
+
+1. **Representation**: Any discrete data can be encoded as a polynomial
+
+2. **Compression**: A million local constraints become one global identity
+
+3. **Randomization**: The entire polynomial can be tested from a single random point
+
+The rest of this chapter develops each pillar in turn.
+
 ## Pillar 1: Representation - From Data to Polynomials
 
 The first magical property: any finite dataset can be encoded as a polynomial.
@@ -515,7 +508,7 @@ But first, we must define the terrain. Where do these polynomials live? Not in t
 
 Polynomials in ZK proofs live in *finite fields*, mathematical structures where arithmetic is exact. In a finite field, $1/3$ isn't $0.333...$; it's a precise integer. There's no rounding, no overflow, no approximation. Two values are either exactly equal or they're not. This exactness is what makes polynomial "rigidity" possible: if two polynomials differ, they differ exactly, and we can detect it.
 
-It is a historical irony that this structure was discovered by someone who knew he was about to die. In May 1832, twenty-year-old Évariste Galois spent his final night frantically writing mathematics. He had been challenged to a duel the next morning and expected to lose. In those desperate hours, he outlined a new theory of algebraic symmetry, describing number systems that behaved like familiar arithmetic—you could add, subtract, multiply, and divide—but were finite. They didn't stretch to infinity; they looped back on themselves, like a clock.
+It is a historical irony that this structure was discovered by someone who knew he was about to die. In May 1832, twenty-year-old Évariste Galois spent his final night frantically writing mathematics. He had been challenged to a duel the next morning and expected to lose. In those desperate hours, he outlined a new theory of algebraic symmetry, describing number systems that behaved like familiar arithmetic (you could add, subtract, multiply, and divide) but were finite. They didn't stretch to infinity; they looped back on themselves, like a clock.
 
 The next morning, Galois was shot in the abdomen and died the following day. But his "finite fields" turned out to be the perfect environment for computation. Every SNARK, every polynomial commitment, and every error-correcting code in this book lives inside the structure Galois sketched the night before his death.
 
@@ -597,7 +590,7 @@ This is why a single random query suffices. The verifier isn't lucky to catch th
 
 ## Pillar 2: Randomization - The Schwartz-Zippel Lemma
 
-In 1976, Gary Miller discovered a fast algorithm to test whether a number is prime. There was one problem: proving it correct required assuming the Riemann Hypothesis, one of the deepest unsolved problems in mathematics. Four years later, Michael Rabin found a way out. He modified Miller's test to use random sampling. The new algorithm couldn't *guarantee* the right answer, but it could make errors arbitrarily unlikely—say, less likely than a cosmic ray flipping a bit in your computer's memory. By embracing randomness, Rabin traded an unproven conjecture for a proven bound on failure probability.
+In 1976, Gary Miller discovered a fast algorithm to test whether a number is prime. There was one problem: proving it correct required assuming the Riemann Hypothesis, one of the deepest unsolved problems in mathematics. Four years later, Michael Rabin found a way out. He modified Miller's test to use random sampling. The new algorithm couldn't *guarantee* the right answer, but it could make errors arbitrarily unlikely, say, less likely than a cosmic ray flipping a bit in your computer's memory. By embracing randomness, Rabin traded an unproven conjecture for a proven bound on failure probability.
 
 This is the paradigm shift: randomness as a *resource* for verification. A cheating prover might fool a deterministic check, but fooling a random check requires being lucky, and we can make luck arbitrarily improbable.
 
@@ -4651,7 +4644,7 @@ The IPA scheme's $O(n)$ verification is a fundamental limitation: the verifier m
 
 **The core insight is "lazy verification."** In IPA, the verifier diligently recalculates the folded generators at each step, doing $O(n)$ work. Dory's verifier is lazier: instead of checking each step, they accumulate commitments and defer all verification to a single final pairing check. It's like a teacher who doesn't grade homework each night, but assigns problems so cleverly that a single final exam can catch any cheating retroactively. The algebraic structure of pairings makes this possible: the verifier can "absorb" all the folding challenges into target group elements, then verify everything at once.
 
-> **Note:** Dory is one of the more advanced commitment schemes covered in this book. The two-tier structure, pairing-based folding, and binding arguments involve subtle cryptographic reasoning. Don't worry if the details don't click on first reading—the key intuition is that pairings allow verification to happen "in the target group" without the verifier touching the original generators directly.
+> **Note:** Dory is one of the more advanced commitment schemes covered in this book. The two-tier structure, pairing-based folding, and binding arguments involve subtle cryptographic reasoning. Don't worry if the details don't click on first reading; the key intuition is that pairings allow verification to happen "in the target group" without the verifier touching the original generators directly.
 
 ### Two-Tier Commitment Structure
 
@@ -4957,6 +4950,7 @@ Now that we've seen three commitment schemes in depth, let's compare them system
 9. **Batching amortizes costs across many polynomials.** KZG batches evaluations at multiple points into one proof. Dory batches multiple polynomials via Pedersen homomorphism, combining row commitments with random linear combinations. For systems like Jolt with dozens of committed polynomials, batching dominates the cost savings.
 
 10. **The choice of PCS determines SNARK properties.** KZG gives constant verification with trusted setup (Groth16, PLONK). IPA gives transparency with linear verification (Halo). Dory gives transparency with logarithmic verification (Jolt). FRI (next chapter) gives post-quantum security. The right choice depends on whether you prioritize verification speed, trust minimization, or quantum resistance.
+
 
 
 
@@ -9829,7 +9823,7 @@ Computing $P$ requires one pass over the $T$ non-zero terms: for each non-zero $
 Now observe: the original sum-check claim is
 $$\sum_{p \in \{0,1\}^{n/2}} \sum_{s \in \{0,1\}^{n/2}} \tilde{a}(p, s) \cdot \tilde{f}(p) \cdot \tilde{h}(s) = \sum_{p \in \{0,1\}^{n/2}} \tilde{f}(p) \cdot \underbrace{\sum_{s \in \{0,1\}^{n/2}} \tilde{a}(p, s) \cdot \tilde{h}(s)}_{= P[p]}$$
 
-So proving the original sum reduces to proving $\sum_p \tilde{P}(p) \cdot \tilde{F}(p)$—a sum-check with only $n/2$ variables. Here $\tilde{P}$ and $\tilde{F}$ are the multilinear extensions of arrays $P$ and $F$.
+So proving the original sum reduces to proving $\sum_p \tilde{P}(p) \cdot \tilde{F}(p)$, a sum-check with only $n/2$ variables. Here $\tilde{P}$ and $\tilde{F}$ are the multilinear extensions of arrays $P$ and $F$.
 
 Run the dense halving algorithm on these $2^{n/2}$-sized arrays. Time: $O(T)$ to build $P$ from sparse entries, plus $O(2^{n/2})$ for the dense sum-check.
 
@@ -10410,6 +10404,7 @@ Streaming provers differ from recursive SNARKs. Recursion proves proofs of proof
 ### Historical Perspective
 
 11. **The PCP detour cost two decades.** The path IP → PCP → Kilian → Fiat-Shamir removes interaction, reintroduces it, then removes it again. The direct path (sum-check + Fiat-Shamir) skips the redundant steps. Modern systems (Spartan, Lasso, Jolt, Binius) follow the direct path and achieve prover times within small constants of witness computation.
+
 
 
 
@@ -12396,7 +12391,7 @@ This is one of several approaches to the "who runs the prover?" problem:
 
 **Distribute via MPC.** Secret-share the witness among multiple servers. No single server learns anything. Requires the servers not to collude (honest majority or computational assumptions). This chapter develops the techniques.
 
-**Hardware enclaves (TEEs).** Run the prover inside a Trusted Execution Environment like Intel SGX or ARM TrustZone. The enclave attests that it ran the correct code on hidden inputs. Trust shifts from the server operator to the hardware manufacturer—not trustless, but a different trust assumption.
+**Hardware enclaves (TEEs).** Run the prover inside a Trusted Execution Environment like Intel SGX or ARM TrustZone. The enclave attests that it ran the correct code on hidden inputs. Trust shifts from the server operator to the hardware manufacturer: not trustless, but a different trust assumption.
 
 MPC and ZK also connect at a deeper level. MPC techniques directly yield ZK constructions through the "MPC-in-the-head" paradigm: simulate an MPC protocol inside the prover's mind, commit to the simulated parties' views, and let the verifier audit a subset. The parallel paths converge into a single construction.
 
@@ -12572,7 +12567,7 @@ This structure scales better: instead of trying all rows, the evaluator does one
 
 ### How the Evaluator Proceeds
 
-With either approach (shuffled tables with trial decryption, or hash-indexed tables with direct lookup), the evaluator follows the same pattern. They hold one label per input wire, use those labels to decrypt exactly one entry from the garbled table, and obtain the output label. The output label becomes input to the next gate. The evaluator never learns which bit any label represents—they just propagate opaque 128-bit strings through the circuit.
+With either approach (shuffled tables with trial decryption, or hash-indexed tables with direct lookup), the evaluator follows the same pattern. They hold one label per input wire, use those labels to decrypt exactly one entry from the garbled table, and obtain the output label. The output label becomes input to the next gate. The evaluator never learns which bit any label represents; they just propagate opaque 128-bit strings through the circuit.
 
 ### Chaining Gates Together
 
@@ -12760,7 +12755,7 @@ Think of the prover as a one-person theater troupe performing a conversation bet
 
 The verifier challenges: "Open the views of parties $i$ and $j$." (Show me Alice and Bob's envelopes.) The prover reveals those two views. The verifier checks consistency: do the messages that party $i$ claims to have sent match what party $j$ claims to have received? Did both parties follow the protocol correctly given their views? Does the MPC output equal 1? If Alice's script says she sent "7" to Bob, but Bob's script says he received "9" from Alice, the prover is caught lying. By randomly checking different pairs, the verifier catches any inconsistency in the performance.
 
-Why is this sound? If the witness is invalid, the MPC would output 0. For the prover to fake acceptance, they must forge views where the MPC appears to output 1. But faking a valid MPC execution requires consistency across all parties. If any pair of views is inconsistent—messages don't match, or a party deviated from the protocol—the verifier catches it. A cheating prover can make some pairs consistent, but not all. The random challenge catches an inconsistent pair with constant probability. Repeat to amplify.
+Why is this sound? If the witness is invalid, the MPC would output 0. For the prover to fake acceptance, they must forge views where the MPC appears to output 1. But faking a valid MPC execution requires consistency across all parties. If any pair of views is inconsistent (messages don't match, or a party deviated from the protocol), the verifier catches it. A cheating prover can make some pairs consistent, but not all. The random challenge catches an inconsistent pair with constant probability. Repeat to amplify.
 
 Why is this zero-knowledge? Opening $t-1$ views of a $t$-threshold MPC reveals nothing about the secret (by the MPC privacy guarantee). The verifier sees only a subset of views, not enough to reconstruct the witness.
 
@@ -12792,7 +12787,7 @@ The linearity of Schnorr makes this work. A Schnorr signature has the form $s = 
 
 One important caveat: FROST's nonce generation phase requires **synchronous coordination**. All participating signers must be online simultaneously to jointly generate the nonce shares and exchange their commitments. If a signer goes offline during this phase, the protocol stalls. This synchronicity constraint can be problematic in real-world deployments where signers span different time zones or operate on unreliable networks.
 
-**ROAST** addresses this limitation by wrapping FROST in a robust, asynchronous coordinator. Instead of requiring all $t$ signers to be online at once, ROAST has a coordinator that adaptively selects responsive signers. The coordinator maintains multiple concurrent signing sessions and gracefully handles signers who fail to respond. If a signer times out, the coordinator simply starts a new session with a different signer subset. The first session to complete produces the signature. ROAST doesn't modify FROST's cryptography—it adds a session management layer that tolerates network asynchrony and unresponsive parties, making threshold signing practical for geographically distributed deployments.
+**ROAST** addresses this limitation by wrapping FROST in a robust, asynchronous coordinator. Instead of requiring all $t$ signers to be online at once, ROAST has a coordinator that adaptively selects responsive signers. The coordinator maintains multiple concurrent signing sessions and gracefully handles signers who fail to respond. If a signer times out, the coordinator simply starts a new session with a different signer subset. The first session to complete produces the signature. ROAST doesn't modify FROST's cryptography; it adds a session management layer that tolerates network asynchrony and unresponsive parties, making threshold signing practical for geographically distributed deployments.
 
 Threshold ECDSA is more complex. ECDSA signatures involve a modular inversion step, $s = k^{-1}(z + r \cdot x)$, and inversion is not linear. Computing it on shared values requires a full MPC protocol for the inversion, adding rounds and computational overhead. Protocols like GG18 and GG20 solve this but at higher cost than FROST.
 
@@ -12911,11 +12906,11 @@ Binius combines several innovations:
 
 **Multilinear polynomials over towers of binary fields.** Instead of a single large field, use a tower: $\mathbb{F}_2 \subset \mathbb{F}_{2^2} \subset \mathbb{F}_{2^4} \subset \mathbb{F}_{2^8} \subset \ldots$ Each level doubles the extension degree. Small values live in small fields; only the cryptographic randomness requires the full tower height.
 
-What does "operating in a tower" mean concretely? Each level is a field extension: $\mathbb{F}_2$ contains just $\{0,1\}$ with XOR addition; $\mathbb{F}_{2^8}$ contains 8-bit elements (bytes); $\mathbb{F}_{2^{128}}$ provides cryptographic security. The key insight: *elements of smaller fields are also elements of larger fields*. A bit in $\mathbb{F}_2$ can be viewed as an element of $\mathbb{F}_{2^{128}}$—it's just a very special element.
+What does "operating in a tower" mean concretely? Each level is a field extension: $\mathbb{F}_2$ contains just $\{0,1\}$ with XOR addition; $\mathbb{F}_{2^8}$ contains 8-bit elements (bytes); $\mathbb{F}_{2^{128}}$ provides cryptographic security. The key insight: *elements of smaller fields are also elements of larger fields*. A bit in $\mathbb{F}_2$ can be viewed as an element of $\mathbb{F}_{2^{128}}$; it's just a very special element.
 
 This enables a crucial optimization: store witness data in the smallest field that fits (bits stay bits, bytes stay bytes), perform arithmetic at the appropriate level, and only "lift" to the full tower when random challenges enter. The 256× overhead of representing a single bit as a 256-bit field element vanishes.
 
-(Note: this "tower" is unrelated to the "tower of proofs" in Chapter 22's recursion discussion. There, "tower" refers to proofs-of-proofs: $\pi_1 \to \pi_2 \to \pi_3$. Here, "tower" refers to nested field extensions. Both exploit hierarchical structure—recursion avoids re-proving entire computations; field towers avoid doing large-field arithmetic on small values—but the mechanisms are distinct.)
+(Note: this "tower" is unrelated to the "tower of proofs" in Chapter 22's recursion discussion. There, "tower" refers to proofs-of-proofs: $\pi_1 \to \pi_2 \to \pi_3$. Here, "tower" refers to nested field extensions. Both exploit hierarchical structure (recursion avoids re-proving entire computations; field towers avoid doing large-field arithmetic on small values) but the mechanisms are distinct.)
 
 **GKR-based multiplication.** Binary field multiplication is non-trivial: it's polynomial multiplication modulo an irreducible polynomial. Rather than encoding this as constraints (expensive), Binius uses the GKR protocol to verify multiplications. The prover commits only to inputs and outputs; intermediate multiplication steps are checked via sum-check.
 
@@ -12941,7 +12936,7 @@ Binius is under active development. Polygon and Irreducible have been building p
 
 **Recursion is harder.** Verifying a Binius proof inside another Binius proof requires embedding binary field arithmetic, which is non-trivial when the verifier circuit itself uses binary fields. The algebraic structure that makes Binius fast for computation makes it awkward for recursive self-verification.
 
-**The workload mix.** Binius shines for bit-intensive operations: hashing, AES, bitwise logic. But zkVMs also do 32/64-bit arithmetic, memory operations, control flow. The benefits are less dramatic for these. Some researchers suggest Binius may be better suited for *precompiles* (hash functions, signature verification) rather than full VM execution—use Binius where it wins, prime fields elsewhere.
+**The workload mix.** Binius shines for bit-intensive operations: hashing, AES, bitwise logic. But zkVMs also do 32/64-bit arithmetic, memory operations, control flow. The benefits are less dramatic for these. Some researchers suggest Binius may be better suited for *precompiles* (hash functions, signature verification) rather than full VM execution: use Binius where it wins, prime fields elsewhere.
 
 **Prover memory.** The tower structure requires careful memory management. Naive implementations have high memory overhead.
 
@@ -12959,7 +12954,7 @@ Shor's algorithm threatens the foundations of modern cryptography. Running in po
 
 What do these problems share? They all have **hidden periodic structure in abelian groups**. Factoring $N$ reduces to finding the period of $a^x \mod N$. Discrete log in $\langle g \rangle$ reduces to finding the period of $g^a h^b$. Shor's algorithm applies the *quantum Fourier transform* (QFT) to extract this periodicity in polynomial time. The QFT is the key ingredient: it converts quantum superposition over exponentially many values into a measurement that reveals the period. Any problem with hidden abelian group structure falls to this attack.
 
-Hash functions survive because they're designed to have *no* exploitable structure—no periodicity, no algebraic relations. Grover's algorithm provides only a generic $\sqrt{N}$ search speedup (quadratic, not exponential), which doubling the hash output neutralizes.
+Hash functions survive because they're designed to have *no* exploitable structure: no periodicity, no algebraic relations. Grover's algorithm provides only a generic $\sqrt{N}$ search speedup (quadratic, not exponential), which doubling the hash output neutralizes.
 
 Every system in Part IV of this book (Groth16, PLONK, KZG-based constructions) will become insecure once cryptographically-relevant quantum computers exist.
 
@@ -12973,7 +12968,7 @@ Timeline estimates vary wildly: 10 years, 20 years, 30 years, never. But "never"
 
 The approach: commit to a polynomial $f(X)$ by encoding its coefficients as a lattice point. The "hardness of finding short vectors" ensures binding (can't open to a different polynomial). Noise flooding or rejection sampling provides hiding.
 
-The algebraic structure is richer than hashes—you can perform homomorphic operations on commitments (add them, sometimes multiply). This enables sum-check-style protocols without the overhead of pure symmetric-key approaches. But there's a catch: the noise in LWE grows with operations. After too many homomorphic steps, noise overwhelms signal. Managing this requires larger parameters, meaning larger commitments and proofs. Current constructions run 10-100× slower than hash-based alternatives for equivalent security.
+The algebraic structure is richer than hashes: you can perform homomorphic operations on commitments (add them, sometimes multiply). This enables sum-check-style protocols without the overhead of pure symmetric-key approaches. But there's a catch: the noise in LWE grows with operations. After too many homomorphic steps, noise overwhelms signal. Managing this requires larger parameters, meaning larger commitments and proofs. Current constructions run 10-100× slower than hash-based alternatives for equivalent security.
 
 **Symmetric-key SNARKs.** Build entirely from symmetric primitives: hashes, block ciphers, nothing else. The MPC-in-the-head paradigm (Ligero, Limbo, and descendants) follows this path.
 
@@ -12983,7 +12978,7 @@ The verifier challenges: "reveal the views of parties $i$ and $j$." The verifier
 
 Why is this post-quantum? The only cryptographic primitive is the hash-based commitment to parties' views. No discrete log, no pairings, no lattices. Security reduces to collision resistance of the hash function.
 
-Why is it slow? The MPC protocol has communication overhead. Even efficient protocols require $O(|C|)$ work per multiplication gate, where $|C|$ is the circuit size. The prover must simulate all of this. Ligero improved this with linear-time proving via interleaved Reed-Solomon codes, but constants remain large—typically 10-100× slower than algebraic SNARKs.
+Why is it slow? The MPC protocol has communication overhead. Even efficient protocols require $O(|C|)$ work per multiplication gate, where $|C|$ is the circuit size. The prover must simulate all of this. Ligero improved this with linear-time proving via interleaved Reed-Solomon codes, but constants remain large, typically 10-100× slower than algebraic SNARKs.
 
 See Chapter 24 for the underlying MPC techniques.
 
@@ -13602,7 +13597,7 @@ The group order $|E(\mathbb{F}_p)|$ is approximately $p$ (Hasse's theorem: $|p +
 
 **Scalar multiplication**: Computing $kP$ for scalar $k$ uses double-and-add, taking $O(\log k)$ group operations.
 
-**Curve forms**: The Weierstrass form $y^2 = x^3 + ax + b$ is standard, but other forms offer advantages. **Montgomery curves** ($By^2 = x^3 + Ax^2 + x$) enable constant-time scalar multiplication via the Montgomery ladder. **Twisted Edwards curves** ($ax^2 + y^2 = 1 + dx^2y^2$) have unified addition formulas—the same formula works for doubling—making them efficient and resistant to side-channel attacks. BabyJubjub and Jubjub are twisted Edwards curves.
+**Curve forms**: The Weierstrass form $y^2 = x^3 + ax + b$ is standard, but other forms offer advantages. **Montgomery curves** ($By^2 = x^3 + Ax^2 + x$) enable constant-time scalar multiplication via the Montgomery ladder. **Twisted Edwards curves** ($ax^2 + y^2 = 1 + dx^2y^2$) have unified addition formulas (the same formula works for doubling), making them efficient and resistant to side-channel attacks. BabyJubjub and Jubjub are twisted Edwards curves.
 
 ### Bilinear Pairings
 
@@ -13800,15 +13795,15 @@ SNARKs use hash functions for:
 
 ### The Circuit Cost Problem
 
-Standard hashes (SHA-256, BLAKE3) are expensive in circuits. SHA-256 uses operations that CPUs handle efficiently—32-bit XOR, bit rotations, boolean operations—but these are catastrophic inside arithmetic circuits over prime fields.
+Standard hashes (SHA-256, BLAKE3) are expensive in circuits. SHA-256 uses operations that CPUs handle efficiently (32-bit XOR, bit rotations, boolean operations), but these are catastrophic inside arithmetic circuits over prime fields.
 
 A single XOR in an arithmetic circuit requires: decomposing each input into bits (one constraint per bit to enforce booleanity: $b_i \cdot (1 - b_i) = 0$), then computing the XOR bit-by-bit as $a_i + b_i - 2 \cdot a_i \cdot b_i$. A 256-bit XOR that takes one CPU cycle becomes hundreds of constraints.
 
-**The numbers**: SHA-256 costs roughly 25,000–30,000 constraints per invocation. A depth-20 Merkle tree (about 1 million leaves) requires 20 hashes—500,000–600,000 constraints just for hashing.
+**The numbers**: SHA-256 costs roughly 25,000–30,000 constraints per invocation. A depth-20 Merkle tree (about 1 million leaves) requires 20 hashes, totaling 500,000–600,000 constraints just for hashing.
 
 ### Algebraic Hashes: The Solution
 
-**Algebraically-friendly hashes** use only native field operations: addition and multiplication. No bit operations at all. This isn't just an optimization—it's a paradigm shift from "implement SHA-256 in a circuit" to "what hash would we design if we were circuit architects from the start?"
+**Algebraically-friendly hashes** use only native field operations: addition and multiplication. No bit operations at all. This isn't just an optimization; it's a paradigm shift from "implement SHA-256 in a circuit" to "what hash would we design if we were circuit architects from the start?"
 
 **Poseidon** is the dominant choice. It uses a sponge construction with a permutation built from three layers per round:
 
@@ -13825,7 +13820,7 @@ The key optimization is **HADES**: use *full rounds* (S-box on all state element
 | SHA-256 | ~25,000 | ~500,000 |
 | Poseidon | ~160 | ~3,200 |
 
-That's **156× fewer constraints**—the difference between feasible and impractical.
+That's **156× fewer constraints**: the difference between feasible and impractical.
 
 **Other algebraic hashes**:
 
@@ -13932,7 +13927,7 @@ BLS12-381 is larger than BN254 (larger field, more expensive operations) but fut
 
 ### Embedded Curves: BabyJubjub and Jubjub
 
-Pairing curves have large coordinates. What if you need to do elliptic curve operations *inside* a circuit—for example, verifying an EdDSA signature within a SNARK?
+Pairing curves have large coordinates. What if you need to do elliptic curve operations *inside* a circuit, for example, verifying an EdDSA signature within a SNARK?
 
 Computing BN254 point addition inside a BN254 circuit is expensive: the base field is ~254 bits, requiring big-integer arithmetic in constraints. The solution: use a *different* curve whose base field matches the SNARK's scalar field.
 
@@ -14037,7 +14032,6 @@ MSM dominates KZG commitment time. Parallelization and GPU implementation are es
 14. **MSM optimization**: Multi-scalar multiplication dominates KZG commitment time. Pippenger's algorithm and GPU parallelization are critical for practical provers.
 
 
-
 \newpage
 
 # Appendix B: Historical Timeline
@@ -14070,7 +14064,7 @@ Shamir proves that interactive proofs can verify exactly the problems solvable i
 Arora and Safra (AS) prove NP $\subseteq$ PCP[log n, polylog n]; Arora, Lund, Motwani, Sudan, and Szegedy (ALMSS) strengthen this to NP = PCP[log n, O(1)]. Every NP statement has a proof where the verifier reads only a constant number of bits. The theoretical foundation for succinct arguments.
 
 **1992: Kilian's Succinct Arguments**
-Kilian shows how to compile PCPs using Merkle trees and collision-resistant hashing. The prover commits to the PCP, the verifier queries random bits, and the prover opens with authentication paths. This is the first succinct argument for NP—proof size polylogarithmic in the computation.
+Kilian shows how to compile PCPs using Merkle trees and collision-resistant hashing. The prover commits to the PCP, the verifier queries random bits, and the prover opens with authentication paths. This is the first succinct argument for NP, with proof size polylogarithmic in the computation.
 
 
 

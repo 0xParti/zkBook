@@ -8,25 +8,11 @@ Their solution was startlingly simple. Instead of sending raw data, they evaluat
 
 What Reed and Solomon had discovered, without quite realizing it, was one of the most powerful ideas in all of computer science: **polynomials are rigid**. A low-degree polynomial cannot "cheat locally." If you change even a single coefficient, the polynomial's values change at almost every point. This rigidity, this inability to lie in one place without being caught elsewhere, would turn out to be exactly what cryptographers needed, thirty years later, to build systems where cheating is mathematically impossible.
 
-## Why Polynomials?
-
-If you've read any paper on zero-knowledge proofs, you've noticed something striking: polynomials are *everywhere*. Witnesses become polynomial evaluations. Constraints become polynomial identities. Verification reduces to checking polynomial properties. The entire field seems obsessed with these algebraic objects.
-
-This is not an accident. Polynomials possess a trinity of properties that make them uniquely suited for verifiable computation:
-
-1. **Representation**: Any discrete data can be encoded as a polynomial
-
-2. **Compression**: A million local constraints become one global identity
-
-3. **Randomization**: The entire polynomial can be tested from a single random point
-
-Understanding why this trinity works, and how it works, is essential to understanding everything else in this book.
-
 
 
 ## The Motivating Problem: Beyond NP
 
-Before diving into polynomials, let's understand what problem they solve. In Chapter 1, we saw that some problems have the useful property that their solutions are easy to check: multiply the claimed factors to verify factorization, check each edge to verify graph coloring. These are NP problems; the solution serves as its own certificate.
+Before we explore polynomials, let's understand the problem they solve. In Chapter 1, we saw that some problems have the useful property that their solutions are easy to check: multiply the claimed factors to verify factorization, check each edge to verify graph coloring. These are NP problems; the solution serves as its own certificate.
 
 But what about problems that don't have short certificates?
 
@@ -34,32 +20,24 @@ But what about problems that don't have short certificates?
 
 The **Boolean Satisfiability Problem (SAT)** asks: given a Boolean formula, is there an assignment of True/False values to its variables that makes the formula evaluate to True?
 
-Consider the formula:
+Consider the formula (where $\lor$ means OR, $\land$ means AND, and $\neg$ means NOT):
 $$\phi(x_1, x_2, x_3) = (x_1 \lor \neg x_2 \lor x_3) \land (\neg x_1 \lor x_2 \lor \neg x_3) \land (x_1 \lor x_2 \lor x_3)$$
 
 This is in *Conjunctive Normal Form (CNF)*: an AND of ORs. Each parenthesized group is a *clause*, and each $x_i$ or $\neg x_i$ is a *literal*.
 
-The question: does there exist an assignment $(x_1, x_2, x_3) \in \{\text{True}, \text{False}\}^3$ that satisfies all clauses simultaneously?
+The question: does there exist an assignment $(x_1, x_2, x_3) \in \{\text{True}, \text{False}\}^3$ that satisfies all clauses simultaneously? This is what makes SAT hard: you must determine whether *any* solution exists, not find a specific one. With 3 variables there are $2^3 = 8$ possibilities; with 100 variables there are $2^{100} \approx 10^{30}$. No known algorithm avoids checking exponentially many cases in the worst case.
 
-Let's check $(x_1, x_2, x_3) = (\text{True}, \text{False}, \text{True})$:
+For this toy example, we can reason through it. Clause 2 ($\neg x_1 \lor x_2 \lor \neg x_3$) needs at least one of: $x_1 = \text{False}$, $x_2 = \text{True}$, or $x_3 = \text{False}$. Clause 3 needs at least one variable true. Setting $x_2 = \text{True}$ helps both. With $x_2$ fixed, Clause 1 becomes $(x_1 \lor \text{False} \lor x_3)$, requiring $x_1$ or $x_3$ true. Try $(x_1, x_2, x_3) = (\text{True}, \text{True}, \text{True})$:
 
-- Clause 1: $\text{True} \lor \text{True} \lor \text{True} = \text{True}$ (pass)
+- Clause 1: $\text{True} \lor \text{False} \lor \text{True} = \text{True}$ $\checkmark$
+- Clause 2: $\text{False} \lor \text{True} \lor \text{False} = \text{True}$ $\checkmark$
+- Clause 3: $\text{True} \lor \text{True} \lor \text{True} = \text{True}$ $\checkmark$
 
-- Clause 2: $\text{False} \lor \text{False} \lor \text{False} = \text{False}$ (fail)
-
-So that assignment doesn't work. What about $(\text{True}, \text{True}, \text{True})$?
-
-- Clause 1: $\text{True} \lor \text{False} \lor \text{True} = \text{True}$ (pass)
-
-- Clause 2: $\text{False} \lor \text{True} \lor \text{False} = \text{True}$ (pass)
-
-- Clause 3: $\text{True} \lor \text{True} \lor \text{True} = \text{True}$ (pass)
-
-Yes! The formula is satisfiable, and $(\text{True}, \text{True}, \text{True})$ is a *satisfying assignment*.
+We found a satisfying assignment, so the formula is satisfiable. But notice: finding this solution required insight or luck. If no solution existed, we would have had to check all $2^n$ possibilities to be certain.
 
 **Why SAT matters:** The Cook-Levin theorem (1971) proved that SAT is *NP-complete*: every problem in NP can be efficiently reduced to a SAT instance. If you can solve SAT efficiently, you can solve *any* NP problem efficiently. This makes SAT the canonical "hard" problem.
 
-**The good news for verification:** If someone claims a formula is satisfiable and provides a satisfying assignment, you can check it easily by just plugging in the values and evaluating. The assignment is the certificate.
+**The good news for verification:** Once someone *has* a solution, checking it is easy: just plug in the values. The assignment is a certificate that proves satisfiability. The asymmetry is striking: finding a solution may take exponential time, but verifying one takes linear time.
 
 ### #SAT: When Even Certificates Don't Help
 
@@ -83,6 +61,20 @@ We'll see exactly how in Chapter 3 when we study the sum-check protocol. But fir
 
 
 
+## Why Polynomials?
+
+If you've read any paper on zero-knowledge proofs, you've noticed something striking: polynomials are *everywhere*. Witnesses become polynomial evaluations. Constraints become polynomial identities. Verification reduces to checking polynomial properties. The entire field seems obsessed with these algebraic objects.
+
+This is not an accident. Polynomials possess a trinity of properties that make them uniquely suited for verifiable computation:
+
+1. **Representation**: Any discrete data can be encoded as a polynomial
+
+2. **Compression**: A million local constraints become one global identity
+
+3. **Randomization**: The entire polynomial can be tested from a single random point
+
+The rest of this chapter develops each pillar in turn.
+
 ## Pillar 1: Representation - From Data to Polynomials
 
 The first magical property: any finite dataset can be encoded as a polynomial.
@@ -91,7 +83,7 @@ But first, we must define the terrain. Where do these polynomials live? Not in t
 
 Polynomials in ZK proofs live in *finite fields*, mathematical structures where arithmetic is exact. In a finite field, $1/3$ isn't $0.333...$; it's a precise integer. There's no rounding, no overflow, no approximation. Two values are either exactly equal or they're not. This exactness is what makes polynomial "rigidity" possible: if two polynomials differ, they differ exactly, and we can detect it.
 
-It is a historical irony that this structure was discovered by someone who knew he was about to die. In May 1832, twenty-year-old Évariste Galois spent his final night frantically writing mathematics. He had been challenged to a duel the next morning and expected to lose. In those desperate hours, he outlined a new theory of algebraic symmetry, describing number systems that behaved like familiar arithmetic—you could add, subtract, multiply, and divide—but were finite. They didn't stretch to infinity; they looped back on themselves, like a clock.
+It is a historical irony that this structure was discovered by someone who knew he was about to die. In May 1832, twenty-year-old Évariste Galois spent his final night frantically writing mathematics. He had been challenged to a duel the next morning and expected to lose. In those desperate hours, he outlined a new theory of algebraic symmetry, describing number systems that behaved like familiar arithmetic (you could add, subtract, multiply, and divide) but were finite. They didn't stretch to infinity; they looped back on themselves, like a clock.
 
 The next morning, Galois was shot in the abdomen and died the following day. But his "finite fields" turned out to be the perfect environment for computation. Every SNARK, every polynomial commitment, and every error-correcting code in this book lives inside the structure Galois sketched the night before his death.
 
@@ -151,10 +143,6 @@ Verification: $p(0) = 2$, $p(1) = 1 + 2 + 2 = 5$, $p(2) = 4 + 4 + 2 = 10$. All m
 
 ### The Rigidity of Polynomials
 
-<p align="center">
-  <img src="images/rigidityPoly.png" alt="Polynomial Rigidity">
-</p>
-
 Here's the key property that makes verification possible:
 
 **Two different degree-$d$ polynomials can agree on at most $d$ points.**
@@ -177,7 +165,7 @@ This is why a single random query suffices. The verifier isn't lucky to catch th
 
 ## Pillar 2: Randomization - The Schwartz-Zippel Lemma
 
-In 1976, Gary Miller discovered a fast algorithm to test whether a number is prime. There was one problem: proving it correct required assuming the Riemann Hypothesis, one of the deepest unsolved problems in mathematics. Four years later, Michael Rabin found a way out. He modified Miller's test to use random sampling. The new algorithm couldn't *guarantee* the right answer, but it could make errors arbitrarily unlikely—say, less likely than a cosmic ray flipping a bit in your computer's memory. By embracing randomness, Rabin traded an unproven conjecture for a proven bound on failure probability.
+In 1976, Gary Miller discovered a fast algorithm to test whether a number is prime. There was one problem: proving it correct required assuming the Riemann Hypothesis, one of the deepest unsolved problems in mathematics. Four years later, Michael Rabin found a way out. He modified Miller's test to use random sampling. The new algorithm couldn't *guarantee* the right answer, but it could make errors arbitrarily unlikely, say, less likely than a cosmic ray flipping a bit in your computer's memory. By embracing randomness, Rabin traded an unproven conjecture for a proven bound on failure probability.
 
 This is the paradigm shift: randomness as a *resource* for verification. A cheating prover might fool a deterministic check, but fooling a random check requires being lucky, and we can make luck arbitrarily improbable.
 
@@ -770,6 +758,3 @@ The universe, it seems, has discovered that polynomial-like encodings are the ri
 9. **The paradigm is universal:** Every major ZK system (Groth16, PLONK, STARKs, sum-check) uses the same three-step approach: represent as polynomials, compress constraints to identities, verify via random evaluation.
 
 10. **Commitment + evaluation = proof architecture:** Committing to a polynomial locks the prover to a single function; random evaluation checks that function is correct. This commit-then-evaluate pattern is the skeleton of every modern SNARK.
-
-
-

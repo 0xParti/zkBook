@@ -26,7 +26,7 @@ This is one of several approaches to the "who runs the prover?" problem:
 
 **Distribute via MPC.** Secret-share the witness among multiple servers. No single server learns anything. Requires the servers not to collude (honest majority or computational assumptions). This chapter develops the techniques.
 
-**Hardware enclaves (TEEs).** Run the prover inside a Trusted Execution Environment like Intel SGX or ARM TrustZone. The enclave attests that it ran the correct code on hidden inputs. Trust shifts from the server operator to the hardware manufacturer—not trustless, but a different trust assumption.
+**Hardware enclaves (TEEs).** Run the prover inside a Trusted Execution Environment like Intel SGX or ARM TrustZone. The enclave attests that it ran the correct code on hidden inputs. Trust shifts from the server operator to the hardware manufacturer: not trustless, but a different trust assumption.
 
 MPC and ZK also connect at a deeper level. MPC techniques directly yield ZK constructions through the "MPC-in-the-head" paradigm: simulate an MPC protocol inside the prover's mind, commit to the simulated parties' views, and let the verifier audit a subset. The parallel paths converge into a single construction.
 
@@ -202,7 +202,7 @@ This structure scales better: instead of trying all rows, the evaluator does one
 
 ### How the Evaluator Proceeds
 
-With either approach (shuffled tables with trial decryption, or hash-indexed tables with direct lookup), the evaluator follows the same pattern. They hold one label per input wire, use those labels to decrypt exactly one entry from the garbled table, and obtain the output label. The output label becomes input to the next gate. The evaluator never learns which bit any label represents—they just propagate opaque 128-bit strings through the circuit.
+With either approach (shuffled tables with trial decryption, or hash-indexed tables with direct lookup), the evaluator follows the same pattern. They hold one label per input wire, use those labels to decrypt exactly one entry from the garbled table, and obtain the output label. The output label becomes input to the next gate. The evaluator never learns which bit any label represents; they just propagate opaque 128-bit strings through the circuit.
 
 ### Chaining Gates Together
 
@@ -390,7 +390,7 @@ Think of the prover as a one-person theater troupe performing a conversation bet
 
 The verifier challenges: "Open the views of parties $i$ and $j$." (Show me Alice and Bob's envelopes.) The prover reveals those two views. The verifier checks consistency: do the messages that party $i$ claims to have sent match what party $j$ claims to have received? Did both parties follow the protocol correctly given their views? Does the MPC output equal 1? If Alice's script says she sent "7" to Bob, but Bob's script says he received "9" from Alice, the prover is caught lying. By randomly checking different pairs, the verifier catches any inconsistency in the performance.
 
-Why is this sound? If the witness is invalid, the MPC would output 0. For the prover to fake acceptance, they must forge views where the MPC appears to output 1. But faking a valid MPC execution requires consistency across all parties. If any pair of views is inconsistent—messages don't match, or a party deviated from the protocol—the verifier catches it. A cheating prover can make some pairs consistent, but not all. The random challenge catches an inconsistent pair with constant probability. Repeat to amplify.
+Why is this sound? If the witness is invalid, the MPC would output 0. For the prover to fake acceptance, they must forge views where the MPC appears to output 1. But faking a valid MPC execution requires consistency across all parties. If any pair of views is inconsistent (messages don't match, or a party deviated from the protocol), the verifier catches it. A cheating prover can make some pairs consistent, but not all. The random challenge catches an inconsistent pair with constant probability. Repeat to amplify.
 
 Why is this zero-knowledge? Opening $t-1$ views of a $t$-threshold MPC reveals nothing about the secret (by the MPC privacy guarantee). The verifier sees only a subset of views, not enough to reconstruct the witness.
 
@@ -422,7 +422,7 @@ The linearity of Schnorr makes this work. A Schnorr signature has the form $s = 
 
 One important caveat: FROST's nonce generation phase requires **synchronous coordination**. All participating signers must be online simultaneously to jointly generate the nonce shares and exchange their commitments. If a signer goes offline during this phase, the protocol stalls. This synchronicity constraint can be problematic in real-world deployments where signers span different time zones or operate on unreliable networks.
 
-**ROAST** addresses this limitation by wrapping FROST in a robust, asynchronous coordinator. Instead of requiring all $t$ signers to be online at once, ROAST has a coordinator that adaptively selects responsive signers. The coordinator maintains multiple concurrent signing sessions and gracefully handles signers who fail to respond. If a signer times out, the coordinator simply starts a new session with a different signer subset. The first session to complete produces the signature. ROAST doesn't modify FROST's cryptography—it adds a session management layer that tolerates network asynchrony and unresponsive parties, making threshold signing practical for geographically distributed deployments.
+**ROAST** addresses this limitation by wrapping FROST in a robust, asynchronous coordinator. Instead of requiring all $t$ signers to be online at once, ROAST has a coordinator that adaptively selects responsive signers. The coordinator maintains multiple concurrent signing sessions and gracefully handles signers who fail to respond. If a signer times out, the coordinator simply starts a new session with a different signer subset. The first session to complete produces the signature. ROAST doesn't modify FROST's cryptography; it adds a session management layer that tolerates network asynchrony and unresponsive parties, making threshold signing practical for geographically distributed deployments.
 
 Threshold ECDSA is more complex. ECDSA signatures involve a modular inversion step, $s = k^{-1}(z + r \cdot x)$, and inversion is not linear. Computing it on shared values requires a full MPC protocol for the inversion, adding rounds and computational overhead. Protocols like GG18 and GG20 solve this but at higher cost than FROST.
 

@@ -468,7 +468,7 @@ The IPA scheme's $O(n)$ verification is a fundamental limitation: the verifier m
 
 **The core insight is "lazy verification."** In IPA, the verifier diligently recalculates the folded generators at each step, doing $O(n)$ work. Dory's verifier is lazier: instead of checking each step, they accumulate commitments and defer all verification to a single final pairing check. It's like a teacher who doesn't grade homework each night, but assigns problems so cleverly that a single final exam can catch any cheating retroactively. The algebraic structure of pairings makes this possible: the verifier can "absorb" all the folding challenges into target group elements, then verify everything at once.
 
-> **Note:** Dory is one of the more advanced commitment schemes covered in this book. The two-tier structure, pairing-based folding, and binding arguments involve subtle cryptographic reasoning. Don't worry if the details don't click on first reading—the key intuition is that pairings allow verification to happen "in the target group" without the verifier touching the original generators directly.
+> **Note:** Dory is one of the more advanced commitment schemes covered in this book. The two-tier structure, pairing-based folding, and binding arguments involve subtle cryptographic reasoning. Don't worry if the details don't click on first reading; the key intuition is that pairings allow verification to happen "in the target group" without the verifier touching the original generators directly.
 
 ### Two-Tier Commitment Structure
 

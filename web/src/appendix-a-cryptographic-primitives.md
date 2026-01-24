@@ -37,7 +37,7 @@ The group order $|E(\mathbb{F}_p)|$ is approximately $p$ (Hasse's theorem: $|p +
 
 **Scalar multiplication**: Computing $kP$ for scalar $k$ uses double-and-add, taking $O(\log k)$ group operations.
 
-**Curve forms**: The Weierstrass form $y^2 = x^3 + ax + b$ is standard, but other forms offer advantages. **Montgomery curves** ($By^2 = x^3 + Ax^2 + x$) enable constant-time scalar multiplication via the Montgomery ladder. **Twisted Edwards curves** ($ax^2 + y^2 = 1 + dx^2y^2$) have unified addition formulas—the same formula works for doubling—making them efficient and resistant to side-channel attacks. BabyJubjub and Jubjub are twisted Edwards curves.
+**Curve forms**: The Weierstrass form $y^2 = x^3 + ax + b$ is standard, but other forms offer advantages. **Montgomery curves** ($By^2 = x^3 + Ax^2 + x$) enable constant-time scalar multiplication via the Montgomery ladder. **Twisted Edwards curves** ($ax^2 + y^2 = 1 + dx^2y^2$) have unified addition formulas (the same formula works for doubling), making them efficient and resistant to side-channel attacks. BabyJubjub and Jubjub are twisted Edwards curves.
 
 ### Bilinear Pairings
 
@@ -235,15 +235,15 @@ SNARKs use hash functions for:
 
 ### The Circuit Cost Problem
 
-Standard hashes (SHA-256, BLAKE3) are expensive in circuits. SHA-256 uses operations that CPUs handle efficiently—32-bit XOR, bit rotations, boolean operations—but these are catastrophic inside arithmetic circuits over prime fields.
+Standard hashes (SHA-256, BLAKE3) are expensive in circuits. SHA-256 uses operations that CPUs handle efficiently (32-bit XOR, bit rotations, boolean operations), but these are catastrophic inside arithmetic circuits over prime fields.
 
 A single XOR in an arithmetic circuit requires: decomposing each input into bits (one constraint per bit to enforce booleanity: $b_i \cdot (1 - b_i) = 0$), then computing the XOR bit-by-bit as $a_i + b_i - 2 \cdot a_i \cdot b_i$. A 256-bit XOR that takes one CPU cycle becomes hundreds of constraints.
 
-**The numbers**: SHA-256 costs roughly 25,000–30,000 constraints per invocation. A depth-20 Merkle tree (about 1 million leaves) requires 20 hashes—500,000–600,000 constraints just for hashing.
+**The numbers**: SHA-256 costs roughly 25,000–30,000 constraints per invocation. A depth-20 Merkle tree (about 1 million leaves) requires 20 hashes, totaling 500,000–600,000 constraints just for hashing.
 
 ### Algebraic Hashes: The Solution
 
-**Algebraically-friendly hashes** use only native field operations: addition and multiplication. No bit operations at all. This isn't just an optimization—it's a paradigm shift from "implement SHA-256 in a circuit" to "what hash would we design if we were circuit architects from the start?"
+**Algebraically-friendly hashes** use only native field operations: addition and multiplication. No bit operations at all. This isn't just an optimization; it's a paradigm shift from "implement SHA-256 in a circuit" to "what hash would we design if we were circuit architects from the start?"
 
 **Poseidon** is the dominant choice. It uses a sponge construction with a permutation built from three layers per round:
 
@@ -260,7 +260,7 @@ The key optimization is **HADES**: use *full rounds* (S-box on all state element
 | SHA-256 | ~25,000 | ~500,000 |
 | Poseidon | ~160 | ~3,200 |
 
-That's **156× fewer constraints**—the difference between feasible and impractical.
+That's **156× fewer constraints**: the difference between feasible and impractical.
 
 **Other algebraic hashes**:
 
@@ -367,7 +367,7 @@ BLS12-381 is larger than BN254 (larger field, more expensive operations) but fut
 
 ### Embedded Curves: BabyJubjub and Jubjub
 
-Pairing curves have large coordinates. What if you need to do elliptic curve operations *inside* a circuit—for example, verifying an EdDSA signature within a SNARK?
+Pairing curves have large coordinates. What if you need to do elliptic curve operations *inside* a circuit, for example, verifying an EdDSA signature within a SNARK?
 
 Computing BN254 point addition inside a BN254 circuit is expensive: the base field is ~254 bits, requiring big-integer arithmetic in constraints. The solution: use a *different* curve whose base field matches the SNARK's scalar field.
 

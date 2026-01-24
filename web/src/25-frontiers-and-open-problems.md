@@ -40,11 +40,11 @@ Binius combines several innovations:
 
 **Multilinear polynomials over towers of binary fields.** Instead of a single large field, use a tower: $\mathbb{F}_2 \subset \mathbb{F}_{2^2} \subset \mathbb{F}_{2^4} \subset \mathbb{F}_{2^8} \subset \ldots$ Each level doubles the extension degree. Small values live in small fields; only the cryptographic randomness requires the full tower height.
 
-What does "operating in a tower" mean concretely? Each level is a field extension: $\mathbb{F}_2$ contains just $\{0,1\}$ with XOR addition; $\mathbb{F}_{2^8}$ contains 8-bit elements (bytes); $\mathbb{F}_{2^{128}}$ provides cryptographic security. The key insight: *elements of smaller fields are also elements of larger fields*. A bit in $\mathbb{F}_2$ can be viewed as an element of $\mathbb{F}_{2^{128}}$—it's just a very special element.
+What does "operating in a tower" mean concretely? Each level is a field extension: $\mathbb{F}_2$ contains just $\{0,1\}$ with XOR addition; $\mathbb{F}_{2^8}$ contains 8-bit elements (bytes); $\mathbb{F}_{2^{128}}$ provides cryptographic security. The key insight: *elements of smaller fields are also elements of larger fields*. A bit in $\mathbb{F}_2$ can be viewed as an element of $\mathbb{F}_{2^{128}}$; it's just a very special element.
 
 This enables a crucial optimization: store witness data in the smallest field that fits (bits stay bits, bytes stay bytes), perform arithmetic at the appropriate level, and only "lift" to the full tower when random challenges enter. The 256× overhead of representing a single bit as a 256-bit field element vanishes.
 
-(Note: this "tower" is unrelated to the "tower of proofs" in Chapter 22's recursion discussion. There, "tower" refers to proofs-of-proofs: $\pi_1 \to \pi_2 \to \pi_3$. Here, "tower" refers to nested field extensions. Both exploit hierarchical structure—recursion avoids re-proving entire computations; field towers avoid doing large-field arithmetic on small values—but the mechanisms are distinct.)
+(Note: this "tower" is unrelated to the "tower of proofs" in Chapter 22's recursion discussion. There, "tower" refers to proofs-of-proofs: $\pi_1 \to \pi_2 \to \pi_3$. Here, "tower" refers to nested field extensions. Both exploit hierarchical structure (recursion avoids re-proving entire computations; field towers avoid doing large-field arithmetic on small values) but the mechanisms are distinct.)
 
 **GKR-based multiplication.** Binary field multiplication is non-trivial: it's polynomial multiplication modulo an irreducible polynomial. Rather than encoding this as constraints (expensive), Binius uses the GKR protocol to verify multiplications. The prover commits only to inputs and outputs; intermediate multiplication steps are checked via sum-check.
 
@@ -70,7 +70,7 @@ Binius is under active development. Polygon and Irreducible have been building p
 
 **Recursion is harder.** Verifying a Binius proof inside another Binius proof requires embedding binary field arithmetic, which is non-trivial when the verifier circuit itself uses binary fields. The algebraic structure that makes Binius fast for computation makes it awkward for recursive self-verification.
 
-**The workload mix.** Binius shines for bit-intensive operations: hashing, AES, bitwise logic. But zkVMs also do 32/64-bit arithmetic, memory operations, control flow. The benefits are less dramatic for these. Some researchers suggest Binius may be better suited for *precompiles* (hash functions, signature verification) rather than full VM execution—use Binius where it wins, prime fields elsewhere.
+**The workload mix.** Binius shines for bit-intensive operations: hashing, AES, bitwise logic. But zkVMs also do 32/64-bit arithmetic, memory operations, control flow. The benefits are less dramatic for these. Some researchers suggest Binius may be better suited for *precompiles* (hash functions, signature verification) rather than full VM execution: use Binius where it wins, prime fields elsewhere.
 
 **Prover memory.** The tower structure requires careful memory management. Naive implementations have high memory overhead.
 
@@ -88,7 +88,7 @@ Shor's algorithm threatens the foundations of modern cryptography. Running in po
 
 What do these problems share? They all have **hidden periodic structure in abelian groups**. Factoring $N$ reduces to finding the period of $a^x \mod N$. Discrete log in $\langle g \rangle$ reduces to finding the period of $g^a h^b$. Shor's algorithm applies the *quantum Fourier transform* (QFT) to extract this periodicity in polynomial time. The QFT is the key ingredient: it converts quantum superposition over exponentially many values into a measurement that reveals the period. Any problem with hidden abelian group structure falls to this attack.
 
-Hash functions survive because they're designed to have *no* exploitable structure—no periodicity, no algebraic relations. Grover's algorithm provides only a generic $\sqrt{N}$ search speedup (quadratic, not exponential), which doubling the hash output neutralizes.
+Hash functions survive because they're designed to have *no* exploitable structure: no periodicity, no algebraic relations. Grover's algorithm provides only a generic $\sqrt{N}$ search speedup (quadratic, not exponential), which doubling the hash output neutralizes.
 
 Every system in Part IV of this book (Groth16, PLONK, KZG-based constructions) will become insecure once cryptographically-relevant quantum computers exist.
 
@@ -102,7 +102,7 @@ Timeline estimates vary wildly: 10 years, 20 years, 30 years, never. But "never"
 
 The approach: commit to a polynomial $f(X)$ by encoding its coefficients as a lattice point. The "hardness of finding short vectors" ensures binding (can't open to a different polynomial). Noise flooding or rejection sampling provides hiding.
 
-The algebraic structure is richer than hashes—you can perform homomorphic operations on commitments (add them, sometimes multiply). This enables sum-check-style protocols without the overhead of pure symmetric-key approaches. But there's a catch: the noise in LWE grows with operations. After too many homomorphic steps, noise overwhelms signal. Managing this requires larger parameters, meaning larger commitments and proofs. Current constructions run 10-100× slower than hash-based alternatives for equivalent security.
+The algebraic structure is richer than hashes: you can perform homomorphic operations on commitments (add them, sometimes multiply). This enables sum-check-style protocols without the overhead of pure symmetric-key approaches. But there's a catch: the noise in LWE grows with operations. After too many homomorphic steps, noise overwhelms signal. Managing this requires larger parameters, meaning larger commitments and proofs. Current constructions run 10-100× slower than hash-based alternatives for equivalent security.
 
 **Symmetric-key SNARKs.** Build entirely from symmetric primitives: hashes, block ciphers, nothing else. The MPC-in-the-head paradigm (Ligero, Limbo, and descendants) follows this path.
 
@@ -112,7 +112,7 @@ The verifier challenges: "reveal the views of parties $i$ and $j$." The verifier
 
 Why is this post-quantum? The only cryptographic primitive is the hash-based commitment to parties' views. No discrete log, no pairings, no lattices. Security reduces to collision resistance of the hash function.
 
-Why is it slow? The MPC protocol has communication overhead. Even efficient protocols require $O(|C|)$ work per multiplication gate, where $|C|$ is the circuit size. The prover must simulate all of this. Ligero improved this with linear-time proving via interleaved Reed-Solomon codes, but constants remain large—typically 10-100× slower than algebraic SNARKs.
+Why is it slow? The MPC protocol has communication overhead. Even efficient protocols require $O(|C|)$ work per multiplication gate, where $|C|$ is the circuit size. The prover must simulate all of this. Ligero improved this with linear-time proving via interleaved Reed-Solomon codes, but constants remain large, typically 10-100× slower than algebraic SNARKs.
 
 See Chapter 24 for the underlying MPC techniques.
 

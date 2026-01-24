@@ -63,11 +63,11 @@ But this seems impossible. How can you verify a computation without understandin
 
 On February 25, 1991, during the Gulf War, a Patriot missile battery in Dhahran, Saudi Arabia, failed to intercept an incoming Iraqi Scud. The missile struck an American barracks, killing 28 soldiers.
 
-The cause was a software bug. The Patriot's tracking system measured time in tenths of a second using a 24-bit register, then multiplied by 0.1 to convert to seconds. But 0.1 has no exact binary representation — it's a repeating fraction, like 1/3 in decimal. The system truncated it, introducing a tiny error of about 0.000000095 seconds per tenth.
+The cause was a software bug. The Patriot's tracking system measured time in tenths of a second using a 24-bit register, then multiplied by 0.1 to convert to seconds. But 0.1 has no exact binary representation; it's a repeating fraction, like 1/3 in decimal. The system truncated it, introducing a tiny error of about 0.000000095 seconds per tenth.
 
 Tiny, but cumulative. The battery had been running for 100 hours. Over that time, the error accumulated to 0.34 seconds. For a Scud traveling at Mach 5, that's a tracking error of over 600 meters. The missile defense system calculated that the incoming Scud was outside its range gate and didn't fire.
 
-The bug had been discovered two weeks earlier. Israeli defense forces, who had noticed the drift, warned the U.S. Army and recommended rebooting the system regularly to reset the clock. A software patch was developed. It arrived in Dhahran on February 26 — one day after the attack.
+The bug had been discovered two weeks earlier. Israeli defense forces, who had noticed the drift, warned the U.S. Army and recommended rebooting the system regularly to reset the clock. A software patch was developed. It arrived in Dhahran on February 26, one day after the attack.
 
 Twenty-eight soldiers died because a computation was trusted without verification. The system worked exactly as programmed; the program was wrong. No one checked.
 
@@ -155,7 +155,7 @@ The class **IP** contains all languages with such protocols where the verifier r
 
 ### Multi-Prover Interactive Proofs (MIP)
 
-IP was powerful—it captured all of PSPACE—but verification still required multiple rounds of back-and-forth, and proofs weren't succinct. What if we could constrain the prover more tightly to gain more verification power?
+IP was powerful (it captured all of PSPACE), but verification still required multiple rounds of back-and-forth, and proofs weren't succinct. What if we could constrain the prover more tightly to gain more verification power?
 
 What if the verifier could interrogate *multiple* provers who cannot communicate with each other?
 
@@ -175,7 +175,7 @@ This idea of forcing commitment before challenge reappears throughout SNARK desi
 
 ### Probabilistically Checkable Proofs (PCP)
 
-MIP was even more powerful—it captured NEXP—but it required *two separate provers*. In practice, we usually have just one prover. Could we get similar power without needing to literally interrogate two parties in separate rooms?
+MIP was even more powerful (it captured NEXP), but it required *two separate provers*. In practice, we usually have just one prover. Could we get similar power without needing to literally interrogate two parties in separate rooms?
 
 Here the model shifts from interaction to *query access*. The prover writes down a static proof string $\pi$ (potentially very long), which is just a sequence of symbols like $\pi = (\pi_1, \pi_2, \pi_3, \ldots, \pi_m)$. The verifier doesn't read the whole string. Instead, they pick a few positions at random and look only at those symbols. For example, the verifier might flip some coins, decide to look at positions 17, 42, and 803, read $\pi_{17}$, $\pi_{42}$, and $\pi_{803}$, and make a decision based only on those three values.
 
@@ -213,7 +213,7 @@ This connection was key to proving MIP = NEXP and to subsequent PCP construction
 
 ### Interactive Oracle Proofs (IOP)
 
-The PCP theorem was a landmark—it showed any NP statement has a proof checkable with constant queries. But PCPs require enormous proof strings, and they're non-interactive (the prover must anticipate all possible verifier randomness). IP had efficient interaction but no query access. Could we combine the best of both?
+The PCP theorem was a landmark: it showed any NP statement has a proof checkable with constant queries. But PCPs require enormous proof strings, and they're non-interactive (the prover must anticipate all possible verifier randomness). IP had efficient interaction but no query access. Could we combine the best of both?
 
 **Interactive Oracle Proofs** do exactly that.
 
@@ -241,7 +241,7 @@ IOPs gave us a clean abstraction, but implementing them required a way to make o
 
 In a standard PCP (as described above), the proof is a string of symbols and the verifier reads a few specific positions: "give me $\pi_{17}$, $\pi_{42}$, and $\pi_{803}$." In a **Linear PCP**, the proof is still a vector of values $\vec{\pi} = (\pi_1, \pi_2, \ldots, \pi_k)$, but the verifier can only ask for linear combinations: "give me $\sum_i q_i \cdot \pi_i$ for my chosen weights $q$."
 
-Think of it as a library where you can't open the books—that would reveal the witness. You can only ask the librarian to weigh books in specific combinations. "Put 2 copies of book 1 on the scale, plus 3 copies of book 3, plus 1 copy of book 7, and tell me the total weight." The librarian answers with a single number. You ask several such questions. From these weighted sums, you try to verify some property of the books without ever seeing their contents.
+Think of it as a library where you can't open the books (that would reveal the witness). You can only ask the librarian to weigh books in specific combinations. "Put 2 copies of book 1 on the scale, plus 3 copies of book 3, plus 1 copy of book 7, and tell me the total weight." The librarian answers with a single number. You ask several such questions. From these weighted sums, you try to verify some property of the books without ever seeing their contents.
 
 The linearity constraint is extraordinarily powerful. If the verifier is restricted to weighted-sum queries, we can use cryptography to *enforce* this restriction. Here's the key insight: **certain cryptographic structures only allow weighted-sum operations, nothing else**.
 
@@ -320,7 +320,7 @@ Each application is a trust assumption eliminated.
 
 **Privacy-preserving credentials** remove trust in identity intermediaries. Prove you're over 21 without revealing your birthdate. Prove you passed a background check without revealing what was checked. The verifier learns exactly one bit: valid or not. No data broker, no identity provider, no linkable trail.
 
-**Computational integrity** removes trust in institutions. Scientific simulations, machine learning inference, financial calculations—any computation can be accompanied by a proof of correctness. The question changes from "do I trust this organization?" to "does this proof verify?"
+**Computational integrity** removes trust in institutions. Scientific simulations, machine learning inference, financial calculations: any computation can be accompanied by a proof of correctness. The question changes from "do I trust this organization?" to "does this proof verify?"
 
 The pattern is consistent: find a trust assumption, replace it with mathematics.
 
