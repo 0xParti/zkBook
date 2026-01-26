@@ -675,38 +675,6 @@ This paradigm appears in every major ZK system:
 
 
 
-## The Holographic Principle (A Philosophical Aside)
-
-There's a remarkable connection between ZK proofs and theoretical physics that hints at something deeper.
-
-### The Holographic Principle in Physics
-
-In theoretical physics, the *holographic principle* suggests that the information content of a volume of space can be fully described by a theory on its lower-dimensional boundary. The most concrete realization is the *AdS/CFT correspondence* (Anti-de Sitter/Conformal Field Theory), which posits that a theory of quantum gravity in a $(d+1)$-dimensional "bulk" spacetime is exactly equivalent to a quantum field theory on the $d$-dimensional "boundary." The bulk has more dimensions, but the boundary theory captures all the information.
-
-### The Connection to Error-Correcting Codes
-
-Recent work in quantum gravity has revealed that AdS/CFT is essentially a quantum error-correcting code. The bulk (spacetime with gravity) contains the protected logical information, while the boundary (field theory) serves as the redundant physical encoding. Local operations in the bulk correspond to non-local operations on the boundary, and the encoding has error-correcting properties: local damage to the boundary doesn't destroy bulk information.
-
-### ZK Proofs Have the Same Structure
-
-Replace "quantum" with "classical" and the parallel is striking:
-
-| Quantum Gravity / AdS-CFT | Zero-Knowledge Proofs |
-|---------------------------|----------------------|
-| Bulk (spacetime) | Witness (prover's secret) |
-| Boundary (field theory) | Polynomial evaluations (committed proof) |
-| Holographic encoding | Reed-Solomon / polynomial encoding |
-| Error correction | Distance-amplifying property |
-| Boundary reconstruction | Verifier's random queries |
-
-In both systems, important information (bulk physics or witness) is encoded redundantly. The encoding has algebraic structure that spreads local information globally. Local damage, whether errors or cheating, is detectable from random boundary queries. And the mapping between bulk and boundary is efficient in both directions.
-
-This isn't mere analogy; both systems use the same mathematical principle: redundant encoding with algebraic structure that makes local changes globally detectable.
-
-The universe, it seems, has discovered that polynomial-like encodings are the right way to protect information, whether that information is the witness to a computation or the quantum state of spacetime itself.
-
-
-
 ## Key Takeaways
 
 1. **The counting problem (#SAT) motivates why polynomials matter:** Some computations have no obvious short certificate, but polynomial encodings enable efficient verification through interaction and randomness.
