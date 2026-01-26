@@ -10756,7 +10756,14 @@ Now formalize this. We have $2^k$ tables (columns), each with its own height $h_
 
 The total non-zero entries: $M = \sum_y h_y$. This is the *trace area*: what actually matters for proving.
 
-Pack all non-zero entries into a single dense array $q$ of length $M$. The packing is deterministic, with table 0's entries first, then table 1's, and so on. Given dense index $i$, we can compute which table it came from ($\text{col}(i)$) and which row within that table ($\text{row}(i)$) using only the cumulative heights.
+Pack all non-zero entries into a single dense array $q$ of length $M$. The packing is deterministic, with table 0's entries first, then table 1's, and so on. This is *flattening*: a 2D table with variable-height columns becomes a 1D array that skips the padding zeros.
+
+The cumulative heights $t_y = \sum_{y' < y} h_{y'}$ track where each column starts in the flattened array. Given a dense index $i$, two functions recover the original coordinates:
+
+- $\text{row}_t(i)$: the row within the padded table (offset from that column's start)
+- $\text{col}_t(i)$: which column $i$ belongs to (found by comparing $i$ against cumulative heights)
+
+For example, with heights $(16, 16, 256)$, the cumulative heights are $(0, 16, 32)$. Index $i = 40$ falls in column 2 (since $32 \leq 40 < 288$) at row $40 - 32 = 8$.
 
 The prover commits to:
 
@@ -10773,11 +10780,13 @@ The key equation translates this into a sum over the dense array:
 
 $$\tilde{p}(z_r, z_c) = \sum_{i \in \{0,1\}^m} q(i) \cdot \widetilde{\text{eq}}(\text{row}(i), z_r) \cdot \widetilde{\text{eq}}(\text{col}(i), z_c)$$
 
-Read this as follows: for each dense index $i$, include $q(i)$ if index $i$ corresponds to the requested (row, column) pair. The $\widetilde{\text{eq}}$ terms act as selectors, where $\widetilde{\text{eq}}(\text{col}(i), z_c)$ picks out entries from the right table and $\widetilde{\text{eq}}(\text{row}(i), z_r)$ picks out entries from the right row.
+Read this as follows: for each dense index $i$, include $q(i)$ if index $i$ corresponds to the requested (row, column) pair. The $\widetilde{\text{eq}}$ terms act as selectors, where $\widetilde{\text{eq}}(\text{col}(i), z_c)$ picks out entries from the right table and $\widetilde{\text{eq}}(\text{row}(i), z_r)$ picks out entries from the right row. The product of two $\widetilde{\text{eq}}$ terms enforces *double selection*: a term contributes only when dense index $i$ maps to both the correct row and the correct column.
 
 This is a sum over $M$ terms and exactly the sum-check form we've used throughout the chapter. The prover runs sum-check; at the end, the verifier needs $\tilde{q}(r)$ at a random point (handled by the underlying PCS) and the selector function evaluated at that point.
 
-The selector function (despite involving $\text{row}(i)$ and $\text{col}(i)$) is efficiently computable, since it's a simple comparison of $i$ against the cumulative heights. This comparison can be done by a small read-once branching program (essentially a specialized circuit that checks if an index falls within a specific range using very few operations). This means its multilinear extension evaluates in $O(m \cdot 2^k)$ field operations.
+The selector function (despite involving $\text{row}_t(i)$ and $\text{col}_t(i)$) is efficiently computable, since it's a simple comparison of $i$ against the cumulative heights. This comparison can be done by a small read-once branching program (essentially a specialized circuit that checks if an index falls within a specific range using very few operations). This means its multilinear extension evaluates in $O(m \cdot 2^k)$ field operations.
+
+> **Remark (Batching selector evaluations).** During sum-check, the verifier must evaluate the selector function $\hat{f}_t$ at each round's challenge point. With $m$ rounds, that's $m$ evaluations at $O(2^k)$ each, totaling $O(m \cdot 2^k)$. A practical optimization: the prover claims all $m$ evaluations upfront, and the verifier batches them via random linear combination. Sample random $\alpha$, check $\sum_j \alpha^j \hat{f}_t(r_j) = \sum_j \alpha^j y_j$ where $y_j$ are the claimed values. The left side collapses to a single $\hat{f}_t$ evaluation at a combined point. Cost drops from $O(m \cdot 2^k)$ to $O(m + 2^k)$.
 
 ### The Payoff
 
@@ -10844,6 +10853,7 @@ Commit to as little as possible. Not zero, since succinctness requires some comm
 
 **The payoff:**
 A zkVM with $2^{32}$ addressable memory, dozens of instruction types, and millions of cycles commits roughly the same amount per cycle regardless of memory size or instruction mix. The commitment cost tracks operations, not capacity. Memory is free, instruction variety is free, and only actual computation costs.
+
 
 
 
