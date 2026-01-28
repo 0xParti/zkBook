@@ -1132,7 +1132,7 @@ This paradigm appears in every major ZK system:
 
 In late 1989, the field of complexity theory was stuck.
 
-Researchers believed that Interactive Proofs were a relatively weak tool, capable of verifying only a handful of graph problems. The idea that they could verify hard counting problems like "how many assignments satisfy this formula" seemed laughable. The consensus was clear: interaction helped, but not by much.
+Researchers believed that Interactive Proofs were a relatively weak tool, capable of verifying only a handful of graph problems. The consensus was clear: interaction helped, but not by much.
 
 Then came the email.
 
@@ -1140,15 +1140,9 @@ Noam Nisan, a master's student at Hebrew University, sent a draft to Lance Fortn
 
 When the paper was released, it didn't just solve a problem. It caused a crisis. The result implied that "proofs" were far more powerful than anyone had imagined. Within weeks, Adi Shamir (the "S" in RSA) used the same technique to prove IP = PSPACE: interactive proofs could verify any problem solvable with polynomial memory, even if finding the solution took eons.
 
-The engine powering this revolution was the protocol they discovered. They called it the **sum-check protocol**.
+The engine powering this revolution was a single elegant idea: the **sum-check protocol**.
 
-Here's the paradox it resolves:
-
-> Verify a sum of $2^n$ terms by checking $O(n)$ values? Impossible. The prover claims the sum is $H$, but computing it yourself requires evaluating a function at every point of an exponentially large domain. Even if each evaluation takes constant time, you'd need $2^{100}$ operations for a 100-variable polynomial. Centuries of computation, just to check someone's arithmetic.
->
-> And yet, there is a way.
-
-The sum-check protocol takes a claim that seems fundamentally expensive to verify, the sum of a polynomial over all points of the boolean hypercube, and reduces it to something trivial: a single evaluation at a random point. The verifier's work scales *linearly* with the number of variables, not exponentially with the size of the domain.
+The sum-check protocol takes a claim that seems fundamentally expensive to verify, the sum of a polynomial over all points of a high-dimensional domain, and reduces it to something trivial: a single evaluation at a random point. The verifier's work scales *linearly* with the number of variables, not exponentially with the size of the domain.
 
 This chapter develops the sum-check protocol from first principles. We'll see exactly how the protocol works, why it's sound, and how any lie propagates through the protocol until it becomes a simple falsehood the verifier can catch. Along the way, we'll trace through complete worked examples with actual field values, because this protocol is too important to understand only abstractly.
 
@@ -1160,7 +1154,7 @@ Suppose a prover claims to know the value of the following sum:
 
 $$H = \sum_{b_1 \in \{0,1\}} \sum_{b_2 \in \{0,1\}} \cdots \sum_{b_\nu \in \{0,1\}} g(b_1, b_2, \ldots, b_\nu)$$
 
-Here $g$ is a $\nu$-variate polynomial over a finite field $\mathbb{F}$, and the sum ranges over all $2^\nu$ points of the **boolean hypercube** $\{0,1\}^\nu$. The prover says the answer is $H$. Do you believe it?
+Here $g$ is a $\nu$-variate polynomial over a finite field $\mathbb{F}$, and the sum ranges over all $2^\nu$ points of the **boolean hypercube** $\{0,1\}^\nu$: the set of all binary strings of length $\nu$. Think of it as the corners of a $\nu$-dimensional cube, where each coordinate is either 0 or 1. For $\nu = 3$, these are the eight vertices $(0,0,0), (0,0,1), \ldots, (1,1,1)$. The prover says the answer is $H$. Do you believe it?
 
 A naive verifier would evaluate $g$ at every point of the hypercube and add up the results. But this requires $2^\nu$ evaluations, exponential in the number of variables. For $\nu = 100$, this is hopelessly infeasible.
 
@@ -1210,7 +1204,15 @@ The verifier performs two checks:
 
 1. **Consistency check**: Verify that $g_1(0) + g_1(1) = H$. This ensures the prover's polynomial is consistent with the claimed total sum.
 
-2. **Degree check**: Verify that $g_1$ has degree at most $d$ in $X_1$. This is essential for soundness; without it, the protocol breaks completely.
+2. **Degree check**: Verify that $g_1$ has degree at most $d$ in $X_1$. This is essential for soundness; without it, the protocol breaks completely. (We'll see why shortly.)
+
+If either check fails, the verifier rejects. Otherwise, she samples a random field element $r_1 \leftarrow \mathbb{F}$ and sends it to the prover.
+
+**The implicit claim**: The verifier now evaluates the prover's polynomial at this random point, computing $V_1 = g_1(r_1)$. This value represents what the prover is *implicitly* asserting about a reduced sum. The verifier doesn't compute this sum herself; she simply records what the prover's polynomial claims it to be. This $V_1$ becomes the target for round 2: the prover must now justify that the sum over $2^{\nu-1}$ points, with the first variable fixed to $r_1$, actually equals $V_1$.
+
+The key observation: the verifier has now *reduced* the original claim about a sum over $2^\nu$ points to a new claim about a sum over $2^{\nu-1}$ points. Specifically, the prover is now implicitly claiming that:
+
+$$g_1(r_1) = \sum_{(b_2, \ldots, b_\nu) \in \{0,1\}^{\nu-1}} g(r_1, b_2, \ldots, b_\nu)$$
 
 **Why the degree check matters**: The soundness argument relies on Schwartz-Zippel: two *distinct* degree-$d$ polynomials agree on at most $d$ points, so a random evaluation catches the difference with probability $\geq 1 - d/|\mathbb{F}|$. But what if the prover sends a high-degree polynomial instead?
 
@@ -1219,14 +1221,6 @@ The verifier performs two checks:
 Without a degree bound, the prover is a wizard. He can conjure a polynomial that passes through the lie at $x = 0$ and $x = 1$, yet looks exactly like the honest polynomial everywhere else. A degree-$(|\mathbb{F}| - 1)$ polynomial can match $s_1$ at every point except 0 and 1, making it indistinguishable from the honest polynomial at any random challenge $r_1 \notin \{0, 1\}$.
 
 The degree bound is the handcuffs. It forces the polynomial to be *stiff*. If it must pass through the wrong sum, its stiffness forces it to miss the honest polynomial almost everywhere else. Specifically: if the prover must send a degree-$d$ polynomial, Lagrange interpolation on $d+1$ points fully determines it. The prover cannot simultaneously satisfy $g_1(0) + g_1(1) = H$ and have $g_1$ agree with $s_1$ at more than $d$ points (unless $g_1 = s_1$, which requires $H = H^*$).
-
-If either check fails, the verifier rejects. Otherwise, she samples a random challenge $r_1 \leftarrow \mathbb{F}$ and sends it to the prover.
-
-**The implicit claim**: After sampling $r_1$, the verifier holds the value $V_1 = g_1(r_1)$. This value represents what the prover is *implicitly* asserting about the reduced sum. The verifier doesn't compute this sum herself; she simply records what the prover's polynomial claims it to be. This $V_1$ becomes the target for round 2: the prover must now justify that the sum over $2^{\nu-1}$ points, with the first variable fixed to $r_1$, actually equals $V_1$.
-
-The key observation: the verifier has now *reduced* the original claim about a sum over $2^\nu$ points to a new claim about a sum over $2^{\nu-1}$ points. Specifically, the prover is now implicitly claiming that:
-
-$$g_1(r_1) = \sum_{(b_2, \ldots, b_\nu) \in \{0,1\}^{\nu-1}} g(r_1, b_2, \ldots, b_\nu)$$
 
 ### Round $j$ (for $j = 2, \ldots, \nu$)
 
@@ -1357,10 +1351,9 @@ Each round tightens the trap. The second lie must be consistent with the first. 
 The prover's only hope is that every random challenge happens to land on a point where the cheating polynomial agrees with the true one. For degree-$d$ polynomials over a field of size $|\mathbb{F}|$, this probability is at most $d/|\mathbb{F}|$ per round, negligible in cryptographic settings.
 
 
-
 ## Application: Counting Satisfying Assignments (#SAT)
 
-The sum-check protocol becomes truly powerful when combined with **arithmetization**: the process of translating computational problems into polynomial form. Let's see how to use sum-check to verify the count of satisfying assignments to a boolean formula.
+The sum-check protocol becomes truly powerful when combined with **arithmetization**: the process of translating discrete, combinatorial problems into the language of polynomials over finite fields. We touched on #SAT in Chapter 2 as motivation for why polynomials matter in complexity theory. Now we see exactly how the translation works and why it enables efficient verification. The full theory of arithmetization will occupy later chapters; for now, we need just enough to see sum-check in action.
 
 **The #SAT problem**: Given a boolean formula $\phi$ with $\nu$ variables, count how many of the $2^\nu$ possible assignments make $\phi$ true.
 
@@ -1401,7 +1394,7 @@ Over $\{0,1\}^\nu$, this product equals 1 if all clauses are satisfied and 0 oth
 
 The number of satisfying assignments is:
 
-$$\#SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in \{0,1\}^\nu} g_\phi(b_1, \ldots, b_\nu)$$
+$$\text{\#}SAT(\phi) = \sum_{(b_1, \ldots, b_\nu) \in \{0,1\}^\nu} g_\phi(b_1, \ldots, b_\nu)$$
 
 This is exactly a sum over the boolean hypercube! The prover can use the sum-check protocol to convince the verifier of this count.
 
@@ -1439,59 +1432,6 @@ $$\#SAT(\phi) = \sum_{(b_1, b_2) \in \{0,1\}^2} g_\phi(b_1, b_2) = 0 + 1 + 0 + 1
 The formula has exactly 2 satisfying assignments: $(0,1)$ and $(1,1)$ (both require $x_2 = 1$).
 
 The prover uses sum-check to convince the verifier of this count. The polynomial $g_\phi$ has degree 2 in each variable (degree 4 total), so each round polynomial has degree at most 2, requiring 3 field elements per round.
-
-
-
-## The Protocol Flow: A Visual Guide
-
-The following diagram traces the claim reduction through each round:
-
-```
-+------------------------------------------------------------------+
-|  INITIAL CLAIM: H = sum of g(b_1, b_2, ..., b_v) over 2^v points |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 1: Prover sends g_1(X_1)                                  |
-|                                                                  |
-|  Verifier checks: g_1(0) + g_1(1) = H                            |
-|  Verifier picks random r_1                                       |
-|  New claim: g_1(r_1) = sum of g(r_1, b_2, ..., b_v)              |
-|             over 2^(v-1) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND 2: Prover sends g_2(X_2)                                  |
-|                                                                  |
-|  Verifier checks: g_2(0) + g_2(1) = g_1(r_1)                     |
-|  Verifier picks random r_2                                       |
-|  New claim: g_2(r_2) = sum of g(r_1, r_2, b_3, ..., b_v)         |
-|             over 2^(v-2) points                                  |
-+------------------------------------------------------------------+
-                               |
-                               v
-                             . . .
-                               |
-                               v
-+------------------------------------------------------------------+
-|  ROUND v: Prover sends g_v(X_v)                                  |
-|                                                                  |
-|  Verifier checks: g_v(0) + g_v(1) = g_{v-1}(r_{v-1})             |
-|  Verifier picks random r_v                                       |
-|  Final claim: g_v(r_v) = g(r_1, r_2, ..., r_v) -- a SINGLE point!|
-+------------------------------------------------------------------+
-                               |
-                               v
-+------------------------------------------------------------------+
-|  FINAL CHECK: Verifier evaluates g(r_1, ..., r_v) directly       |
-|                                                                  |
-|  Compare with g_v(r_v). If equal -> ACCEPT. Otherwise -> REJECT. |
-+------------------------------------------------------------------+
-```
-
-The reduction is exponential: $2^\nu \to 2^{\nu-1} \to 2^{\nu-2} \to \ldots \to 2^0 = 1$.
 
 
 
@@ -1573,28 +1513,6 @@ The prover sends only $(c_0, c_2, c_3, \ldots, c_d)$, and the verifier recovers 
 For the common case of multilinear polynomials ($d = 1$), this halves communication: one field element per round instead of two.
 
 **Soundness error**: As computed earlier, the probability that a cheating prover succeeds is at most $\nu d / |\mathbb{F}|$. For a 256-bit field and reasonable values of $\nu$ and $d$, this is negligible.
-
-
-
-## A Bridge to Physics: Partition Functions
-
-There's a striking parallel between sum-check and statistical mechanics that hints at something deeper.
-
-In physics, the **partition function** $Z$ governs the thermodynamics of a system:
-$$Z = \sum_{\text{all microstates } s} e^{-E(s)/kT}$$
-
-This sum ranges over every possible configuration of a physical system; for $n$ particles that can each be in one of two states, that's $2^n$ microstates. Sound familiar?
-
-The sum-check protocol verifies:
-$$H = \sum_{(b_1, \ldots, b_\nu) \in \{0,1\}^\nu} g(b_1, \ldots, b_\nu)$$
-
-Both are exponential sums that seem intractable yet encode essential global information. In physics, $Z$ determines free energy, entropy, and phase behavior. In verification, $H$ determines whether a computation was performed correctly.
-
-The deep connection: both sums have **structure** that can be exploited. Statistical physicists don't enumerate $2^n$ microstates; they use techniques like mean-field theory, renormalization, or Monte Carlo sampling to extract macroscopic properties. Sum-check exploits a different kind of structure, polynomial smoothness, to reduce the exponential sum to a linear-round protocol.
-
-The multilinear extension is like finding a "free energy" formulation: a smooth interpolation that captures the same information as the discrete sum, but admits efficient manipulation. In both domains, the art is finding the right representation that makes the intractable tractable.
-
-This isn't merely analogy. Recent work has explored using sum-check techniques to verify approximate computation of partition functions, and conversely, using insights from statistical physics (like belief propagation) to understand constraint satisfaction problems that arise in arithmetization. The mathematics of exponential sums connects these seemingly distant fields.
 
 
 
